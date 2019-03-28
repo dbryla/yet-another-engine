@@ -7,4 +7,10 @@ public interface Subject {
   String getName();
 
   boolean isTerminated();
+
+  int getHealthPoints();
+
+  int getArmorClass();
+
+  Subject of(int healthPoints);
 }

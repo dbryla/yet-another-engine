@@ -26,14 +26,27 @@ public class InMemoryStateMachine implements StateMachine {
 
   @Override
   public StateMachine execute(Action action) {
-    getNextSubject().ifPresent(nextSubject -> {
-      if (!action.getSourceName().equals(nextSubject.getName())) {
-        throw new IncorrectStateException("Can't invoke action from different subject then next one.");
-      }
-      apply(action.invoke(nextSubject, getTargets(action)));
+    getNextSubject().ifPresent(subject -> {
+      verifySource(action, subject);
+      invokeOperation(action, subject);
       moveToNextSubject();
     });
     return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  private void invokeOperation(Action action, Subject subject) {
+    try {
+      apply(action.getOperation().invoke(subject, getTargets(action)));
+    } catch (UnsupportedGameOperationException e) {
+      throw new IncorrectStateException("Couldn't invoke operation on targets.", e);
+    }
+  }
+
+  private void verifySource(Action action, Subject subject) {
+    if (!action.getSourceName().equals(subject.getName())) {
+      throw new IncorrectStateException("Can't invoke action from different subject then next one.");
+    }
   }
 
   private Subject[] getTargets(Action action) {
@@ -66,6 +79,6 @@ public class InMemoryStateMachine implements StateMachine {
 
   @Override
   public boolean isInTerminalState() {
-    return subjectsForAction.isEmpty();
+    return subjectsForAction.size() == 1 || subjectsForAction.isEmpty();
   }
 }

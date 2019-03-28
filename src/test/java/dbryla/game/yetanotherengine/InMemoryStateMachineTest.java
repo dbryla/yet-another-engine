@@ -21,22 +21,21 @@ class InMemoryStateMachineTest {
   private static final String SUBJECT_2_NAME = "subject2";
 
   @Test
-  void shouldExecuteActionOnNextSubject() {
+  void shouldExecuteActionOnNextSubject() throws UnsupportedGameOperationException {
     Subject subject = givenSubjectOne();
-    Action action = mock(Action.class);
-    when(action.getSourceName()).thenReturn(SUBJECT_1_NAME);
+    Operation operation = mock(Operation.class);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation);
     StateMachine stateMachine = new InMemoryStateMachine(List.of(SUBJECT_1_NAME), Map.of(SUBJECT_1_NAME, subject));
 
     stateMachine.execute(action);
 
-    verify(action).invoke(eq(subject));
+    verify(operation).invoke(eq(subject));
   }
 
   @Test
   void shouldThrowExceptionWhenExecutingActionFromDifferentThanNextSubject() {
     Subject subject = givenSubjectOne();
-    Action action = mock(Action.class);
-    when(action.getSourceName()).thenReturn(SUBJECT_2_NAME);
+    Action action = new Action(SUBJECT_2_NAME, null, null);
     StateMachine stateMachine = new InMemoryStateMachine(List.of(SUBJECT_1_NAME), Map.of(SUBJECT_1_NAME, subject));
 
     assertThrows(IncorrectStateException.class, () -> stateMachine.execute(action));
@@ -52,8 +51,8 @@ class InMemoryStateMachineTest {
   void shouldMoveCursorToNextSubjectAfterExecutionOfAction() {
     Subject subject1 = givenSubjectOne();
     Subject subject2 = givenSubjectTwo();
-    Action action = mock(Action.class);
-    when(action.getSourceName()).thenReturn(SUBJECT_1_NAME);
+    Operation operation = mock(Operation.class);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation);
     StateMachine stateMachine = new InMemoryStateMachine(
         List.of(SUBJECT_1_NAME, SUBJECT_2_NAME),
         Map.of(SUBJECT_1_NAME, subject1, SUBJECT_2_NAME, subject2));
@@ -81,10 +80,9 @@ class InMemoryStateMachineTest {
   void shouldMoveCursorToBeginningAfterExecutionOfLastAction() {
     Subject subject1 = givenSubjectOne();
     Subject subject2 = givenSubjectTwo();
-    Action action1 = mock(Action.class);
-    when(action1.getSourceName()).thenReturn(SUBJECT_1_NAME);
-    Action action2 = mock(Action.class);
-    when(action2.getSourceName()).thenReturn(SUBJECT_2_NAME);
+    Operation operation = mock(Operation.class);
+    Action action1 = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation);
+    Action action2 = new Action(SUBJECT_2_NAME, Collections.emptyList(), operation);
     StateMachine stateMachine = new InMemoryStateMachine(
         List.of(SUBJECT_1_NAME, SUBJECT_2_NAME),
         Map.of(SUBJECT_1_NAME, subject1, SUBJECT_2_NAME, subject2)
@@ -96,7 +94,7 @@ class InMemoryStateMachineTest {
   }
 
   @Test
-  void shouldExecuteActionOnEveryTarget() {
+  void shouldExecuteActionOnEveryTarget() throws UnsupportedGameOperationException {
     Subject subject = givenSubjectOne();
     String target1Name = "target_name1";
     Subject target1 = mock(Subject.class);
@@ -104,16 +102,15 @@ class InMemoryStateMachineTest {
     String target2Name = "target_name2";
     Subject target2 = mock(Subject.class);
     when(target2.getName()).thenReturn(target2Name);
-    Action action = mock(Action.class);
-    when(action.getSourceName()).thenReturn(SUBJECT_1_NAME);
-    when(action.getTargetNames()).thenReturn(List.of(target1Name, target2Name));
+    Operation operation = mock(Operation.class);
+    Action action = new Action(SUBJECT_1_NAME, List.of(target1Name, target2Name), operation);
     StateMachine stateMachine = new InMemoryStateMachine(
         List.of(SUBJECT_1_NAME, target1Name, target2Name),
         Map.of(SUBJECT_1_NAME, subject, target1Name, target1, target2Name, target2));
 
     stateMachine.execute(action);
 
-    verify(action).invoke(eq(subject), eq(target1), eq(target2));
+    verify(operation).invoke(eq(subject), eq(target1), eq(target2));
   }
 
   @Test
@@ -131,12 +128,12 @@ class InMemoryStateMachineTest {
   }
 
   @Test
-  void shouldTerminateIfAllSubjectsWereTerminated() {
+  void shouldTerminateIfAllSubjectsWereTerminated() throws UnsupportedGameOperationException {
     Subject subject = givenSubjectOne();
     when(subject.isTerminated()).thenReturn(true);
-    Action action = mock(Action.class);
-    when(action.getSourceName()).thenReturn(SUBJECT_1_NAME);
-    when(action.invoke(eq(subject))).thenReturn(Set.of(subject));
+    Operation operation = mock(Operation.class);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation);
+    when(operation.invoke(eq(subject))).thenReturn(Set.of(subject));
     StateMachine stateMachine = new InMemoryStateMachine(new LinkedList<>(List.of(SUBJECT_1_NAME)), new HashMap<>(Map.of(SUBJECT_1_NAME, subject)));
 
     stateMachine.execute(action);

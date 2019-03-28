@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
 
+@Component
 public class StateMachineFactory {
 
   public StateMachine createInMemoryStateMachine(Set<Subject> subjects, Strategy strategy) {

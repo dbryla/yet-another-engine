@@ -1,21 +1,19 @@
 package dbryla.game.yetanotherengine;
 
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class StateMachineFactoryTest {
@@ -23,38 +21,38 @@ class StateMachineFactoryTest {
   @Mock
   private Strategy strategy;
 
-  private final StateMachineFactory stateMachineFactory = new StateMachineFactory();
+  @Mock
+  private StateStorage stateStorage;
+
+  @InjectMocks
+  private StateMachineFactory stateMachineFactory;
 
   @Test
-  void shouldOrderSubjectsByInitiativeAndAssignSubjectsStateAfterInitialization() {
-    String subject1name = "subject1";
+  void shouldCalculateInitiativesBasedOnStrategy() {
     Subject subject1 = mock(Subject.class);
-    when(subject1.getName()).thenReturn(subject1name);
-    String subject2name = "subject2";
     Subject subject2 = mock(Subject.class);
-    when(subject2.getName()).thenReturn(subject2name);
-    lenient().when(strategy.calculateInitiative(eq(subject1))).thenReturn(1);
-    lenient().when(strategy.calculateInitiative(eq(subject2))).thenReturn(10);
+    when(stateStorage.findAll()).thenReturn(List.of(subject1, subject2));
 
-    StateMachine stateMachine = stateMachineFactory.createInMemoryStateMachine(Set.of(subject1, subject2), strategy);
+    stateMachineFactory.createInMemoryStateMachine(strategy);
 
-    assertThat(stateMachine.getNextSubject().get()).isEqualTo(subject2);
-    assertThat(stateMachine.getSubjectsState()).contains(new SimpleEntry<>(subject1name, subject1), new SimpleEntry<>(subject2name, subject2));
+    verify(strategy).calculateInitiative(eq(subject1));
+    verify(strategy).calculateInitiative(eq(subject2));
   }
 
   @Test
-  void shouldThrowExceptionWhileInitializingWithNoSubjects() {
-    assertThrows(IncorrectStateException.class, () -> stateMachineFactory.createInMemoryStateMachine(Collections.emptySet(), strategy));
-  }
+  void shouldInitializeStateMachineInNotTerminalState() {
+    Subject subject1 = mock(Subject.class);
+    Subject subject2 = mock(Subject.class);
+    when(stateStorage.findAll()).thenReturn(List.of(subject1, subject2));
 
-  @Test
-  void shouldThrowExceptionWhileInitializingWithNullSet() {
-    assertThrows(IncorrectStateException.class, () -> stateMachineFactory.createInMemoryStateMachine(null, strategy));
+    StateMachine stateMachine = stateMachineFactory.createInMemoryStateMachine(strategy);
+
+    assertThat(stateMachine.isInTerminalState()).isFalse();
   }
 
   @Test
   void shouldThrowExceptionWhileInitializingWithNullStrategy() {
-    assertThrows(IncorrectStateException.class, () -> stateMachineFactory.createInMemoryStateMachine(Set.of(mock(Subject.class)), null));
+    assertThrows(IncorrectStateException.class, () -> stateMachineFactory.createInMemoryStateMachine(null));
   }
 
 }

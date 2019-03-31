@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -12,10 +12,12 @@ import org.springframework.stereotype.Component;
 @Profile("cli")
 public class Cli implements CommandLineRunner {
 
+  private final StateStorage stateStorage;
   private final StateMachineFactory stateMachineFactory;
 
   @Autowired
-  public Cli(StateMachineFactory stateMachineFactory) {
+  public Cli(StateStorage stateStorage, StateMachineFactory stateMachineFactory) {
+    this.stateStorage = stateStorage;
     this.stateMachineFactory = stateMachineFactory;
   }
 
@@ -25,8 +27,10 @@ public class Cli implements CommandLineRunner {
     Operation operation = new AttackOperation(System.out::println);
     String player1 = "Clemens";
     String player2 = "Maria";
+    stateStorage.save(new Fighter(player1));
+    stateStorage.save(new Fighter(player2));
     StateMachine stateMachine = stateMachineFactory
-        .createInMemoryStateMachine(Set.of(new Fighter(player1), new Fighter(player2)), subject -> random.nextInt(10));
+        .createInMemoryStateMachine(subject -> random.nextInt(10));
     while (!stateMachine.isInTerminalState()) {
       stateMachine.getNextSubject().ifPresent(subject -> {
             if (player1.equals(subject.getName())) {
@@ -36,7 +40,7 @@ public class Cli implements CommandLineRunner {
             }
           }
       );
-      System.out.println(stateMachine.getSubjectsState());
+      System.out.println(stateStorage.findAll());
     }
   }
 }

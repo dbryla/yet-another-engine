@@ -1,5 +1,8 @@
 package dbryla.game.yetanotherengine;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public class AttackEvent implements Event {
 
   private final String message;

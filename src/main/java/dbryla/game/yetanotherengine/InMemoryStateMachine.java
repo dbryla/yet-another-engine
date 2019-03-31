@@ -1,19 +1,18 @@
 package dbryla.game.yetanotherengine;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 public class InMemoryStateMachine implements StateMachine {
 
-  private List<String> subjectsForAction;
-  private final Map<String, Subject> subjectsState;
+  private final List<String> subjectsForAction;
+  private final StateStorage stateStorage;
   private int nextSubjectIndex = 0;
 
-  public InMemoryStateMachine(List<String> subjectsForAction, Map<String, Subject> subjectsState) {
+  public InMemoryStateMachine(List<String> subjectsForAction, StateStorage stateStorage) {
     this.subjectsForAction = subjectsForAction;
-    this.subjectsState = subjectsState;
+    this.stateStorage = stateStorage;
   }
 
   @Override
@@ -21,7 +20,7 @@ public class InMemoryStateMachine implements StateMachine {
     if (subjectsForAction.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(subjectsState.get(subjectsForAction.get(nextSubjectIndex)));
+    return stateStorage.findByName(subjectsForAction.get(nextSubjectIndex));
   }
 
   @Override
@@ -52,13 +51,15 @@ public class InMemoryStateMachine implements StateMachine {
   private Subject[] getTargets(Action action) {
     return action.getTargetNames()
         .stream()
-        .map(subjectsState::get)
+        .map(stateStorage::findByName)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .toArray(Subject[]::new);
   }
 
   private void apply(Set<Subject> changedSubjects) {
     changedSubjects.forEach(subject -> {
-      subjectsState.put(subject.getName(), subject);
+      stateStorage.save(subject);
       if (subject.isTerminated()) {
         subjectsForAction.remove(subject.getName());
       }
@@ -70,11 +71,6 @@ public class InMemoryStateMachine implements StateMachine {
     if (nextSubjectIndex == subjectsForAction.size()) {
       nextSubjectIndex = 0;
     }
-  }
-
-  @Override
-  public Map<String, Subject> getSubjectsState() {
-    return subjectsState;
   }
 
   @Override

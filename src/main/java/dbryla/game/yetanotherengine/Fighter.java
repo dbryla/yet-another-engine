@@ -7,14 +7,17 @@ public class Fighter implements Subject {
 
   private final String name;
   private int healthPoints = 10;
+  private final String affiliation;
 
-  public Fighter(String name) {
+  public Fighter(String name, String affiliation) {
     this.name = name;
+    this.affiliation = affiliation;
   }
 
-  private Fighter(String name, int healthPoints) {
+  private Fighter(String name, String affiliation, int healthPoints) {
     this.name = name;
     this.healthPoints = healthPoints;
+    this.affiliation = affiliation;
   }
 
   @Override
@@ -44,7 +47,17 @@ public class Fighter implements Subject {
 
   @Override
   public Subject of(int healthPoints) {
-    return new Fighter(this.name, healthPoints);
+    return new Fighter(this.name, this.affiliation, healthPoints);
+  }
+
+  @Override
+  public String getAffiliation() {
+    return affiliation;
+  }
+
+  @Override
+  public SubjectIdenitifier toIdentifier() {
+    return new SubjectIdenitifier(name, affiliation);
   }
 
   public int calculateAttackDamage() {

@@ -13,4 +13,8 @@ public interface Subject {
   int getArmorClass();
 
   Subject of(int healthPoints);
+
+  String getAffiliation();
+
+  SubjectIdenitifier toIdentifier();
 }

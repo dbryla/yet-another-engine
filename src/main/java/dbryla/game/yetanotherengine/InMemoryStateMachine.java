@@ -1,26 +1,24 @@
 package dbryla.game.yetanotherengine;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class InMemoryStateMachine implements StateMachine {
 
-  private final List<String> subjectsForAction;
   private final StateStorage stateStorage;
-  private int nextSubjectIndex = 0;
+  private final StepTracker stepTracker;
 
-  public InMemoryStateMachine(List<String> subjectsForAction, StateStorage stateStorage) {
-    this.subjectsForAction = subjectsForAction;
+  public InMemoryStateMachine(StepTracker stepTracker, StateStorage stateStorage) {
+    this.stepTracker = stepTracker;
     this.stateStorage = stateStorage;
   }
 
   @Override
   public Optional<Subject> getNextSubject() {
-    if (subjectsForAction.isEmpty()) {
+    Optional<String> nextSubjectName = stepTracker.getNextSubjectName();
+    if (nextSubjectName.isEmpty()) {
       return Optional.empty();
     }
-    return stateStorage.findByName(subjectsForAction.get(nextSubjectIndex));
+    return stateStorage.findByName(nextSubjectName.get());
   }
 
   @Override
@@ -28,7 +26,7 @@ public class InMemoryStateMachine implements StateMachine {
     getNextSubject().ifPresent(subject -> {
       verifySource(action, subject);
       invokeOperation(action, subject);
-      moveToNextSubject();
+      stepTracker.moveToNextSubject();
     });
     return this;
   }
@@ -61,20 +59,13 @@ public class InMemoryStateMachine implements StateMachine {
     changedSubjects.forEach(subject -> {
       stateStorage.save(subject);
       if (subject.isTerminated()) {
-        subjectsForAction.remove(subject.getName());
+        stepTracker.removeSubject(subject.toIdentifier());
       }
     });
   }
 
-  private void moveToNextSubject() {
-    nextSubjectIndex++;
-    if (nextSubjectIndex == subjectsForAction.size()) {
-      nextSubjectIndex = 0;
-    }
-  }
-
   @Override
   public boolean isInTerminalState() {
-    return subjectsForAction.size() == 1 || subjectsForAction.isEmpty();
+    return stepTracker.hasNoActionsToTrack();
   }
 }

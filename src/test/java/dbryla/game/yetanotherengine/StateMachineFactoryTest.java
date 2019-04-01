@@ -30,24 +30,15 @@ class StateMachineFactoryTest {
   @Test
   void shouldCalculateInitiativesBasedOnStrategy() {
     Subject subject1 = mock(Subject.class);
+    when(subject1.getAffiliation()).thenReturn("blue");
     Subject subject2 = mock(Subject.class);
+    when(subject2.getAffiliation()).thenReturn("green");
     when(stateStorage.findAll()).thenReturn(List.of(subject1, subject2));
 
     stateMachineFactory.createInMemoryStateMachine(strategy);
 
     verify(strategy).calculateInitiative(eq(subject1));
     verify(strategy).calculateInitiative(eq(subject2));
-  }
-
-  @Test
-  void shouldInitializeStateMachineInNotTerminalState() {
-    Subject subject1 = mock(Subject.class);
-    Subject subject2 = mock(Subject.class);
-    when(stateStorage.findAll()).thenReturn(List.of(subject1, subject2));
-
-    StateMachine stateMachine = stateMachineFactory.createInMemoryStateMachine(strategy);
-
-    assertThat(stateMachine.isInTerminalState()).isFalse();
   }
 
   @Test

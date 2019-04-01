@@ -27,8 +27,8 @@ public class Cli implements CommandLineRunner {
     Operation operation = new AttackOperation(System.out::println);
     String player1 = "Clemens";
     String player2 = "Maria";
-    stateStorage.save(new Fighter(player1));
-    stateStorage.save(new Fighter(player2));
+    stateStorage.save(new Fighter(player1, "blue"));
+    stateStorage.save(new Fighter(player2, "green"));
     StateMachine stateMachine = stateMachineFactory
         .createInMemoryStateMachine(subject -> random.nextInt(10));
     while (!stateMachine.isInTerminalState()) {

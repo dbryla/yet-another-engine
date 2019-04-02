@@ -1,18 +1,15 @@
 package dbryla.game.yetanotherengine;
 
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ToString
+@RequiredArgsConstructor
 public class Fighter implements Subject {
 
   private final String name;
-  private int healthPoints = 10;
   private final String affiliation;
-
-  public Fighter(String name, String affiliation) {
-    this.name = name;
-    this.affiliation = affiliation;
-  }
+  private int healthPoints = 10;
 
   private Fighter(String name, String affiliation, int healthPoints) {
     this.name = name;
@@ -56,8 +53,8 @@ public class Fighter implements Subject {
   }
 
   @Override
-  public SubjectIdenitifier toIdentifier() {
-    return new SubjectIdenitifier(name, affiliation);
+  public SubjectIdentifier toIdentifier() {
+    return new SubjectIdentifier(name, affiliation);
   }
 
   public int calculateAttackDamage() {
@@ -67,4 +64,39 @@ public class Fighter implements Subject {
   public int calculateHitRoll() {
     return DiceRoll.k20() + 3;
   }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  static class Builder {
+
+    private String name;
+    private String affiliation;
+    private int healthPoints;
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder affiliation(String affiliation) {
+      this.affiliation = affiliation;
+      return this;
+    }
+
+    public Builder healthPoints(int healthPoints) {
+      this.healthPoints = healthPoints;
+      return this;
+    }
+
+    public Fighter build() throws IncorrectAttributesException {
+      if (name == null || affiliation == null) {
+        throw new IncorrectAttributesException("Both name and affiliation attributes must be provided to builder.");
+      }
+      return new Fighter(name, affiliation, healthPoints);
+    }
+
+  }
+
 }

@@ -14,6 +14,12 @@ public class Action {
     this.operation = operation;
   }
 
+  public Action(String sourceName, String targetName, Operation operation) {
+    this.sourceName = sourceName;
+    this.targetNames = List.of(targetName);
+    this.operation = operation;
+  }
+
   public String getSourceName() {
     return sourceName;
   }

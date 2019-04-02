@@ -6,11 +6,11 @@ import java.util.Optional;
 
 public class InMemoryStepTracker implements StepTracker {
 
-  private final List<SubjectIdenitifier> subjectsForAction;
+  private final List<SubjectIdentifier> subjectsForAction;
   private final Map<String, Long> affiliationMap;
   private int nextSubjectIndex = 0;
 
-  public InMemoryStepTracker(List<SubjectIdenitifier> subjectsForAction, Map<String, Long> affiliationMap) {
+  public InMemoryStepTracker(List<SubjectIdentifier> subjectsForAction, Map<String, Long> affiliationMap) {
     this.subjectsForAction = subjectsForAction;
     this.affiliationMap = affiliationMap;
   }
@@ -24,9 +24,17 @@ public class InMemoryStepTracker implements StepTracker {
   }
 
   @Override
-  public void removeSubject(SubjectIdenitifier idenitifier) {
-    subjectsForAction.remove(idenitifier);
-    affiliationMap.computeIfPresent(idenitifier.getAffiliation(), (key, value) -> value > 1 ? value-- : null);
+  public void removeSubject(SubjectIdentifier identifier) {
+    moveCursorLeft(identifier);
+    subjectsForAction.remove(identifier);
+    affiliationMap.computeIfPresent(identifier.getAffiliation(), (key, value) -> value > 1 ? --value : null);
+  }
+
+  private void moveCursorLeft(SubjectIdentifier identifier) {
+    int index = subjectsForAction.indexOf(identifier);
+    if (index != -1 && index <= nextSubjectIndex) {
+      nextSubjectIndex--;
+    }
   }
 
   @Override

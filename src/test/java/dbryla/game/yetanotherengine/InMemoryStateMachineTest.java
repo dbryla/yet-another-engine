@@ -1,16 +1,22 @@
 package dbryla.game.yetanotherengine;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class InMemoryStateMachineTest {
@@ -42,7 +48,7 @@ class InMemoryStateMachineTest {
   @Test
   void shouldThrowExceptionWhenExecutingActionFromDifferentThanNextSubject() {
     Subject subject = givenSubjectOne();
-    Action action = new Action(SUBJECT_2_NAME, null, null);
+    Action action = new Action(SUBJECT_2_NAME, "", null);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByName(eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
     StateMachine stateMachine = new InMemoryStateMachine(stepTracker, stateStorage);
@@ -89,13 +95,6 @@ class InMemoryStateMachineTest {
   }
 
   @Test
-  void shouldNotReturnNextSubjectWhenThereIsNoAction() {
-    StateMachine stateMachine = new InMemoryStateMachine(stepTracker, stateStorage);
-
-    assertThat(stateMachine.getNextSubject()).isNotPresent();
-  }
-
-  @Test
   void shouldExecuteActionOnEveryTarget() throws UnsupportedGameOperationException {
     Subject subject = givenSubjectOne();
     String target1Name = "target_name1";
@@ -113,6 +112,13 @@ class InMemoryStateMachineTest {
     stateMachine.execute(action);
 
     verify(operation).invoke(eq(subject), eq(target1), eq(target2));
+  }
+
+  @Test
+  void shouldNotReturnNextSubjectWhenThereIsNoAction() {
+    StateMachine stateMachine = new InMemoryStateMachine(stepTracker, stateStorage);
+
+    assertThat(stateMachine.getNextSubject()).isNotPresent();
   }
 
   @Test

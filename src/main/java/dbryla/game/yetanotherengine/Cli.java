@@ -1,8 +1,6 @@
 package dbryla.game.yetanotherengine;
 
-import java.util.List;
 import java.util.Random;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -25,22 +23,38 @@ public class Cli implements CommandLineRunner {
   public void run(String... args) throws Exception {
     Random random = new Random();
     Operation operation = new AttackOperation(System.out::println);
-    String player1 = "Clemens";
-    String player2 = "Maria";
-    stateStorage.save(new Fighter(player1, "blue"));
-    stateStorage.save(new Fighter(player2, "green"));
+    final String player1 = "Clemens";
+    final String player2 = "Maria";
+    final String blueTeam = "blue";
+    stateStorage.save(new Fighter(player1, blueTeam));
+    stateStorage.save(new Fighter(player2, blueTeam));
+    final String greenTeam = "green";
+    final String enemy = "Borg";
+    Fighter enemyFighter = Fighter.builder()
+        .name(enemy)
+        .affiliation(greenTeam)
+        .healthPoints(30)
+        .build();
+    stateStorage.save(enemyFighter);
+    ArtificialIntelligence enemyAI = new ArtificialIntelligence(enemyFighter);
     StateMachine stateMachine = stateMachineFactory
         .createInMemoryStateMachine(subject -> random.nextInt(10));
     while (!stateMachine.isInTerminalState()) {
+      System.out.println(stateStorage.findAll());
       stateMachine.getNextSubject().ifPresent(subject -> {
-            if (player1.equals(subject.getName())) {
-              stateMachine.execute(new Action(player1, List.of(player2), operation));
-            } else {
-              stateMachine.execute(new Action(player2, List.of(player1), operation));
+            switch (subject.getName()) {
+              case player1:
+                stateMachine.execute(new Action(player1, enemy, operation));
+                break;
+              case player2:
+                stateMachine.execute(new Action(player2, enemy, operation));
+                break;
+              case enemy:
+                stateMachine.execute(enemyAI.nextAction(stateStorage));
             }
           }
       );
-      System.out.println(stateStorage.findAll());
     }
+    Presenter presenter = new ConsolePresenter(stateStorage);
   }
 }

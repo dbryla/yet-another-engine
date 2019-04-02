@@ -23,7 +23,7 @@ public class StateMachineFactory {
     if (strategy == null) {
       throw new IncorrectStateException("No strategy provided to state machine.");
     }
-    List<SubjectIdenitifier> subjectsForAction = StreamSupport
+    List<SubjectIdentifier> subjectsForAction = StreamSupport
         .stream(stateStorage.findAll().spliterator(), false)
         .sorted(Comparator.comparingInt(strategy::calculateInitiative).reversed())
         .map(Subject::toIdentifier)

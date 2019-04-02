@@ -16,5 +16,5 @@ public interface Subject {
 
   String getAffiliation();
 
-  SubjectIdenitifier toIdentifier();
+  SubjectIdentifier toIdentifier();
 }

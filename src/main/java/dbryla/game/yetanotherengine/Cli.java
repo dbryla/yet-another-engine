@@ -34,12 +34,11 @@ public class Cli implements CommandLineRunner {
   private final Operation operation = new AttackOperation(System.out::println);
   private String playerName;
 
-  @Autowired
-  public Cli(StateStorage stateStorage, StateMachineFactory stateMachineFactory) {
+  public Cli(StateStorage stateStorage, StateMachineFactory stateMachineFactory, Presenter presenter) {
     this.stateStorage = stateStorage;
     this.stateMachineFactory = stateMachineFactory;
+    this.presenter = presenter;
     ai = new ArtificialIntelligence(this.stateStorage, System.out::println);
-    presenter = new ConsolePresenter(this.stateStorage);
   }
 
   @Override

@@ -2,22 +2,19 @@ package dbryla.game.yetanotherengine.domain.subjects;
 
 import dbryla.game.yetanotherengine.domain.DiceRoll;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class Fighter implements Subject {
 
   private final String name;
   private final String affiliation;
   private int healthPoints = 10;
-
-  private Fighter(String name, String affiliation, int healthPoints) {
-    this.name = name;
-    this.healthPoints = healthPoints;
-    this.affiliation = affiliation;
-  }
+  private int armorClass = 10;
 
   @Override
   public int getInitiativeModifier() {
@@ -41,12 +38,12 @@ public class Fighter implements Subject {
 
   @Override
   public int getArmorClass() {
-    return 10;
+    return armorClass;
   }
 
   @Override
   public Subject of(int healthPoints) {
-    return new Fighter(this.name, this.affiliation, healthPoints);
+    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass);
   }
 
   @Override
@@ -64,7 +61,7 @@ public class Fighter implements Subject {
   }
 
   public int calculateHitRoll() {
-    return DiceRoll.k20() + 3;
+    return DiceRoll.k20();
   }
 
   public static Builder builder() {
@@ -75,7 +72,8 @@ public class Fighter implements Subject {
 
     private String name;
     private String affiliation;
-    private int healthPoints;
+    private int healthPoints = 10;
+    private int armorClass = 10;
 
     public Builder name(String name) {
       this.name = name;
@@ -92,11 +90,16 @@ public class Fighter implements Subject {
       return this;
     }
 
+    public Builder armorClass(int armorClass) {
+      this.armorClass = armorClass;
+      return this;
+    }
+
     public Fighter build() throws IncorrectAttributesException {
       if (name == null || affiliation == null) {
         throw new IncorrectAttributesException("Both name and affiliation attributes must be provided to builder.");
       }
-      return new Fighter(name, affiliation, healthPoints);
+      return new Fighter(name, affiliation, healthPoints, armorClass);
     }
 
   }

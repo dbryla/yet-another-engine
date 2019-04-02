@@ -5,8 +5,10 @@ import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
+@Component
 public class ConsolePresenter implements Presenter {
 
   private final StateStorage stateStorage;

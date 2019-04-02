@@ -1,8 +1,9 @@
 package dbryla.game.yetanotherengine;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import dbryla.game.yetanotherengine.domain.DiceRoll;
+import org.junit.jupiter.api.Test;
 
 class DiceRollTest {
 

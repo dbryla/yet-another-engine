@@ -1,5 +1,13 @@
 package dbryla.game.yetanotherengine;
 
+import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
+import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
+import dbryla.game.yetanotherengine.domain.subjects.Fighter;
+import dbryla.game.yetanotherengine.domain.operations.Operation;
+import dbryla.game.yetanotherengine.domain.state.StateMachine;
+import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
+import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -37,7 +45,8 @@ public class Cli implements CommandLineRunner {
         .healthPoints(30)
         .build();
     stateStorage.save(enemyFighter);
-    ArtificialIntelligence enemyAI = new ArtificialIntelligence(enemyFighter);
+    ArtificialIntelligence ai = new ArtificialIntelligence(stateStorage, System.out::println);
+    ai.initSubject(enemyFighter);
     StateMachine stateMachine = stateMachineFactory
         .createInMemoryStateMachine(subject -> random.nextInt(10));
     while (!stateMachine.isInTerminalState()) {
@@ -51,7 +60,7 @@ public class Cli implements CommandLineRunner {
                 stateMachine.execute(new Action(player2, enemy, operation));
                 break;
               case enemy:
-                stateMachine.execute(enemyAI.nextAction(stateStorage));
+                stateMachine.execute(ai.attackAction(enemy));
             }
           }
       );

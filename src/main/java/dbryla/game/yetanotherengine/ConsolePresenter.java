@@ -1,5 +1,7 @@
 package dbryla.game.yetanotherengine;
 
+import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.AllArgsConstructor;

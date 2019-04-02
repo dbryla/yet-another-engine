@@ -21,6 +21,7 @@ public class Cli implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
+    Presenter presenter = new ConsolePresenter(stateStorage);
     Random random = new Random();
     Operation operation = new AttackOperation(System.out::println);
     final String player1 = "Clemens";
@@ -40,7 +41,7 @@ public class Cli implements CommandLineRunner {
     StateMachine stateMachine = stateMachineFactory
         .createInMemoryStateMachine(subject -> random.nextInt(10));
     while (!stateMachine.isInTerminalState()) {
-      System.out.println(stateStorage.findAll());
+      presenter.showStatus();
       stateMachine.getNextSubject().ifPresent(subject -> {
             switch (subject.getName()) {
               case player1:
@@ -55,6 +56,7 @@ public class Cli implements CommandLineRunner {
           }
       );
     }
-    Presenter presenter = new ConsolePresenter(stateStorage);
+    presenter.showStatus();
+
   }
 }

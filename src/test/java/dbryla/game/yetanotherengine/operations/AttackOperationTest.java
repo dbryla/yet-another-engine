@@ -8,10 +8,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.domain.events.AttackEvent;
+import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.events.EventLog;
-import dbryla.game.yetanotherengine.domain.subjects.Fighter;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedAttackException;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
@@ -61,7 +61,7 @@ class AttackOperationTest {
   void shouldNotReturnChangesIfTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     Subject target = mock(Subject.class);
-    when(source.calculateHitRoll()).thenReturn(0);
+    when(source.calculateWeaponHitRoll()).thenReturn(0);
     when(target.getArmorClass()).thenReturn(10);
 
     Set<Subject> changes = operation.invoke(source, target);
@@ -97,7 +97,7 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventLog).send(eq(AttackEvent.success(source.getName(), target.getName(), true)));
+    verify(eventLog).send(eq(Event.success(source.getName(), target.getName(), true, source.getWeapon())));
   }
 
   @Test
@@ -112,18 +112,18 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventLog).send(eq(AttackEvent.success(source.getName(), target.getName(), false)));
+    verify(eventLog).send(eq(Event.success(source.getName(), target.getName(), false, source.getWeapon())));
   }
 
   @Test
   void shouldSendFailAttackEventWhenTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     Subject target = mock(Subject.class);
-    when(source.calculateHitRoll()).thenReturn(0);
+    when(source.calculateWeaponHitRoll()).thenReturn(0);
     when(target.getArmorClass()).thenReturn(10);
 
     operation.invoke(source, target);
 
-    verify(eventLog).send(eq(AttackEvent.fail(source.getName(), target.getName())));
+    verify(eventLog).send(eq(Event.fail(source.getName(), target.getName())));
   }
 }

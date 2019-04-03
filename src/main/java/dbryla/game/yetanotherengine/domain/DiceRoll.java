@@ -13,4 +13,12 @@ public class DiceRoll {
   public static int k20() {
     return random.nextInt(20) + 1;
   }
+
+  public static int k4() {
+    return random.nextInt(4) + 1;
+  }
+
+  public static int k10() {
+    return random.nextInt(10) + 1;
+  }
 }

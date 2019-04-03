@@ -1,13 +1,11 @@
 package dbryla.game.yetanotherengine.domain.spells;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.DAMAGE;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.SPELL_ATTACK;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNRESISTABLE;
-
 import dbryla.game.yetanotherengine.domain.DiceRoll;
-import java.util.function.Supplier;
 import lombok.Getter;
+
+import java.util.function.Supplier;
+
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.*;
 
 public enum Spell {
 

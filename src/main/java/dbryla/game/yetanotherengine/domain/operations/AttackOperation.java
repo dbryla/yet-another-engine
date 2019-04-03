@@ -1,10 +1,15 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import dbryla.game.yetanotherengine.domain.DiceRollModifier;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventLog;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -15,16 +20,19 @@ public class AttackOperation implements Operation<Subject, Subject> {
   @Override
   public Set<Subject> invoke(Subject source, Subject... targets) throws UnsupportedGameOperationException {
     verifyParams(source, targets);
+    Set<Subject> changes = new HashSet<>();
     Subject target = targets[0];
     int armorClass = target.getArmorClass();
-    int hitRoll = source.calculateWeaponHitRoll();
+    int hitRoll = getHitRoll(source, target);
     if (hitRoll < armorClass) {
       eventLog.send(Event.fail(source.getName(), target.getName()));
-      return Collections.emptySet();
+    } else {
+      int remainingHealthPoints = target.getHealthPoints() - source.calculateAttackDamage();
+      changes.add(target.of(remainingHealthPoints));
+      eventLog.send(Event.successAttack(source.getName(), target.getName(), remainingHealthPoints <= 0, source.getWeapon()));
     }
-    int remainingHealthPoints = target.getHealthPoints() - source.calculateAttackDamage();
-    eventLog.send(Event.success(source.getName(), target.getName(), remainingHealthPoints <= 0, source.getWeapon()));
-    return Set.of(target.of(remainingHealthPoints));
+    decreaseEffectDuration(source).ifPresent(changes::add);
+    return changes;
   }
 
   private void verifyParams(Subject source, Subject[] targets) throws UnsupportedAttackException {
@@ -34,5 +42,29 @@ public class AttackOperation implements Operation<Subject, Subject> {
     if (targets.length != 1) {
       throw new UnsupportedAttackException("Can't attack none or more than one target.");
     }
+  }
+
+  private int getHitRoll(Subject source, Subject target) {
+    if (source.getActiveEffect() != null) {
+      DiceRollModifier sourceRollModifier = source.getActiveEffect().getOwnerAsASource();
+      if (sourceRollModifier.equals(DiceRollModifier.DISADVANTAGE)) {
+        return sourceRollModifier.getDiceRollModifier();
+      }
+    }
+    if (target.getActiveEffect() != null) {
+      return target.getActiveEffect().getOwnerAsATarget().getDiceRollModifier();
+    }
+    return source.calculateWeaponHitRoll();
+  }
+
+  private Optional<Subject> decreaseEffectDuration(Subject source) {
+    if (source.getActiveEffect() != null) {
+      source.decreaseDurationOfActiveEffect();
+      if (source.getActiveEffectDurationInTurns() == 0) {
+        eventLog.send(Event.effectExpired(source));
+        return Optional.of(source.effectExpired());
+      }
+    }
+    return Optional.empty();
   }
 }

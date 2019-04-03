@@ -14,26 +14,28 @@ public class Mage extends BaseClass implements Subject {
   private final Spell spell;
 
   public Mage(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon, Spell spell) {
-    super(name, affiliation, healthPoints, armorClass, weapon);
+    super(name, affiliation, healthPoints, armorClass, weapon, null, 0);
     this.spell = spell;
   }
 
-  public Mage(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon, Spell spell, Effect... effects) {
-    super(name, affiliation, healthPoints, armorClass, weapon);
+  public Mage(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon, Spell spell, Effect effect, int effectDurationInTurns) {
+    super(name, affiliation, healthPoints, armorClass, weapon, effect, effectDurationInTurns);
     this.spell = spell;
-    for (Effect effect : effects) {
-      addNewEffect(effect);
-    }
   }
 
   @Override
   public Subject of(int healthPoints) {
-    return new Mage(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.spell);
+    return new Mage(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.spell, this.activeEffect, this.activeEffectDurationInTurns);
   }
 
   @Override
   public Subject of(Effect effect) {
-    return new Mage(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.spell, effect);
+    return new Mage(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.spell, effect, effect.getDurationInTurns());
+  }
+
+  @Override
+  public Subject effectExpired() {
+    return new Mage(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.spell);
   }
 
   public static Builder builder() {

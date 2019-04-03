@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.events.EventLog;
+import dbryla.game.yetanotherengine.domain.subjects.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedAttackException;
@@ -34,6 +35,7 @@ class AttackOperationTest {
   @Test
   void shouldReturnAttackedSubject() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getWeapon()).thenReturn(Weapon.SHORTSWORD);
     Subject target = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(target);
 
@@ -72,6 +74,7 @@ class AttackOperationTest {
   @Test
   void shouldChangeHealthPointsOfAttackedSubject() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getWeapon()).thenReturn(Weapon.SHORTSWORD);
     int attackDamage = 5;
     when(source.calculateAttackDamage()).thenReturn(attackDamage);
     Subject target = mock(Subject.class);
@@ -88,6 +91,7 @@ class AttackOperationTest {
   @Test
   void shouldSendSuccessAttackEventWhenTargetWasTerminated() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getWeapon()).thenReturn(Weapon.SHORTSWORD);
     int attackDamage = 10;
     when(source.calculateAttackDamage()).thenReturn(attackDamage);
     Subject target = mock(Subject.class);
@@ -97,12 +101,13 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventLog).send(eq(Event.success(source.getName(), target.getName(), true, source.getWeapon())));
+    verify(eventLog).send(eq(Event.successAttack(source.getName(), target.getName(), true, source.getWeapon())));
   }
 
   @Test
   void shouldSendSuccessAttackEventWhenTargetWasAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getWeapon()).thenReturn(Weapon.SHORTSWORD);
     int attackDamage = 5;
     when(source.calculateAttackDamage()).thenReturn(attackDamage);
     Subject target = mock(Subject.class);
@@ -112,7 +117,7 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventLog).send(eq(Event.success(source.getName(), target.getName(), false, source.getWeapon())));
+    verify(eventLog).send(eq(Event.successAttack(source.getName(), target.getName(), false, source.getWeapon())));
   }
 
   @Test

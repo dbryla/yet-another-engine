@@ -5,8 +5,11 @@ import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -18,7 +21,8 @@ public abstract class BaseClass implements Subject {
   protected final int healthPoints;
   protected final int armorClass;
   protected final Weapon weapon;
-  protected final Set<Effect> activeEffects = new HashSet<>();
+  protected final Effect activeEffect;
+  protected int activeEffectDurationInTurns;
 
   @Override
   public int getInitiativeModifier() {
@@ -74,7 +78,18 @@ public abstract class BaseClass implements Subject {
     return weapon;
   }
 
-  protected void addNewEffect(Effect effect) {
-    activeEffects.add(effect);
+  @Override
+  public Effect getActiveEffect() {
+    return activeEffect;
+  }
+
+  @Override
+  public int getActiveEffectDurationInTurns() {
+    return activeEffectDurationInTurns;
+  }
+
+  @Override
+  public void decreaseDurationOfActiveEffect() {
+    --activeEffectDurationInTurns;
   }
 }

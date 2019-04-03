@@ -11,25 +11,32 @@ public class Fighter extends BaseClass implements Subject {
 
   private static final int DEFAULT_FIGHTER_HP = 10;
 
+  @Deprecated
   public Fighter(String name, String affiliation) {
-    super(name, affiliation, DEFAULT_FIGHTER_HP, DEFAULT_ARMOR_CLASS, Weapon.SHORTSWORD);
+    this(name, affiliation, DEFAULT_FIGHTER_HP, DEFAULT_ARMOR_CLASS, Weapon.SHORTSWORD);
   }
 
-  public Fighter(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon, Effect... effects) {
-    super(name, affiliation, healthPoints, armorClass, weapon);
-    for (Effect effect: effects) {
-      addNewEffect(effect);
-    }
+  public Fighter(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon, Effect effect, int durationInTurns) {
+    super(name, affiliation, healthPoints, armorClass, weapon, effect, durationInTurns);
+  }
+
+  public Fighter(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon) {
+    super(name, affiliation, healthPoints, armorClass, weapon, null, 0);
   }
 
   @Override
   public Subject of(int healthPoints) {
-    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon);
+    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.activeEffect, this.activeEffectDurationInTurns);
   }
 
   @Override
   public Subject of(Effect effect) {
-    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, effect);
+    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, effect, effect.getDurationInTurns());
+  }
+
+  @Override
+  public Subject effectExpired() {
+    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon);
   }
 
   public static Builder builder() {

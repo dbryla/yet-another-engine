@@ -61,7 +61,7 @@ public class SpellCastOperation implements Operation<Mage, Subject> {
 
   private Subject successSpellCast(Mage source, Function<Subject, Subject> spellCast, Subject target) {
     Subject changedTarget = spellCast.apply(target);
-    eventLog.send(Event.success(source.getName(), changedTarget.getName(), changedTarget.getHealthPoints() <= 0, source.getSpell()));
+    eventLog.send(Event.successSpellCast(source.getName(), changedTarget.getName(), changedTarget.getHealthPoints() <= 0, source.getSpell()));
     return changedTarget;
   }
 }

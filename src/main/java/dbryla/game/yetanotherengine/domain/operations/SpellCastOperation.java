@@ -6,7 +6,7 @@ import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.SPELL_AT
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNRESISTABLE;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
-import dbryla.game.yetanotherengine.domain.events.EventLog;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
@@ -14,11 +14,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
+@Component
 public class SpellCastOperation implements Operation<Mage, Subject> {
 
-  private final EventLog eventLog;
+  private final EventHub eventHub;
 
   @Override
   public Set<Subject> invoke(Mage source, Subject[] targets) throws UnsupportedGameOperationException {
@@ -47,7 +49,7 @@ public class SpellCastOperation implements Operation<Mage, Subject> {
           if (source.getSpell().hitRoll() >= target.getArmorClass()) {
             changes.add(successSpellCast(source, spellCast, target));
           } else {
-            eventLog.send(Event.fail(source.getName(), target.getName()));
+            eventHub.send(Event.fail(source.getName(), target.getName()));
           }
         }
         break;
@@ -61,7 +63,7 @@ public class SpellCastOperation implements Operation<Mage, Subject> {
 
   private Subject successSpellCast(Mage source, Function<Subject, Subject> spellCast, Subject target) {
     Subject changedTarget = spellCast.apply(target);
-    eventLog.send(Event.successSpellCast(source.getName(), changedTarget.getName(), changedTarget.getHealthPoints() <= 0, source.getSpell()));
+    eventHub.send(Event.successSpellCast(source.getName(), changedTarget.getName(), changedTarget.getHealthPoints() <= 0, source.getSpell()));
     return changedTarget;
   }
 }

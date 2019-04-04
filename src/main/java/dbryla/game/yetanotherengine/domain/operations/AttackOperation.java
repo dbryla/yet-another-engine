@@ -2,20 +2,21 @@ package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.DiceRollModifier;
 import dbryla.game.yetanotherengine.domain.events.Event;
-import dbryla.game.yetanotherengine.domain.events.EventLog;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
+@Component
 public class AttackOperation implements Operation<Subject, Subject> {
 
-  private final EventLog eventLog;
+  private final EventHub eventHub;
 
   @Override
   public Set<Subject> invoke(Subject source, Subject... targets) throws UnsupportedGameOperationException {
@@ -25,11 +26,11 @@ public class AttackOperation implements Operation<Subject, Subject> {
     int armorClass = target.getArmorClass();
     int hitRoll = getHitRoll(source, target);
     if (hitRoll < armorClass) {
-      eventLog.send(Event.fail(source.getName(), target.getName()));
+      eventHub.send(Event.fail(source.getName(), target.getName()));
     } else {
       int remainingHealthPoints = target.getHealthPoints() - source.calculateAttackDamage();
       changes.add(target.of(remainingHealthPoints));
-      eventLog.send(Event.successAttack(source.getName(), target.getName(), remainingHealthPoints <= 0, source.getWeapon()));
+      eventHub.send(Event.successAttack(source.getName(), target.getName(), remainingHealthPoints <= 0, source.getWeapon()));
     }
     decreaseEffectDuration(source).ifPresent(changes::add);
     return changes;
@@ -61,7 +62,7 @@ public class AttackOperation implements Operation<Subject, Subject> {
     if (source.getActiveEffect() != null) {
       source.decreaseDurationOfActiveEffect();
       if (source.getActiveEffectDurationInTurns() == 0) {
-        eventLog.send(Event.effectExpired(source));
+        eventHub.send(Event.effectExpired(source));
         return Optional.of(source.effectExpired());
       }
     }

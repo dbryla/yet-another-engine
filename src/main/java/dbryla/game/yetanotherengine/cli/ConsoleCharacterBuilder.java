@@ -6,13 +6,14 @@ import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Map;
 
-public class ConsoleCharacterBuilder {
+import static dbryla.game.yetanotherengine.domain.GameOptions.PLAYER;
 
-  private static final String PLAYER = "player";
+public class ConsoleCharacterBuilder {
 
   private final ConsolePresenter presenter;
 

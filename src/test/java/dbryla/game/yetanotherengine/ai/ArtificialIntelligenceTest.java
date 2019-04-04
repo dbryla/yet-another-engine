@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
-import dbryla.game.yetanotherengine.domain.events.EventLog;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.List;
@@ -27,7 +27,7 @@ class ArtificialIntelligenceTest {
   private static final String TARGET_NAME = "acquiredTarget";
 
   @Mock
-  private EventLog eventLog;
+  private EventHub eventHub;
 
   @Mock
   private StateStorage stateStorage;

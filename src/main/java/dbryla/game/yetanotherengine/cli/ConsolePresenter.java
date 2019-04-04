@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConsolePresenter {
 
+  public static final String CHOICE_FORMAT = " (%d) %s";
   private final StateStorage stateStorage;
   private final GameOptions gameOptions;
 
@@ -33,10 +34,10 @@ public class ConsolePresenter {
 
   public Map<Integer, Class> showAvailableClasses() {
     HashMap<Integer, Class> classesMapping = new HashMap<>();
-    StringBuilder communicate = new StringBuilder("Choose your class: ");
+    StringBuilder communicate = new StringBuilder("Choose your class:");
     int i = 0;
     for (Class clazz : gameOptions.getAvailableClasses()) {
-      communicate.append(String.format("(%d) %s", ++i, clazz.getSimpleName()));
+      communicate.append(String.format(CHOICE_FORMAT, ++i, clazz.getSimpleName()));
       classesMapping.put(i, clazz);
     }
     System.out.println(communicate.toString());
@@ -45,10 +46,10 @@ public class ConsolePresenter {
 
   public Map<Integer, Weapon> showAvailableWeapons() {
     HashMap<Integer, Weapon> weaponsMapping = new HashMap<>();
-    StringBuilder communicate = new StringBuilder("Choose your weapon: ");
+    StringBuilder communicate = new StringBuilder("Choose your weapon:");
     int i = 0;
     for (Weapon weapon : Weapon.values()) {
-      communicate.append(String.format("(%d) %s", ++i, weapon.name().toLowerCase()));
+      communicate.append(String.format(CHOICE_FORMAT, ++i, weapon.name().toLowerCase()));
       weaponsMapping.put(i, weapon);
     }
     System.out.println(communicate.toString());
@@ -57,10 +58,10 @@ public class ConsolePresenter {
 
   public Map<Integer, Spell> showAvailableSpells() {
     HashMap<Integer, Spell> spellsMapping = new HashMap<>();
-    StringBuilder communicate = new StringBuilder("Choose your spell: ");
+    StringBuilder communicate = new StringBuilder("Choose your spell:");
     int i = 0;
     for (Spell spell : Spell.values()) {
-      communicate.append(String.format("(%d) %s", ++i, spell.name().toLowerCase().replace("_", " ")));
+      communicate.append(String.format(CHOICE_FORMAT, ++i, spell.name().toLowerCase().replace("_", " ")));
       spellsMapping.put(i, spell);
     }
     System.out.println(communicate.toString());

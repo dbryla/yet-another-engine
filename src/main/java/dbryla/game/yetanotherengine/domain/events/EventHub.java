@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.events;
 
-public interface EventLog {
+public interface EventHub {
 
   void send(Event event);
 }

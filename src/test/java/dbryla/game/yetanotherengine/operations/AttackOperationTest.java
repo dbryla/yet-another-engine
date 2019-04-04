@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
-import dbryla.game.yetanotherengine.domain.events.EventLog;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class AttackOperationTest {
 
   @Mock
-  private EventLog eventLog;
+  private EventHub eventHub;
 
   @InjectMocks
   private AttackOperation operation;
@@ -101,7 +101,7 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventLog).send(eq(Event.successAttack(source.getName(), target.getName(), true, source.getWeapon())));
+    verify(eventHub).send(eq(Event.successAttack(source.getName(), target.getName(), true, source.getWeapon())));
   }
 
   @Test
@@ -117,7 +117,7 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventLog).send(eq(Event.successAttack(source.getName(), target.getName(), false, source.getWeapon())));
+    verify(eventHub).send(eq(Event.successAttack(source.getName(), target.getName(), false, source.getWeapon())));
   }
 
   @Test
@@ -129,6 +129,6 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventLog).send(eq(Event.fail(source.getName(), target.getName())));
+    verify(eventHub).send(eq(Event.fail(source.getName(), target.getName())));
   }
 }

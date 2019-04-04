@@ -2,25 +2,28 @@ package dbryla.game.yetanotherengine.domain.ai;
 
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
-import dbryla.game.yetanotherengine.domain.events.EventLog;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import org.springframework.stereotype.Component;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+@Component
 public class ArtificialIntelligence {
 
   private final StateStorage stateStorage;
-  private final EventLog eventLog;
+  private final EventHub eventHub;
   private final Map<String, ArtificialIntelligenceConfiguration> subjects = new HashMap<>();
 
-  public ArtificialIntelligence(StateStorage stateStorage, EventLog eventLog) {
+  public ArtificialIntelligence(StateStorage stateStorage, EventHub eventHub) {
     this.stateStorage = stateStorage;
-    this.eventLog = eventLog;
+    this.eventHub = eventHub;
   }
 
   public void initSubject(Subject subject) {
@@ -33,7 +36,7 @@ public class ArtificialIntelligence {
     }
     ArtificialIntelligenceConfiguration ai = subjects.get(subjectName);
     setTarget(ai);
-    return new Action(subjectName, ai.getAcquiredTarget(), new AttackOperation(eventLog));
+    return new Action(subjectName, ai.getAcquiredTarget(), new AttackOperation(eventHub));
   }
 
   private void setTarget(ArtificialIntelligenceConfiguration ai) {

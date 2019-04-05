@@ -3,7 +3,8 @@ package dbryla.game.yetanotherengine.domain.subjects.classes;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.subjects.IncorrectAttributesException;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.ToString;
 
 @ToString
@@ -11,33 +12,72 @@ public class Fighter extends BaseClass implements Subject {
 
   private static final int DEFAULT_FIGHTER_HP = 10;
 
+  private final Armor shield;
+  private final Armor armor;
+
   @Deprecated
   public Fighter(String name, String affiliation) {
-    this(name, affiliation, DEFAULT_FIGHTER_HP, DEFAULT_ARMOR_CLASS, Weapon.SHORTSWORD);
+    this(name, affiliation, DEFAULT_FIGHTER_HP, Weapon.SHORTSWORD, null, null);
   }
 
-  public Fighter(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon, Effect effect, int durationInTurns) {
-    super(name, affiliation, healthPoints, armorClass, weapon, effect, durationInTurns);
+  private Fighter(String name,
+                  String affiliation,
+                  int healthPoints,
+                  Weapon weapon,
+                  Armor shield,
+                  Armor armor,
+                  Effect effect,
+                  int durationInTurns) {
+    super(name, affiliation, healthPoints, weapon, effect, durationInTurns);
+    this.shield = shield;
+    this.armor = armor;
   }
 
-  public Fighter(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon) {
-    super(name, affiliation, healthPoints, armorClass, weapon, null, 0);
+  private Fighter(String name, String affiliation, int healthPoints, Weapon weapon, Armor shield, Armor armor) {
+    this(name, affiliation, healthPoints, weapon, shield, armor, null, 0);
   }
 
   @Override
   public Subject of(int healthPoints) {
-    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.activeEffect, this.activeEffectDurationInTurns);
+    return new Fighter(this.name,
+        this.affiliation,
+        healthPoints,
+        this.weapon,
+        this.shield,
+        this.armor,
+        this.activeEffect,
+        this.activeEffectDurationInTurns);
   }
 
   @Override
   public Subject of(Effect effect) {
-    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, effect, effect.getDurationInTurns());
+    return new Fighter(this.name,
+        this.affiliation,
+        this.healthPoints,
+        this.weapon,
+        this.shield,
+        this.armor,
+        effect,
+        effect.getDurationInTurns());
   }
 
   @Override
   public Subject effectExpired() {
-    return new Fighter(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon);
+    return new Fighter(this.name, this.affiliation, healthPoints, this.weapon, this.shield, this.armor);
   }
+
+  @Override
+  public int getArmorClass() {
+    int ac = DEFAULT_ARMOR_CLASS;
+    if (shield != null) {
+      ac += shield.getArmorClass();
+    }
+    if (armor != null) {
+      ac += armor.getArmorClass();
+    }
+    return ac;
+  }
+
 
   public static Builder builder() {
     return new Builder();
@@ -48,8 +88,9 @@ public class Fighter extends BaseClass implements Subject {
     private String name;
     private String affiliation;
     private int healthPoints = DEFAULT_FIGHTER_HP;
-    private int armorClass = DEFAULT_ARMOR_CLASS;
     private Weapon weapon;
+    private Armor shield;
+    private Armor armor;
 
     public Builder name(String name) {
       this.name = name;
@@ -66,13 +107,18 @@ public class Fighter extends BaseClass implements Subject {
       return this;
     }
 
-    public Builder armorClass(int armorClass) {
-      this.armorClass = armorClass;
+    public Builder weapon(Weapon weapon) {
+      this.weapon = weapon;
       return this;
     }
 
-    public Builder weapon(Weapon weapon) {
-      this.weapon = weapon;
+    public Builder shield(Armor shield) {
+      this.shield = shield;
+      return this;
+    }
+
+    public Builder armor(Armor armor) {
+      this.armor = armor;
       return this;
     }
 
@@ -80,7 +126,7 @@ public class Fighter extends BaseClass implements Subject {
       if (name == null || affiliation == null) {
         throw new IncorrectAttributesException("Both name and affiliation attributes must be provided to builder.");
       }
-      return new Fighter(name, affiliation, healthPoints, armorClass, weapon);
+      return new Fighter(name, affiliation, healthPoints, weapon, shield, armor);
     }
   }
 

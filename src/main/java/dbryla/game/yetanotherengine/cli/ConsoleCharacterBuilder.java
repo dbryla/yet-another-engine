@@ -3,14 +3,17 @@ package dbryla.game.yetanotherengine.cli;
 import static dbryla.game.yetanotherengine.domain.GameOptions.PLAYER;
 
 import dbryla.game.yetanotherengine.Presenter;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+
 import java.util.List;
 import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -44,12 +47,16 @@ public class ConsoleCharacterBuilder {
     Fighter.Builder builder = Fighter.builder()
         .name(playerName)
         .affiliation(PLAYER);
-    getWeapon().ifPresent(builder::weapon);
+    getWeapon(Fighter.class).ifPresent(weapon -> {
+      builder.weapon(weapon);
+      getShield(weapon).ifPresent(builder::shield);
+    });
+    getArmor(Fighter.class).ifPresent(builder::armor);
     return builder.build();
   }
 
-  private Optional<Weapon> getWeapon() {
-    List<Weapon> availableWeapons = presenter.showAvailableWeapons();
+  private Optional<Weapon> getWeapon(Class clazz) {
+    List<Weapon> availableWeapons = presenter.showAvailableWeapons(clazz);
     if (availableWeapons.isEmpty()) {
       return Optional.empty();
     }
@@ -57,11 +64,28 @@ public class ConsoleCharacterBuilder {
     return Optional.of(availableWeapons.get(playerChoice));
   }
 
+  private Optional<Armor> getShield(Weapon weapon) {
+    if (!weapon.isEligibleForShield()) {
+      return Optional.empty();
+    }
+    List<Armor> shield = presenter.showAvailableShield();
+    return Optional.of(shield.get(0));
+  }
+
+  private Optional<Armor> getArmor(Class clazz) {
+    List<Armor> availableArmors = presenter.showAvailableArmors(clazz);
+    if (availableArmors.isEmpty()) {
+      return Optional.empty();
+    }
+    int playerChoice = inputProvider.cmdLineToOption();
+    return Optional.of(availableArmors.get(playerChoice));
+  }
+
   private Mage buildMage(String playerName) {
     Mage.Builder builder = Mage.builder()
         .name(playerName)
         .affiliation(PLAYER);
-    getWeapon().ifPresent(builder::weapon);
+    getWeapon(Mage.class).ifPresent(builder::weapon);
     getSpell().ifPresent(builder::spell);
     return builder.build();
   }

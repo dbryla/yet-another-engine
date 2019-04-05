@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -11,7 +12,7 @@ import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
 import java.util.List;
@@ -55,7 +56,9 @@ class ConsolePresenterTest {
 
   @Test
   void shouldReturnAvailableWeapons() {
-    List<Weapon> weapons = consolePresenter.showAvailableWeapons();
+    when(gameOptions.getAvailableWeapons(any())).thenReturn(Set.of(Weapon.values()));
+
+    List<Weapon> weapons = consolePresenter.showAvailableWeapons(Fighter.class);
 
     assertThat(weapons).contains(Weapon.values());
   }

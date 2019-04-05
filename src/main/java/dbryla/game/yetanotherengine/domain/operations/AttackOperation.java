@@ -7,7 +7,7 @@ import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.HashSet;
 import java.util.Set;
 
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 

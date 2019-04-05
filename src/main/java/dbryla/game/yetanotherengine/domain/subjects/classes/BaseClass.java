@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.domain.subjects.classes;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.AllArgsConstructor;
 
 import java.util.Optional;
@@ -15,7 +15,6 @@ public abstract class BaseClass implements Subject {
   protected final String name;
   protected final String affiliation;
   protected final int healthPoints;
-  protected final int armorClass;
   protected final Weapon weapon;
   protected final Effect activeEffect;
   protected int activeEffectDurationInTurns;
@@ -42,7 +41,7 @@ public abstract class BaseClass implements Subject {
 
   @Override
   public int getArmorClass() {
-    return armorClass;
+    return DEFAULT_ARMOR_CLASS;
   }
 
   @Override

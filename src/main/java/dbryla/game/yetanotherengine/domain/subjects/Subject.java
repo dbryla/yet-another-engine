@@ -2,6 +2,8 @@ package dbryla.game.yetanotherengine.domain.subjects;
 
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+
 import java.util.Optional;
 
 public interface Subject {

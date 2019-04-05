@@ -4,7 +4,7 @@ import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.subjects.IncorrectAttributesException;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.Getter;
 
 public class Mage extends BaseClass implements Subject {
@@ -13,29 +13,46 @@ public class Mage extends BaseClass implements Subject {
   @Getter
   private final Spell spell;
 
-  public Mage(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon, Spell spell) {
-    super(name, affiliation, healthPoints, armorClass, weapon, null, 0);
-    this.spell = spell;
+  private Mage(String name, String affiliation, int healthPoints, Weapon weapon, Spell spell) {
+    this(name, affiliation, healthPoints, weapon, spell, null, 0);
   }
 
-  public Mage(String name, String affiliation, int healthPoints, int armorClass, Weapon weapon, Spell spell, Effect effect, int effectDurationInTurns) {
-    super(name, affiliation, healthPoints, armorClass, weapon, effect, effectDurationInTurns);
+  private Mage(String name,
+               String affiliation,
+               int healthPoints,
+               Weapon weapon,
+               Spell spell,
+               Effect effect,
+               int effectDurationInTurns) {
+    super(name, affiliation, healthPoints, weapon, effect, effectDurationInTurns);
     this.spell = spell;
   }
 
   @Override
   public Subject of(int healthPoints) {
-    return new Mage(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.spell, this.activeEffect, this.activeEffectDurationInTurns);
+    return new Mage(this.name,
+        this.affiliation,
+        healthPoints,
+        this.weapon,
+        this.spell,
+        this.activeEffect,
+        this.activeEffectDurationInTurns);
   }
 
   @Override
   public Subject of(Effect effect) {
-    return new Mage(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.spell, effect, effect.getDurationInTurns());
+    return new Mage(this.name,
+        this.affiliation,
+        healthPoints,
+        this.weapon,
+        this.spell,
+        effect,
+        effect.getDurationInTurns());
   }
 
   @Override
   public Subject effectExpired() {
-    return new Mage(this.name, this.affiliation, healthPoints, this.armorClass, this.weapon, this.spell);
+    return new Mage(this.name, this.affiliation, healthPoints, this.weapon, this.spell);
   }
 
   public static Builder builder() {
@@ -47,7 +64,6 @@ public class Mage extends BaseClass implements Subject {
     private String name;
     private String affiliation;
     private int healthPoints = DEFAULT_MAGE_HP;
-    private int armorClass = DEFAULT_ARMOR_CLASS;
     private Weapon weapon;
     private Spell spell;
 
@@ -66,11 +82,6 @@ public class Mage extends BaseClass implements Subject {
       return this;
     }
 
-    public Builder armorClass(int armorClass) {
-      this.armorClass = armorClass;
-      return this;
-    }
-
     public Builder weapon(Weapon weapon) {
       this.weapon = weapon;
       return this;
@@ -85,7 +96,7 @@ public class Mage extends BaseClass implements Subject {
       if (name == null || affiliation == null) {
         throw new IncorrectAttributesException("Both name and affiliation attributes must be provided to builder.");
       }
-      return new Mage(name, affiliation, healthPoints, armorClass, weapon, spell);
+      return new Mage(name, affiliation, healthPoints, weapon, spell);
     }
   }
 

@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.Presenter;
@@ -30,7 +31,7 @@ class ConsoleCharacterBuilderTest {
   @BeforeEach
   public void setUp() {
     when(presenter.showAvailableClasses()).thenReturn(List.of(Fighter.class, Mage.class));
-    when(presenter.showAvailableWeapons()).thenReturn(List.of());
+    when(presenter.showAvailableWeapons(any())).thenReturn(List.of());
     when(inputProvider.cmdLine()).thenReturn("Player");
   }
 

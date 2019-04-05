@@ -9,12 +9,15 @@ import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -55,11 +58,11 @@ public class ConsolePresenter implements Presenter {
   }
 
   @Override
-  public List<Weapon> showAvailableWeapons() {
+  public List<Weapon> showAvailableWeapons(Class clazz) {
     List<Weapon> weapons = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your weapon:");
     int i = 0;
-    for (Weapon weapon : Weapon.values()) {
+    for (Weapon weapon : gameOptions.getAvailableWeapons(clazz)) {
       communicate.append(String.format(CHOICE_FORMAT, i++, weapon.name().toLowerCase()));
       weapons.add(weapon);
     }
@@ -73,11 +76,15 @@ public class ConsolePresenter implements Presenter {
     StringBuilder communicate = new StringBuilder("Choose your spell:");
     int i = 0;
     for (Spell spell : Spell.values()) {
-      communicate.append(String.format(CHOICE_FORMAT, i++, spell.name().toLowerCase().replace("_", " ")));
+      communicate.append(String.format(CHOICE_FORMAT, i++, toHumanReadableName(spell.name())));
       spells.add(spell);
     }
     System.out.println(communicate.toString());
     return spells;
+  }
+
+  private String toHumanReadableName(String name) {
+    return name.toLowerCase().replace("_", " ");
   }
 
   @Override
@@ -105,6 +112,25 @@ public class ConsolePresenter implements Presenter {
     }
     System.out.println(communicate.toString());
     return enemies;
+  }
+
+  @Override
+  public List<Armor> showAvailableShield() {
+    System.out.println("Added shield to your equipment.");
+    return List.of(Armor.SHIELD);
+  }
+
+  @Override
+  public List<Armor> showAvailableArmors(Class clazz) {
+    List<Armor> armors = new LinkedList<>();
+    StringBuilder communicate = new StringBuilder("Choose your armor:");
+    int i = 0;
+    for (Armor armor : gameOptions.getAvailableArmors(clazz)) {
+      communicate.append(String.format(CHOICE_FORMAT, i++, toHumanReadableName(armor.name())));
+      armors.add(armor);
+    }
+    System.out.println(communicate.toString());
+    return armors;
   }
 
 }

@@ -4,7 +4,6 @@ import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
 
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
 import org.springframework.stereotype.Component;
 

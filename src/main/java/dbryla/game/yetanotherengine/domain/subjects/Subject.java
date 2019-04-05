@@ -24,10 +24,6 @@ public interface Subject {
 
   SubjectIdentifier toIdentifier();
 
-  int calculateAttackDamage();
-
-  int calculateWeaponHitRoll();
-
   Weapon getWeapon();
 
   Optional<Effect> getActiveEffect();

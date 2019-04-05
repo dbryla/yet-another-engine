@@ -3,8 +3,10 @@ package dbryla.game.yetanotherengine.domain.operations;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+
 import java.util.HashSet;
 import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +16,7 @@ public class AttackOperation implements Operation<Subject, Subject> {
 
   private static final int ALLOWED_NUMBER_OF_TARGETS = 1;
   private final EventHub eventHub;
-  private final HitRollSupplier hitRollSupplier;
+  private final FightHelper fightHelper;
   private final EffectConsumer effectConsumer;
   private final EventsFactory eventsFactory;
 
@@ -24,13 +26,14 @@ public class AttackOperation implements Operation<Subject, Subject> {
     Set<Subject> changes = new HashSet<>();
     Subject target = targets[0];
     int armorClass = target.getArmorClass();
-    int hitRoll = hitRollSupplier.get(source, target);
-    if (hitRoll < armorClass) {
-      eventHub.send(eventsFactory.failEvent(source.getName(), target.getName()));
+    int hitRoll = fightHelper.getHitRoll(source, target);
+    if (fightHelper.isMiss(armorClass, hitRoll)) {
+      eventHub.send(eventsFactory.failEvent(source, target));
     } else {
-      int remainingHealthPoints = target.getHealthPoints() - source.calculateAttackDamage();
+      int attackDamage = fightHelper.getAttackDamage(source.getWeapon().rollAttackDamage(), hitRoll);
+      int remainingHealthPoints = target.getHealthPoints() - attackDamage;
       changes.add(target.of(remainingHealthPoints));
-      eventHub.send(eventsFactory.successAttackEvent(source.getName(), target.getName(), remainingHealthPoints <= 0, source.getWeapon()));
+      eventHub.send(eventsFactory.successAttackEvent(source, target));
     }
     effectConsumer.apply(source).ifPresent(changes::add);
     return changes;

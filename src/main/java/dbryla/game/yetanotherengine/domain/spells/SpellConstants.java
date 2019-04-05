@@ -8,5 +8,5 @@ public class SpellConstants {
   public static final String IRRESISTIBLE = "irresistible";
   public static final String SPELL_ATTACK = "spell-attack";
 
-  public static final int ALL_ENEMIES = 0;
+  public static final int UNLIMITED_TARGETS = 0;
 }

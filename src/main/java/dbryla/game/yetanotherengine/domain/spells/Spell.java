@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.spells;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_ENEMIES;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNLIMITED_TARGETS;
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.DAMAGE;
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.IRRESISTIBLE;
@@ -13,7 +13,7 @@ import lombok.Getter;
 public enum Spell {
 
   FIRE_BOLT(DAMAGE, SPELL_ATTACK, DiceRoll::k10, 1),
-  COLOR_SPRAY(EFFECT, IRRESISTIBLE, Effect.BLIND, ALL_ENEMIES);
+  COLOR_SPRAY(EFFECT, IRRESISTIBLE, Effect.BLIND, UNLIMITED_TARGETS);
 
   @Getter
   private final String damageType;
@@ -45,9 +45,4 @@ public enum Spell {
     return rollForDamage.get();
   }
 
-  public int hitRoll() {
-    int proficiencyBonus = 2;
-    int intModifier = 0;
-    return DiceRoll.k20() + proficiencyBonus + intModifier;
-  }
 }

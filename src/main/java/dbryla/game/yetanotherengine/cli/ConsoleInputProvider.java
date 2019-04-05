@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_ENEMIES;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNLIMITED_TARGETS;
 
 import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.Presenter;
@@ -45,7 +45,7 @@ public class ConsoleInputProvider implements InputProvider {
     int option = cmdLineToOption();
     Operation operation = availableOperations.get(option);
     int numberOfTargets = operation.getAllowedNumberOfTargets(subject);
-    if (numberOfTargets == ALL_ENEMIES) {
+    if (numberOfTargets == UNLIMITED_TARGETS) {
       return new Action(subject.getName(), game.getAllEnemies(), operation);
     }
     return new Action(subject.getName(), pickTargets(game, numberOfTargets), operation);

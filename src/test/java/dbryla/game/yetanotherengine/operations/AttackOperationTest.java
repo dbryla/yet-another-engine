@@ -14,7 +14,7 @@ import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.operations.EffectConsumer;
-import dbryla.game.yetanotherengine.domain.operations.HitRollSupplier;
+import dbryla.game.yetanotherengine.domain.operations.FightHelper;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedAttackException;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
@@ -34,7 +34,7 @@ class AttackOperationTest {
   private EventHub eventHub;
 
   @Mock
-  private HitRollSupplier hitRollSupplier;
+  private FightHelper fightHelper;
 
   @Mock
   private EffectConsumer effectConsumer;
@@ -76,8 +76,7 @@ class AttackOperationTest {
   void shouldNotReturnChangesIfTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     Subject target = mock(Subject.class);
-    when(hitRollSupplier.get(eq(source), eq(target))).thenReturn(0);
-    when(target.getArmorClass()).thenReturn(10);
+    when(fightHelper.isMiss(anyInt(), anyInt())).thenReturn(true);
 
     Set<Subject> changes = operation.invoke(source, target);
 
@@ -87,9 +86,10 @@ class AttackOperationTest {
   @Test
   void shouldChangeHealthPointsOfAttackedSubject() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
-    when(source.getWeapon()).thenReturn(Weapon.SHORTSWORD);
+    Weapon weapon = mock(Weapon.class);
+    when(source.getWeapon()).thenReturn(weapon);
     int attackDamage = 5;
-    when(source.calculateAttackDamage()).thenReturn(attackDamage);
+    when(fightHelper.getAttackDamage(anyInt(), anyInt())).thenReturn(attackDamage);
     Subject target = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(target);
     int initialHealth = 10;
@@ -104,9 +104,10 @@ class AttackOperationTest {
   @Test
   void shouldSendSuccessAttackEventWhenTargetWasTerminated() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
-    when(source.getWeapon()).thenReturn(Weapon.SHORTSWORD);
+    Weapon weapon = mock(Weapon.class);
     int attackDamage = 10;
-    when(source.calculateAttackDamage()).thenReturn(attackDamage);
+    when(weapon.rollAttackDamage()).thenReturn(attackDamage);
+    when(source.getWeapon()).thenReturn(weapon);
     Subject target = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(target);
     int initialHealth = 10;
@@ -115,15 +116,16 @@ class AttackOperationTest {
     operation.invoke(source, target);
 
     verify(eventHub).send(any());
-    verify(eventsFactory).successAttackEvent(any(), any(), anyBoolean(), any());
+    verify(eventsFactory).successAttackEvent(any(), any());
   }
 
   @Test
   void shouldSendSuccessAttackEventWhenTargetWasAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
-    when(source.getWeapon()).thenReturn(Weapon.SHORTSWORD);
+    Weapon weapon = mock(Weapon.class);
     int attackDamage = 5;
-    when(source.calculateAttackDamage()).thenReturn(attackDamage);
+    when(weapon.rollAttackDamage()).thenReturn(attackDamage);
+    when(source.getWeapon()).thenReturn(weapon);
     Subject target = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(target);
     int initialHealth = 10;
@@ -132,18 +134,16 @@ class AttackOperationTest {
     operation.invoke(source, target);
 
     verify(eventHub).send(any());
-    verify(eventsFactory).successAttackEvent(any(), any(), anyBoolean(), any());
+    verify(eventsFactory).successAttackEvent(any(), any());
   }
 
   @Test
   void shouldSendFailAttackEventWhenTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     Subject target = mock(Subject.class);
-    when(hitRollSupplier.get(eq(source), eq(target))).thenReturn(0);
-    when(target.getArmorClass()).thenReturn(10);
+    when(fightHelper.isMiss(anyInt(), anyInt())).thenReturn(true);
 
     operation.invoke(source, target);
-
 
     verify(eventHub).send(any());
     verify(eventsFactory).failEvent(any(), any());

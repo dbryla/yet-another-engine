@@ -5,21 +5,15 @@ import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EventsFactory {
 
-  public Event successAttackEvent(String attacker, String target, boolean isTargetTerminated, Weapon weapon) {
-    return new Event(successMessage(attacker, target, isTargetTerminated, weapon.toString()));
-  }
-
-  public Event successSpellCastEvent(String attacker, String target, boolean isTargetTerminated, Spell spell) {
-    String message = successMessage(attacker, target, isTargetTerminated, spell.toString().replace("_", " "));
-    if (EFFECT.equals(spell.getDamageType())) {
-      message += " " + target + " is " + spell.getSpellEffect().toString().toLowerCase() + "ed";
-    }
-    return new Event(message);
+  public Event successAttackEvent(Subject attacker, Subject target) {
+    return new Event(
+        successMessage(attacker.getName(), target.getName(), target.isTerminated(), attacker.getWeapon().toString()));
   }
 
   private String successMessage(String attacker, String target, boolean isTargetTerminated, String weapon) {
@@ -30,13 +24,26 @@ public class EventsFactory {
     return message;
   }
 
-  public Event failEvent(String attacker, String target) {
-    String message = attacker + " misses attack on " + target + ".";
+  public Event successSpellCastEvent(Mage attacker, Subject target) {
+    Spell spell = attacker.getSpell();
+    String message = successMessage(attacker.getName(), target.getName(), target.isTerminated(), getSpellName(spell));
+    if (EFFECT.equals(spell.getDamageType())) {
+      message += " " + target + " is " + spell.getSpellEffect().toString().toLowerCase() + "ed";
+    }
+    return new Event(message);
+  }
+
+  private String getSpellName(Spell spell) {
+    return spell.toString().replace("_", " ");
+  }
+
+  public Event failEvent(Subject attacker, Subject target) {
+    String message = attacker.getName() + " misses attack on " + target.getName() + ".";
     return new Event(message);
   }
 
   public Event effectExpiredEvent(Subject source) {
-    return new Event(source.getName() + " is no longer " + source.getActiveEffect().toString().toLowerCase() + "ed.");
+    return new Event(source.getName() + " is no longer " + source.getActiveEffect().toString() + "ed.");
   }
 
 }

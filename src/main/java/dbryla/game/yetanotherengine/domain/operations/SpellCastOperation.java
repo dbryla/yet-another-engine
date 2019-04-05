@@ -1,28 +1,24 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_ENEMIES;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.DAMAGE;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.IRRESISTIBLE;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.SPELL_ATTACK;
-
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.*;
 
 @AllArgsConstructor
 @Component("spellCastOperation")
 public class SpellCastOperation implements Operation<Mage, Subject> {
 
   private final EventHub eventHub;
-  private final HitRollSupplier hitRollSupplier;
+  private final FightHelper fightHelper;
   private final EffectConsumer effectConsumer;
   private final EventsFactory eventsFactory;
 
@@ -30,13 +26,38 @@ public class SpellCastOperation implements Operation<Mage, Subject> {
   public Set<Subject> invoke(Mage source, Subject... targets) throws UnsupportedGameOperationException {
     Spell spell = source.getSpell();
     verifyTargetsNumber(targets, spell);
-    switch (spell.getDamageType()) {
-      case DAMAGE:
-        return tryToHitTargets(targets, source, target -> target.of(target.getHealthPoints() - spell.attackDamageRoll()));
-      case EFFECT:
-        return tryToHitTargets(targets, source, target -> target.of(spell.getSpellEffect()));
+    Set<Subject> changes = new HashSet<>();
+    if (DAMAGE.equals(spell.getDamageType()) && SPELL_ATTACK.equals(spell.getSpellSaveType())) {
+      for (Subject target : targets) {
+        int hitRoll = fightHelper.getHitRoll(source, target);
+        if (fightHelper.isMiss(target.getArmorClass(), hitRoll)) {
+          eventHub.send(eventsFactory.failEvent(source, target));
+        } else {
+          int attackDamage = fightHelper.getAttackDamage(spell.attackDamageRoll(), hitRoll);
+          changes.add(dealDamage(source, target, attackDamage));
+        }
+      }
+    } else if (DAMAGE.equals(spell.getDamageType()) && IRRESISTIBLE.equals(source.getSpell().getSpellSaveType())) {
+      int attackDamage = spell.attackDamageRoll();
+      for (Subject target : targets) {
+        changes.add(dealDamage(source, target, attackDamage));
+      }
+    } else if (EFFECT.equals(spell.getDamageType()) && SPELL_ATTACK.equals(spell.getSpellSaveType())) {
+      for (Subject target : targets) {
+        int hitRoll = fightHelper.getHitRoll(source, target);
+        if (fightHelper.isMiss(target.getArmorClass(), hitRoll)) {
+          eventHub.send(eventsFactory.failEvent(source, target));
+        } else {
+          changes.add(applyEffect(source, spell, target));
+        }
+      }
+    } else if (IRRESISTIBLE.equals(spell.getSpellSaveType()) && EFFECT.equals(spell.getDamageType())) {
+      for (Subject target : targets) {
+        changes.add(applyEffect(source, spell, target));
+      }
     }
-    throw new UnsupportedSpellCastException("Unsupported damage type for spell " + spell);
+    effectConsumer.apply(source).ifPresent(changes::add);
+    return changes;
   }
 
   private void verifyTargetsNumber(Subject[] targets, Spell spell) throws UnsupportedSpellCastException {
@@ -46,34 +67,19 @@ public class SpellCastOperation implements Operation<Mage, Subject> {
   }
 
   private boolean unlimitedTargets(Spell spell) {
-    return spell.getNumberOfTargets() == ALL_ENEMIES;
+    return spell.getNumberOfTargets() == UNLIMITED_TARGETS;
   }
 
-  private Set<Subject> tryToHitTargets(Subject[] targets, Mage source, Function<Subject, Subject> spellCast) {
-    Set<Subject> changes = new HashSet<>();
-    switch (source.getSpell().getSpellSaveType()) {
-      case SPELL_ATTACK:
-        for (Subject target : targets) {
-          int hitRoll = hitRollSupplier.get(source, target);
-          if (hitRoll >= target.getArmorClass()) {
-            changes.add(successSpellCast(source, spellCast, target));
-          } else {
-            eventHub.send(eventsFactory.failEvent(source.getName(), target.getName()));
-          }
-        }
-        break;
-      case IRRESISTIBLE:
-        for (Subject target : targets) {
-          changes.add(successSpellCast(source, spellCast, target));
-        }
-    }
-    effectConsumer.apply(source).ifPresent(changes::add);
-    return changes;
+  private Subject dealDamage(Mage source, Subject target, int attackDamage) {
+    int remainingHealthPoints = target.getHealthPoints() - attackDamage;
+    Subject changedTarget = target.of(remainingHealthPoints);
+    eventHub.send(eventsFactory.successSpellCastEvent(source, changedTarget));
+    return changedTarget;
   }
 
-  private Subject successSpellCast(Mage source, Function<Subject, Subject> spellCast, Subject target) {
-    Subject changedTarget = spellCast.apply(target);
-    eventHub.send(eventsFactory.successSpellCastEvent(source.getName(), changedTarget.getName(), changedTarget.getHealthPoints() <= 0, source.getSpell()));
+  private Subject applyEffect(Mage source, Spell spell, Subject target) {
+    Subject changedTarget = target.of(spell.getSpellEffect());
+    eventHub.send(eventsFactory.successSpellCastEvent(source, changedTarget));
     return changedTarget;
   }
 

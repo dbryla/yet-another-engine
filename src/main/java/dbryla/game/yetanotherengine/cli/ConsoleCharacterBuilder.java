@@ -1,38 +1,34 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static dbryla.game.yetanotherengine.domain.GameOptions.PLAYER;
+
+import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
-
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
-import static dbryla.game.yetanotherengine.domain.GameOptions.PLAYER;
-
+@Component
+@AllArgsConstructor
 public class ConsoleCharacterBuilder {
 
-  private final ConsolePresenter presenter;
+  private final Presenter presenter;
+  private final ConsoleInputProvider inputProvider;
 
-  private final BufferedReader in;
-
-  public ConsoleCharacterBuilder(ConsolePresenter presenter, BufferedReader in) {
-    this.presenter = presenter;
-    this.in = in;
-  }
-
-  Subject createPlayer() throws IOException {
+  Subject createPlayer() {
     System.out.println("Type your character name and press enter to start.");
-    String playerName = in.readLine();
+    String playerName = inputProvider.cmdLine();
     return chooseClass(playerName);
   }
 
   private Subject chooseClass(String playerName) {
     Map<Integer, Class> availableClasses = presenter.showAvailableClasses();
-    int playerChoice = readCmdLineOption(in);
+    int playerChoice = inputProvider.cmdLineToOption();
     Class clazz = availableClasses.get(playerChoice);
     if (Fighter.class.equals(clazz)) {
       return buildFighter(playerName);
@@ -48,7 +44,7 @@ public class ConsoleCharacterBuilder {
         .name(playerName)
         .affiliation(PLAYER);
     Map<Integer, Weapon> availableWeapons = presenter.showAvailableWeapons();
-    int playerChoice = readCmdLineOption(in);
+    int playerChoice = inputProvider.cmdLineToOption();
     return builder.weapon(availableWeapons.get(playerChoice)).build();
   }
 
@@ -57,19 +53,11 @@ public class ConsoleCharacterBuilder {
         .name(playerName)
         .affiliation(PLAYER);
     Map<Integer, Weapon> availableWeapons = presenter.showAvailableWeapons();
-    int playerChoice = readCmdLineOption(in);
+    int playerChoice = inputProvider.cmdLineToOption();
     builder.weapon(availableWeapons.get(playerChoice));
     Map<Integer, Spell> availableSpells = presenter.showAvailableSpells();
-    playerChoice = readCmdLineOption(in);
+    playerChoice = inputProvider.cmdLineToOption();
     return builder.spell(availableSpells.get(playerChoice)).build();
-  }
-
-  int readCmdLineOption(BufferedReader in) {
-    try {
-      return Integer.valueOf(in.readLine());
-    } catch (IOException e) {
-      throw new IncorrectStateException("Exception while reading cmdline option.", e);
-    }
   }
 
 }

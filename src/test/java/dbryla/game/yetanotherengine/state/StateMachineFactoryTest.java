@@ -38,7 +38,7 @@ class StateMachineFactoryTest {
     when(subject2.getAffiliation()).thenReturn("green");
     when(stateStorage.findAll()).thenReturn(List.of(subject1, subject2));
 
-    stateMachineFactory.createInMemoryStateMachine(strategy);
+    stateMachineFactory.createInMemoryStateMachine();
 
     verify(strategy).calculateInitiative(eq(subject1));
     verify(strategy).calculateInitiative(eq(subject2));
@@ -46,7 +46,7 @@ class StateMachineFactoryTest {
 
   @Test
   void shouldThrowExceptionWhileInitializingWithNullStrategy() {
-    assertThrows(IncorrectStateException.class, () -> stateMachineFactory.createInMemoryStateMachine(null));
+    assertThrows(IncorrectStateException.class, () -> stateMachineFactory.createInMemoryStateMachine());
   }
 
 }

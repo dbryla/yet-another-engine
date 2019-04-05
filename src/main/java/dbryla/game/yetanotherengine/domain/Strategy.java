@@ -1,8 +1,12 @@
 package dbryla.game.yetanotherengine.domain;
 
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import org.springframework.stereotype.Component;
 
-public interface Strategy {
+@Component
+public class Strategy {
 
-  int calculateInitiative(Subject subject);
+  public int calculateInitiative(Subject subject) {
+    return DiceRoll.k20() + subject.getInitiativeModifier();
+  }
 }

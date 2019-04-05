@@ -1,34 +1,26 @@
 package dbryla.game.yetanotherengine.domain.state;
 
-import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.Strategy;
 import dbryla.game.yetanotherengine.domain.state.storage.InMemoryStepTracker;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class StateMachineFactory {
 
   private final StateStorage stateStorage;
+  private final Strategy strategy;
 
-  @Autowired
-  public StateMachineFactory(StateStorage stateStorage) {
-    this.stateStorage = stateStorage;
-  }
-
-  public StateMachine createInMemoryStateMachine(Strategy strategy) {
-    if (strategy == null) {
-      throw new IncorrectStateException("No strategy provided to state machine.");
-    }
+  public StateMachine createInMemoryStateMachine() {
     List<SubjectIdentifier> subjectsForAction = StreamSupport
         .stream(stateStorage.findAll().spliterator(), false)
         .sorted(Comparator.comparingInt(strategy::calculateInitiative).reversed())

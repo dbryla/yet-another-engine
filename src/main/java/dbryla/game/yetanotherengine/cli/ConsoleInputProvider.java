@@ -46,14 +46,14 @@ public class ConsoleInputProvider implements InputProvider {
     Operation operation = availableOperations.get(option);
     int numberOfTargets = operation.getAllowedNumberOfTargets(subject);
     if (numberOfTargets == UNLIMITED_TARGETS) {
-      return new Action(subject.getName(), game.getAllEnemies(), operation);
+      return new Action(subject.getName(), game.getAllAliveEnemies(), operation);
     }
     return new Action(subject.getName(), pickTargets(game, numberOfTargets), operation);
   }
 
   private List<String> pickTargets(Game game, int numberOfTargets) {
     List<String> targets = new LinkedList<>();
-    for (int i = 0; i <= numberOfTargets; i++) {
+    for (int i = 0; i < numberOfTargets; i++) {
       targets.add(pickTarget(game));
     }
     return targets;

@@ -99,7 +99,7 @@ public class ConsolePresenter implements Presenter {
     List<String> enemies = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your target:");
     int i = 0;
-    for (String enemy : game.getAllEnemies()) {
+    for (String enemy : game.getAllAliveEnemies()) {
       communicate.append(String.format(CHOICE_FORMAT, i++, enemy));
       enemies.add(enemy);
     }

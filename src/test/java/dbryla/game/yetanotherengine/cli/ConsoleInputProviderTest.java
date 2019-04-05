@@ -52,7 +52,7 @@ class ConsoleInputProviderTest {
   void shouldReturnActionWithGivenOperation() throws IOException {
     when(bufferedReader.readLine()).thenReturn("0");
     Game game = mock(Game.class);
-    when(game.getAllEnemies()).thenReturn(List.of("enemy"));
+    when(game.getAllAliveEnemies()).thenReturn(List.of("enemy"));
     Operation operation = mock(Operation.class);
     Subject subject = mock(Subject.class);
     when(presenter.showAvailableOperations(subject)).thenReturn(List.of(operation));

@@ -82,10 +82,11 @@ class ConsolePresenterTest {
   @Test
   void shouldReturnAvailableTargets() {
     Game game = mock(Game.class);
-    when(game.getAllEnemies()).thenReturn(List.of("enemy"));
+    when(game.getAllAliveEnemies()).thenReturn(List.of("enemy"));
 
     List<String> targets = consolePresenter.showAvailableTargets(game);
 
     assertThat(targets).contains("enemy");
   }
+
 }

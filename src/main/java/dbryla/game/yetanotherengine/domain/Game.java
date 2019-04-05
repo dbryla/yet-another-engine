@@ -44,9 +44,9 @@ public class Game {
     artificialIntelligence.initSubject(enemy);
   }
 
-  public List<String> getAllEnemies() {
+  public List<String> getAllAliveEnemies() {
     return StreamSupport.stream(stateStorage.findAll().spliterator(), false)
-        .filter(subject -> subject.getAffiliation().equals(ENEMIES))
+        .filter(subject -> subject.getAffiliation().equals(ENEMIES) && !subject.isTerminated())
         .map(Subject::getName)
         .collect(Collectors.toUnmodifiableList());
   }

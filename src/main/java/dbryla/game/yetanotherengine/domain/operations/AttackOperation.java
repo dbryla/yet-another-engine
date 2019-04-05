@@ -7,6 +7,7 @@ import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.HashSet;
 import java.util.Set;
 
+import dbryla.game.yetanotherengine.domain.subjects.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -30,13 +31,22 @@ public class AttackOperation implements Operation<Subject, Subject> {
     if (fightHelper.isMiss(armorClass, hitRoll)) {
       eventHub.send(eventsFactory.failEvent(source, target));
     } else {
-      int attackDamage = fightHelper.getAttackDamage(source.getWeapon().rollAttackDamage(), hitRoll);
+      int attackDamage = getAttackDamage(source, hitRoll);
       int remainingHealthPoints = target.getHealthPoints() - attackDamage;
-      changes.add(target.of(remainingHealthPoints));
-      eventHub.send(eventsFactory.successAttackEvent(source, target));
+      Subject changedTarget = target.of(remainingHealthPoints);
+      changes.add(changedTarget);
+      eventHub.send(eventsFactory.successAttackEvent(source, changedTarget));
     }
     effectConsumer.apply(source).ifPresent(changes::add);
     return changes;
+  }
+
+  private int getAttackDamage(Subject source, int hitRoll) {
+    Weapon weapon = source.getWeapon();
+    if (weapon == null) {
+      return 1;
+    }
+    return fightHelper.getAttackDamage(weapon.rollAttackDamage(), hitRoll);
   }
 
   private void verifyParams(Subject source, Subject[] targets) throws UnsupportedAttackException {

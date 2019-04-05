@@ -13,7 +13,11 @@ public class EventsFactory {
 
   public Event successAttackEvent(Subject attacker, Subject target) {
     return new Event(
-        successMessage(attacker.getName(), target.getName(), target.isTerminated(), attacker.getWeapon().toString()));
+        successMessage(attacker.getName(), target.getName(), target.isTerminated(), getWeaponName(attacker)));
+  }
+
+  private String getWeaponName(Subject attacker) {
+    return attacker.getWeapon() != null ? attacker.getWeapon().toString() : "fists";
   }
 
   private String successMessage(String attacker, String target, boolean isTargetTerminated, String weapon) {

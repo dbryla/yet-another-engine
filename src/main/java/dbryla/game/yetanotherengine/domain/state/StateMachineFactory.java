@@ -5,11 +5,14 @@ import dbryla.game.yetanotherengine.domain.state.storage.InMemoryStepTracker;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +24,12 @@ public class StateMachineFactory {
   private final Strategy strategy;
 
   public StateMachine createInMemoryStateMachine() {
+    Map<Subject, Integer> initiatives = StreamSupport
+        .stream(stateStorage.findAll().spliterator(), false)
+        .collect(Collectors.toMap(Function.identity(), strategy::calculateInitiative));
     List<SubjectIdentifier> subjectsForAction = StreamSupport
         .stream(stateStorage.findAll().spliterator(), false)
-        .sorted(Comparator.comparingInt(strategy::calculateInitiative).reversed())
+        .sorted(Comparator.comparingInt(initiatives::get).reversed()) // bug here
         .map(Subject::toIdentifier)
         .collect(Collectors.toList());
     Map<String, Long> affiliationMap = StreamSupport

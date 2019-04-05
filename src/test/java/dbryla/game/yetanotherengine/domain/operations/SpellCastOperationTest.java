@@ -128,7 +128,7 @@ class SpellCastOperationTest {
 
     spellCastOperation.invoke(mage, target);
 
-    verify(eventsFactory).successSpellCastEvent(any(), any());
+    verify(eventsFactory).successSpellCastEvent(any(), eq(changedTarget));
     verify(eventHub).send(any());
   }
 

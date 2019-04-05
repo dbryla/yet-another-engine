@@ -109,14 +109,15 @@ class AttackOperationTest {
     when(weapon.rollAttackDamage()).thenReturn(attackDamage);
     when(source.getWeapon()).thenReturn(weapon);
     Subject target = mock(Subject.class);
-    when(target.of(anyInt())).thenReturn(target);
+    Subject changedTarget = mock(Subject.class);
+    when(target.of(anyInt())).thenReturn(changedTarget);
     int initialHealth = 10;
     when(target.getHealthPoints()).thenReturn(initialHealth);
 
     operation.invoke(source, target);
 
     verify(eventHub).send(any());
-    verify(eventsFactory).successAttackEvent(any(), any());
+    verify(eventsFactory).successAttackEvent(any(), eq(changedTarget));
   }
 
   @Test

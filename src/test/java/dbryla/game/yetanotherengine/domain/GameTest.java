@@ -62,7 +62,7 @@ class GameTest {
     when(target.getAffiliation()).thenReturn(ENEMIES);
     when(stateStorage.findAll()).thenReturn(List.of(target));
 
-    List<String> allEnemies = game.getAllEnemies();
+    List<String> allEnemies = game.getAllAliveEnemies();
 
     assertThat(allEnemies).contains("enemy");
   }

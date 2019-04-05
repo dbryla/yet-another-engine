@@ -32,7 +32,7 @@ public class EventsFactory {
     Spell spell = attacker.getSpell();
     String message = successMessage(attacker.getName(), target.getName(), target.isTerminated(), getSpellName(spell));
     if (EFFECT.equals(spell.getDamageType())) {
-      message += " " + target + " is " + spell.getSpellEffect().toString().toLowerCase() + "ed";
+      message += " " + target.getName() + " is " + spell.getSpellEffect().toString().toLowerCase() + "ed";
     }
     return new Event(message);
   }
@@ -47,7 +47,7 @@ public class EventsFactory {
   }
 
   public Event effectExpiredEvent(Subject source) {
-    return new Event(source.getName() + " is no longer " + source.getActiveEffect().toString() + "ed.");
+    return new Event(source.getName() + " is no longer " + source.getActiveEffect().get().toString().toLowerCase() + "ed.");
   }
 
 }

@@ -5,7 +5,8 @@ public class SpellConstants {
   public static final String DAMAGE = "damage";
   public static final String EFFECT = "effect";
 
-  public static final String UNRESISTABLE = "unresistable";
+  public static final String IRRESISTIBLE = "irresistible";
   public static final String SPELL_ATTACK = "spell-attack";
 
+  public static final int ALL_ENEMIES = 0;
 }

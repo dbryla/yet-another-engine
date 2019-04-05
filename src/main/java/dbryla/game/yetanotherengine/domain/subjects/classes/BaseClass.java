@@ -5,11 +5,7 @@ import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -79,8 +75,8 @@ public abstract class BaseClass implements Subject {
   }
 
   @Override
-  public Effect getActiveEffect() {
-    return activeEffect;
+  public Optional<Effect> getActiveEffect() {
+    return Optional.ofNullable(activeEffect);
   }
 
   @Override

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class Cli implements CommandLineRunner {
 
+  public static final String SIMULATION_OPTION = "sim";
+  public static final String GAME_OPTION = "game";
   private final Presenter presenter;
   private final GameFactory gameFactory;
   private final ConsoleCharacterBuilder consoleCharacterBuilder;
@@ -32,10 +34,10 @@ public class Cli implements CommandLineRunner {
   @Override
   public void run(String... args) throws Exception {
     switch (args[0]) {
-      case "sim":
+      case SIMULATION_OPTION:
         simulation();
         break;
-      case "game":
+      case GAME_OPTION:
         game();
         break;
     }

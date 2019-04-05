@@ -5,19 +5,19 @@ import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
-import java.util.Map;
+import java.util.List;
 
 public interface Presenter {
 
   void showStatus();
 
-  Map<Integer, Class> showAvailableClasses();
+  List<Class> showAvailableClasses();
 
-  Map<Integer, Weapon> showAvailableWeapons();
+  List<Weapon> showAvailableWeapons();
 
-  Map<Integer, Spell> showAvailableSpells();
+  List<Spell> showAvailableSpells();
 
-  Map<Integer, Operation> showAvailableOperations(Subject subject);
+  List<Operation> showAvailableOperations(Subject subject);
 
-  Map<Integer, String> showAvailableTargets(Game game);
+  List<String> showAvailableTargets(Game game);
 }

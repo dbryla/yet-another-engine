@@ -1,12 +1,10 @@
 package dbryla.game.yetanotherengine.state;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.Strategy;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
@@ -42,11 +40,6 @@ class StateMachineFactoryTest {
 
     verify(strategy).calculateInitiative(eq(subject1));
     verify(strategy).calculateInitiative(eq(subject2));
-  }
-
-  @Test
-  void shouldThrowExceptionWhileInitializingWithNullStrategy() {
-    assertThrows(IncorrectStateException.class, () -> stateMachineFactory.createInMemoryStateMachine());
   }
 
 }

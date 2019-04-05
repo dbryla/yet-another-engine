@@ -9,7 +9,8 @@ import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +28,7 @@ public class ConsoleCharacterBuilder {
   }
 
   private Subject chooseClass(String playerName) {
-    Map<Integer, Class> availableClasses = presenter.showAvailableClasses();
+    List<Class> availableClasses = presenter.showAvailableClasses();
     int playerChoice = inputProvider.cmdLineToOption();
     Class clazz = availableClasses.get(playerChoice);
     if (Fighter.class.equals(clazz)) {
@@ -43,21 +44,35 @@ public class ConsoleCharacterBuilder {
     Fighter.Builder builder = Fighter.builder()
         .name(playerName)
         .affiliation(PLAYER);
-    Map<Integer, Weapon> availableWeapons = presenter.showAvailableWeapons();
+    getWeapon().ifPresent(builder::weapon);
+    return builder.build();
+  }
+
+  private Optional<Weapon> getWeapon() {
+    List<Weapon> availableWeapons = presenter.showAvailableWeapons();
+    if (availableWeapons.isEmpty()) {
+      return Optional.empty();
+    }
     int playerChoice = inputProvider.cmdLineToOption();
-    return builder.weapon(availableWeapons.get(playerChoice)).build();
+    return Optional.of(availableWeapons.get(playerChoice));
   }
 
   private Mage buildMage(String playerName) {
     Mage.Builder builder = Mage.builder()
         .name(playerName)
         .affiliation(PLAYER);
-    Map<Integer, Weapon> availableWeapons = presenter.showAvailableWeapons();
+    getWeapon().ifPresent(builder::weapon);
+    getSpell().ifPresent(builder::spell);
+    return builder.build();
+  }
+
+  private Optional<Spell> getSpell() {
+    List<Spell> availableSpells = presenter.showAvailableSpells();
+    if (availableSpells.isEmpty()) {
+      return Optional.empty();
+    }
     int playerChoice = inputProvider.cmdLineToOption();
-    builder.weapon(availableWeapons.get(playerChoice));
-    Map<Integer, Spell> availableSpells = presenter.showAvailableSpells();
-    playerChoice = inputProvider.cmdLineToOption();
-    return builder.spell(availableSpells.get(playerChoice)).build();
+    return Optional.of(availableSpells.get(playerChoice));
   }
 
 }

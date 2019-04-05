@@ -3,14 +3,16 @@ package dbryla.game.yetanotherengine.cli;
 import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameOptions;
+import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
+import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.AllArgsConstructor;
@@ -23,8 +25,8 @@ public class ConsolePresenter implements Presenter {
   private static final String CHOICE_FORMAT = " (%d) %s";
   private final StateStorage stateStorage;
   private final GameOptions gameOptions;
-  private final Operation attackOperation;
-  private final Operation spellCastOperation;
+  private final AttackOperation attackOperation;
+  private final SpellCastOperation spellCastOperation;
 
   @Override
   public void showStatus() {
@@ -40,68 +42,69 @@ public class ConsolePresenter implements Presenter {
   }
 
   @Override
-  public Map<Integer, Class> showAvailableClasses() {
-    HashMap<Integer, Class> classesMapping = new HashMap<>();
+  public List<Class> showAvailableClasses() {
+    List<Class> classes = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your class:");
     int i = 0;
     for (Class clazz : gameOptions.getAvailableClasses()) {
-      communicate.append(String.format(CHOICE_FORMAT, ++i, clazz.getSimpleName()));
-      classesMapping.put(i, clazz);
+      communicate.append(String.format(CHOICE_FORMAT, i++, clazz.getSimpleName()));
+      classes.add(clazz);
     }
     System.out.println(communicate.toString());
-    return classesMapping;
+    return classes;
   }
 
   @Override
-  public Map<Integer, Weapon> showAvailableWeapons() {
-    HashMap<Integer, Weapon> weaponsMapping = new HashMap<>();
+  public List<Weapon> showAvailableWeapons() {
+    List<Weapon> weapons = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your weapon:");
     int i = 0;
     for (Weapon weapon : Weapon.values()) {
-      communicate.append(String.format(CHOICE_FORMAT, ++i, weapon.name().toLowerCase()));
-      weaponsMapping.put(i, weapon);
+      communicate.append(String.format(CHOICE_FORMAT, i++, weapon.name().toLowerCase()));
+      weapons.add(weapon);
     }
     System.out.println(communicate.toString());
-    return weaponsMapping;
+    return weapons;
   }
 
   @Override
-  public Map<Integer, Spell> showAvailableSpells() {
-    HashMap<Integer, Spell> spellsMapping = new HashMap<>();
+  public List<Spell> showAvailableSpells() {
+    List<Spell> spells = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your spell:");
     int i = 0;
     for (Spell spell : Spell.values()) {
-      communicate.append(String.format(CHOICE_FORMAT, ++i, spell.name().toLowerCase().replace("_", " ")));
-      spellsMapping.put(i, spell);
+      communicate.append(String.format(CHOICE_FORMAT, i++, spell.name().toLowerCase().replace("_", " ")));
+      spells.add(spell);
     }
     System.out.println(communicate.toString());
-    return spellsMapping;
+    return spells;
   }
 
   @Override
-  public Map<Integer, Operation> showAvailableOperations(Subject subject) {
-    HashMap<Integer, Operation> operationsMapping = new HashMap<>();
+  public List<Operation> showAvailableOperations(Subject subject) {
+    List<Operation> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
-    communicate.append(String.format(CHOICE_FORMAT, 1, "attack"));
-    operationsMapping.put(1, attackOperation);
+    communicate.append(String.format(CHOICE_FORMAT, 0, "attack"));
+    operations.add(attackOperation);
     if (subject instanceof Mage) {
-      communicate.append(String.format(CHOICE_FORMAT, 2, "spell"));
-      operationsMapping.put(2, spellCastOperation);
+      communicate.append(String.format(CHOICE_FORMAT, 1, "spell"));
+      operations.add(spellCastOperation);
     }
     System.out.println(communicate.toString());
-    return operationsMapping;
+    return operations;
   }
 
   @Override
-  public Map<Integer, String> showAvailableTargets(Game game) {
-    Map<Integer, String> enemiesMapping = new HashMap<>();
+  public List<String> showAvailableTargets(Game game) {
+    List<String> enemies = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your target:");
     int i = 0;
     for (String enemy : game.getAllEnemies()) {
-      communicate.append(String.format(CHOICE_FORMAT, ++i, enemy));
-      enemiesMapping.put(i, enemy);
+      communicate.append(String.format(CHOICE_FORMAT, i++, enemy));
+      enemies.add(enemy);
     }
     System.out.println(communicate.toString());
-    return enemiesMapping;
+    return enemies;
   }
+
 }

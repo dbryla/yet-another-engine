@@ -2,8 +2,7 @@ package dbryla.game.yetanotherengine.domain.subjects;
 
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
-
-import java.util.Set;
+import java.util.Optional;
 
 public interface Subject {
 
@@ -31,7 +30,7 @@ public interface Subject {
 
   Weapon getWeapon();
 
-  Effect getActiveEffect();
+  Optional<Effect> getActiveEffect();
 
   int getActiveEffectDurationInTurns();
 

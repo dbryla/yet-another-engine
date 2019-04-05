@@ -2,20 +2,24 @@ package dbryla.game.yetanotherengine.operations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.domain.events.Event;
-import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
-import dbryla.game.yetanotherengine.domain.subjects.Weapon;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.events.EventsFactory;
+import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
+import dbryla.game.yetanotherengine.domain.operations.EffectConsumer;
+import dbryla.game.yetanotherengine.domain.operations.HitRollSupplier;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedAttackException;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +32,15 @@ class AttackOperationTest {
 
   @Mock
   private EventHub eventHub;
+
+  @Mock
+  private HitRollSupplier hitRollSupplier;
+
+  @Mock
+  private EffectConsumer effectConsumer;
+
+  @Mock
+  private EventsFactory eventsFactory;
 
   @InjectMocks
   private AttackOperation operation;
@@ -63,7 +76,7 @@ class AttackOperationTest {
   void shouldNotReturnChangesIfTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     Subject target = mock(Subject.class);
-    when(source.calculateWeaponHitRoll()).thenReturn(0);
+    when(hitRollSupplier.get(eq(source), eq(target))).thenReturn(0);
     when(target.getArmorClass()).thenReturn(10);
 
     Set<Subject> changes = operation.invoke(source, target);
@@ -101,7 +114,8 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventHub).send(eq(Event.successAttack(source.getName(), target.getName(), true, source.getWeapon())));
+    verify(eventHub).send(any());
+    verify(eventsFactory).successAttackEvent(any(), any(), anyBoolean(), any());
   }
 
   @Test
@@ -117,18 +131,21 @@ class AttackOperationTest {
 
     operation.invoke(source, target);
 
-    verify(eventHub).send(eq(Event.successAttack(source.getName(), target.getName(), false, source.getWeapon())));
+    verify(eventHub).send(any());
+    verify(eventsFactory).successAttackEvent(any(), any(), anyBoolean(), any());
   }
 
   @Test
   void shouldSendFailAttackEventWhenTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     Subject target = mock(Subject.class);
-    when(source.calculateWeaponHitRoll()).thenReturn(0);
+    when(hitRollSupplier.get(eq(source), eq(target))).thenReturn(0);
     when(target.getArmorClass()).thenReturn(10);
 
     operation.invoke(source, target);
 
-    verify(eventHub).send(eq(Event.fail(source.getName(), target.getName())));
+
+    verify(eventHub).send(any());
+    verify(eventsFactory).failEvent(any(), any());
   }
 }

@@ -1,16 +1,19 @@
 package dbryla.game.yetanotherengine.domain.spells;
 
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_ENEMIES;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.DAMAGE;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.IRRESISTIBLE;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.SPELL_ATTACK;
+
 import dbryla.game.yetanotherengine.domain.DiceRoll;
-import lombok.Getter;
-
 import java.util.function.Supplier;
-
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.*;
+import lombok.Getter;
 
 public enum Spell {
 
   FIRE_BOLT(DAMAGE, SPELL_ATTACK, DiceRoll::k10, 1),
-  COLOR_SPRAY(EFFECT, UNRESISTABLE, Effect.BLIND, 10);
+  COLOR_SPRAY(EFFECT, IRRESISTIBLE, Effect.BLIND, ALL_ENEMIES);
 
   @Getter
   private final String damageType;

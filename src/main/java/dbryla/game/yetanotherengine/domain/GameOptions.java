@@ -12,7 +12,6 @@ public class GameOptions {
   public static final String PLAYER = "player";
   public static final String ENEMIES = "enemies";
 
-
   public Set<Class<? extends BaseClass>> getAvailableClasses() {
     return Set.of(Fighter.class, Mage.class);
   }

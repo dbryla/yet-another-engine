@@ -1,18 +1,18 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_ENEMIES;
+
 import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
-import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
-import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -41,24 +41,26 @@ public class ConsoleInputProvider implements InputProvider {
 
   @Override
   public Action askForAction(Subject subject, Game game) {
-    Map<Integer, Operation> availableOperations = presenter.showAvailableOperations(subject);
+    List<Operation> availableOperations = presenter.showAvailableOperations(subject);
     int option = cmdLineToOption();
     Operation operation = availableOperations.get(option);
-    if (operation instanceof SpellCastOperation) {
-      return castSpellAction((Mage) subject, game, operation);
+    int numberOfTargets = operation.getAllowedNumberOfTargets(subject);
+    if (numberOfTargets == ALL_ENEMIES) {
+      return new Action(subject.getName(), game.getAllEnemies(), operation);
     }
-    return new Action(subject.getName(), pickTarget(game), operation);
+    return new Action(subject.getName(), pickTargets(game, numberOfTargets), operation);
   }
 
-  private Action castSpellAction(Mage subject, Game game, Operation operation) {
-    if (Spell.FIRE_BOLT.equals(subject.getSpell())) {
-      return new Action(subject.getName(), pickTarget(game), operation);
+  private List<String> pickTargets(Game game, int numberOfTargets) {
+    List<String> targets = new LinkedList<>();
+    for (int i = 0; i <= numberOfTargets; i++) {
+      targets.add(pickTarget(game));
     }
-    return new Action(subject.getName(), game.getAllEnemies(), operation);
+    return targets;
   }
 
   private String pickTarget(Game game) {
-    Map<Integer, String> availableTargets = presenter.showAvailableTargets(game);
+    List<String> availableTargets = presenter.showAvailableTargets(game);
     return availableTargets.get(cmdLineToOption());
   }
 }

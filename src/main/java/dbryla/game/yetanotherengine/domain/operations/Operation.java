@@ -7,4 +7,6 @@ public interface Operation<S extends Subject, T extends Subject> {
 
   Set<Subject> invoke(S source, T... targets) throws UnsupportedGameOperationException;
 
+  int getAllowedNumberOfTargets(S source);
+
 }

@@ -70,6 +70,10 @@ public class ConsoleInputProvider implements InputProvider {
 
   private List<String> pickTargets(Game game, int numberOfTargets) {
     List<String> targets = new LinkedList<>();
+    List<String> aliveTargets = game.getAllAliveEnemies();
+    if (aliveTargets.size() <= numberOfTargets) {
+      return aliveTargets;
+    }
     for (int i = 0; i < numberOfTargets; i++) {
       targets.add(pickTarget(game));
     }

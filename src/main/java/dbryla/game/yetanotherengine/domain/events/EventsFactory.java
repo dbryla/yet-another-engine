@@ -52,6 +52,6 @@ public class EventsFactory {
   }
 
   public Event successHealEvent(Subject source, Subject target) {
-    return new Event(source.getName() + " heals " + target.getName());
+    return new Event(source.getName() + " heals " + target.getName() + ".");
   }
 }

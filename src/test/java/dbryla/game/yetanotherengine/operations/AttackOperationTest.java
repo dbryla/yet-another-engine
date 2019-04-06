@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
@@ -19,7 +20,9 @@ import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationEx
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
+
 import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +31,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class AttackOperationTest {
+
+  private final static Instrument TEST_INSTRUMENT = new Instrument(Weapon.SHORTSWORD);
 
   @Mock
   private EventHub eventHub;
@@ -51,24 +56,24 @@ class AttackOperationTest {
     Subject target = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(target);
 
-    Set<Subject> changes = operation.invoke(source, target);
+    Set<Subject> changes = operation.invoke(source, TEST_INSTRUMENT, target);
 
     assertThat(changes).extracting("name").containsExactly(target.getName());
   }
 
   @Test
   void shouldThrowExceptionWhileTryingToAttackMoreThanOneTarget() {
-    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(mock(Fighter.class), mock(Subject.class), mock(Subject.class)));
+    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(mock(Fighter.class), TEST_INSTRUMENT, mock(Subject.class), mock(Subject.class)));
   }
 
   @Test
   void shouldThrowExceptionWhileTryingToAttackNoTarget() {
-    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(mock(Fighter.class)));
+    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(mock(Fighter.class), TEST_INSTRUMENT));
   }
 
   @Test
   void shouldThrowExceptionWhileTryingToInvokeOperationOnNull() {
-    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(null));
+    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(null, TEST_INSTRUMENT));
   }
 
   @Test
@@ -77,7 +82,7 @@ class AttackOperationTest {
     Subject target = mock(Subject.class);
     when(fightHelper.isMiss(anyInt(), anyInt())).thenReturn(true);
 
-    Set<Subject> changes = operation.invoke(source, target);
+    Set<Subject> changes = operation.invoke(source, TEST_INSTRUMENT, target);
 
     assertThat(changes).isEmpty();
   }
@@ -94,7 +99,7 @@ class AttackOperationTest {
     int initialHealth = 10;
     when(target.getHealthPoints()).thenReturn(initialHealth);
 
-    Set<Subject> changes = operation.invoke(source, target);
+    Set<Subject> changes = operation.invoke(source, TEST_INSTRUMENT, target);
 
     assertThat(changes.size()).isEqualTo(1);
     verify(target).of(initialHealth - attackDamage);
@@ -113,7 +118,7 @@ class AttackOperationTest {
     int initialHealth = 10;
     when(target.getHealthPoints()).thenReturn(initialHealth);
 
-    operation.invoke(source, target);
+    operation.invoke(source, TEST_INSTRUMENT, target);
 
     verify(eventHub).send(any());
     verify(eventsFactory).successAttackEvent(any(), eq(changedTarget));
@@ -131,7 +136,7 @@ class AttackOperationTest {
     int initialHealth = 10;
     when(target.getHealthPoints()).thenReturn(initialHealth);
 
-    operation.invoke(source, target);
+    operation.invoke(source, TEST_INSTRUMENT, target);
 
     verify(eventHub).send(any());
     verify(eventsFactory).successAttackEvent(any(), any());
@@ -143,7 +148,7 @@ class AttackOperationTest {
     Subject target = mock(Subject.class);
     when(fightHelper.isMiss(anyInt(), anyInt())).thenReturn(true);
 
-    operation.invoke(source, target);
+    operation.invoke(source, TEST_INSTRUMENT, target);
 
     verify(eventHub).send(any());
     verify(eventsFactory).failEvent(any(), any());

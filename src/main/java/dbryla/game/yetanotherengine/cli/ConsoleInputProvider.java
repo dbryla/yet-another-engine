@@ -7,12 +7,18 @@ import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
+import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -41,14 +47,25 @@ public class ConsoleInputProvider implements InputProvider {
 
   @Override
   public Action askForAction(Subject subject, Game game) {
-    List<Operation> availableOperations = presenter.showAvailableOperations(subject);
+    List<Operation> availableOperations = presenter.showAvailableOperations(subject.getClass());
     int option = cmdLineToOption();
     Operation operation = availableOperations.get(option);
-    int numberOfTargets = operation.getAllowedNumberOfTargets(subject);
+    Instrument instrument = getSpell(subject, operation)
+        .map(Instrument::new)
+        .orElse(new Instrument(subject.getWeapon()));
+    int numberOfTargets = operation.getAllowedNumberOfTargets(instrument);
     if (numberOfTargets == UNLIMITED_TARGETS) {
-      return new Action(subject.getName(), game.getAllAliveEnemies(), operation);
+      return new Action(subject.getName(), game.getAllAliveEnemies(), operation, instrument);
     }
-    return new Action(subject.getName(), pickTargets(game, numberOfTargets), operation);
+    return new Action(subject.getName(), pickTargets(game, numberOfTargets), operation, instrument);
+  }
+
+  private Optional<Spell> getSpell(Subject subject, Operation operation) {
+    if (operation instanceof SpellCastOperation) {
+      List<Spell> spells = presenter.showAvailableSpells(subject.getClass());
+      return Optional.of(spells.get(cmdLineToOption()));
+    }
+    return Optional.empty();
   }
 
   private List<String> pickTargets(Game game, int numberOfTargets) {

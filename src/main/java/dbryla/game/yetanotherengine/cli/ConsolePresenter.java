@@ -11,10 +11,11 @@ import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -73,11 +74,14 @@ public class ConsolePresenter implements Presenter {
   }
 
   @Override
-  public List<Spell> showAvailableSpells() {
+  public List<Spell> showAvailableSpells(Class clazz) {
     List<Spell> spells = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your spell:");
+    Set<Spell> spellsForClass = Arrays.stream(Spell.values())
+        .filter(spell -> spell.forClass(clazz))
+        .collect(Collectors.toSet());
     int i = 0;
-    for (Spell spell : Spell.values()) {
+    for (Spell spell : spellsForClass) {
       communicate.append(String.format(CHOICE_FORMAT, i++, toHumanReadableName(spell.name())));
       spells.add(spell);
     }
@@ -92,12 +96,12 @@ public class ConsolePresenter implements Presenter {
   }
 
   @Override
-  public List<Operation> showAvailableOperations(Subject subject) {
+  public List<Operation> showAvailableOperations(Class clazz) {
     List<Operation> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
     communicate.append(String.format(CHOICE_FORMAT, 0, "attack"));
     operations.add(attackOperation);
-    if (subject instanceof Wizard) {
+    if (gameOptions.isSpellCaster(clazz)) {
       communicate.append(String.format(CHOICE_FORMAT, 1, "spell"));
       operations.add(spellCastOperation);
     }

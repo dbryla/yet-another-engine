@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import dbryla.game.yetanotherengine.domain.DiceRollModifier;
+import dbryla.game.yetanotherengine.domain.spells.DiceRollModifier;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.subjects.classes.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
@@ -28,25 +28,26 @@ class FightHelperTest {
   }
 
   @Test
-  void shouldReturnSourceModifierIfEffectIsActiveOnIt() {
+  void shouldAddSourceModifierIfEffectIsActiveOnIt() {
     DiceRollModifier diceRollModifier = mock(DiceRollModifier.class);
-    when(diceRollModifier.getDiceRollModifier()).thenReturn(10);
+    when(diceRollModifier.getDiceRollModifier()).thenReturn(100);
     Effect effect = mock(Effect.class);
-    when(effect.getSourceModifier()).thenReturn(diceRollModifier);
+    when(effect.getSourceHitRollModifier()).thenReturn(diceRollModifier);
     Subject source = mock(Subject.class);
     when(source.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(effect, 1)));
+    Subject target = mock(Subject.class);
 
-    int result = fightHelper.getHitRoll(source, null);
+    int result = fightHelper.getHitRoll(source, target);
 
-    assertThat(result).isEqualTo(10);
+    assertThat(result).isGreaterThan(100);
   }
 
   @Test
-  void shouldReturnTargetModifierIfEffectIsActiveOnIt() {
+  void shouldAddTargetModifierIfEffectIsActiveOnIt() {
     DiceRollModifier diceRollModifier = mock(DiceRollModifier.class);
-    when(diceRollModifier.getDiceRollModifier()).thenReturn(0);
+    when(diceRollModifier.getDiceRollModifier()).thenReturn(100);
     Effect effect = mock(Effect.class);
-    when(effect.getTargetModifier()).thenReturn(diceRollModifier);
+    when(effect.getTargetHitRollModifier()).thenReturn(diceRollModifier);
     Subject source = mock(Subject.class);
     when(source.getActiveEffect()).thenReturn(Optional.empty());
     Subject target = mock(Subject.class);
@@ -54,7 +55,7 @@ class FightHelperTest {
 
     int result = fightHelper.getHitRoll(source, target);
 
-    assertThat(result).isEqualTo(0);
+    assertThat(result).isGreaterThan(0);
   }
 
   @Test

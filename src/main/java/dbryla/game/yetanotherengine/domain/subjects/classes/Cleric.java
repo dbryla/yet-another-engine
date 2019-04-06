@@ -7,26 +7,24 @@ import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 
-public class Cleric extends BaseClass implements Subject, SpellCaster {
+public class Cleric extends BaseClass implements Subject {
 
   private static final int DEFAULT_CLERIC_HP = 8;
-  private final Spell spell;
 
-  private Cleric(SubjectIdentifier id, int healthPoints, Equipment equipment, Spell spell) {
-    this(id, healthPoints, equipment, spell, null);
+  private Cleric(SubjectIdentifier id, int healthPoints, Equipment equipment) {
+    this(id, healthPoints, equipment, null);
   }
 
-  private Cleric(SubjectIdentifier id, int healthPoints, Equipment equipment, Spell spell, ActiveEffect activeEffect) {
+  private Cleric(SubjectIdentifier id, int healthPoints, Equipment equipment, ActiveEffect activeEffect) {
     super(id, healthPoints, equipment, activeEffect);
-    this.spell = spell;
   }
 
   private Cleric(Cleric oldState, int healthPoints) {
-    this(oldState.id, healthPoints, oldState.equipment, oldState.spell, oldState.activeEffect);
+    this(oldState.id, healthPoints, oldState.equipment, oldState.activeEffect);
   }
 
   private Cleric(Cleric oldState, ActiveEffect activeEffect) {
-    this(oldState.id, oldState.healthPoints, oldState.equipment, oldState.spell, activeEffect);
+    this(oldState.id, oldState.healthPoints, oldState.equipment, activeEffect);
   }
 
   @Override
@@ -44,11 +42,6 @@ public class Cleric extends BaseClass implements Subject, SpellCaster {
     return new Cleric(this, null);
   }
 
-  @Override
-  public Spell getSpell() {
-    return spell;
-  }
-
   public static Builder builder() {
     return new Builder();
   }
@@ -61,7 +54,6 @@ public class Cleric extends BaseClass implements Subject, SpellCaster {
     private Weapon weapon;
     private Armor shield;
     private Armor armor;
-    private Spell spell;
 
     public Builder name(String name) {
       this.name = name;
@@ -93,15 +85,10 @@ public class Cleric extends BaseClass implements Subject, SpellCaster {
       return this;
     }
 
-    public Builder spell(Spell spell) {
-      this.spell = spell;
-      return this;
-    }
-
     public Cleric build() throws IncorrectAttributesException {
       SubjectIdentifier id = buildIdentifier(name, affiliation);
       Equipment equipment = new Equipment(weapon, shield, armor);
-      return new Cleric(id, healthPoints, equipment, spell);
+      return new Cleric(id, healthPoints, equipment);
     }
   }
 }

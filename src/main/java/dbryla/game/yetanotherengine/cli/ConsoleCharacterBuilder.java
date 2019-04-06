@@ -89,7 +89,6 @@ public class ConsoleCharacterBuilder {
         .name(playerName)
         .affiliation(PLAYER);
     getWeapon(Wizard.class).ifPresent(builder::weapon);
-    getSpell().ifPresent(builder::spell);
     return builder.build();
   }
 
@@ -102,17 +101,7 @@ public class ConsoleCharacterBuilder {
       getShield(weapon).ifPresent(builder::shield);
     });
     getArmor(Cleric.class).ifPresent(builder::armor);
-    getSpell().ifPresent(builder::spell);
     return builder.build();
-  }
-
-  private Optional<Spell> getSpell() {
-    List<Spell> availableSpells = presenter.showAvailableSpells();
-    if (availableSpells.isEmpty()) {
-      return Optional.empty();
-    }
-    int playerChoice = inputProvider.cmdLineToOption();
-    return Optional.of(availableSpells.get(playerChoice));
   }
 
 }

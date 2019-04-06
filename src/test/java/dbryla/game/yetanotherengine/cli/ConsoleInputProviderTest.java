@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -71,7 +72,7 @@ class ConsoleInputProviderTest {
     when(game.getAllAliveEnemies()).thenReturn(List.of("enemy"));
     Operation operation = mock(Operation.class);
     Subject subject = mock(Subject.class);
-    when(presenter.showAvailableOperations(subject)).thenReturn(List.of(operation));
+    when(presenter.showAvailableOperations(any())).thenReturn(List.of(operation));
 
     Action action = consoleInputProvider.askForAction(subject, game);
 

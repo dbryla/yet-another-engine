@@ -47,9 +47,8 @@ class ConsoleCharacterBuilderTest {
   }
 
   @Test
-  void shouldCreateMage() {
+  void shouldCreateWizard() {
     when(presenter.showAvailableWeapons(any())).thenReturn(List.of());
-    when(presenter.showAvailableSpells()).thenReturn(List.of());
     when(inputProvider.cmdLineToOption()).thenReturn(1);
 
     Subject player = consoleCharacterBuilder.createPlayer();

@@ -17,7 +17,7 @@ class GameOptionsTest {
 
   @Test
   void shouldReturnAvailableClasses() {
-    Set<Class<? extends BaseClass>> availableClasses = gameOptions.getAvailableClasses();
+    Set<Class> availableClasses = gameOptions.getAvailableClasses();
 
     assertThat(availableClasses).contains(Fighter.class, Wizard.class);
   }

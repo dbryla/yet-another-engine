@@ -40,7 +40,7 @@ public class DefaultStateMachine implements StateMachine {
   @SuppressWarnings("unchecked")
   private void invokeOperation(Action action, Subject subject) {
     try {
-      apply(action.getOperation().invoke(subject, getTargets(action)));
+      apply(action.getOperation().invoke(subject, action.getInstrument(), getTargets(action)));
     } catch (UnsupportedGameOperationException e) {
       throw new IncorrectStateException("Couldn't invoke operation on targets.", e);
     }

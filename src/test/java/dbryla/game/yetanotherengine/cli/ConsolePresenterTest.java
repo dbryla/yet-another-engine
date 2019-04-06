@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,8 +17,13 @@ import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,10 +55,11 @@ class ConsolePresenterTest {
   }
 
   @Test
-  void shouldReturnAvailableSpells() {
-    List<Spell> spells = consolePresenter.showAvailableSpells();
+  void shouldReturnAvailableSpellsForWizard() {
+    List<Spell> spells = consolePresenter.showAvailableSpells(Wizard.class);
 
-    assertThat(spells).contains(Spell.values());
+    assertThat(spells)
+        .contains(Arrays.stream(Spell.values()).filter(spell -> spell.forClass(Wizard.class)).toArray(Spell[]::new));
   }
 
   @Test
@@ -66,9 +73,9 @@ class ConsolePresenterTest {
 
   @Test
   void shouldReturnAvailableOperationsForMage() {
-    Subject mage = mock(Wizard.class);
+    when(gameOptions.isSpellCaster(eq(Wizard.class))).thenReturn(true);
 
-    List<Operation> operations = consolePresenter.showAvailableOperations(mage);
+    List<Operation> operations = consolePresenter.showAvailableOperations(Wizard.class);
 
     assertThat(operations).contains(attackOperation, spellCastOperation);
   }
@@ -76,9 +83,7 @@ class ConsolePresenterTest {
 
   @Test
   void shouldReturnAvailableOperationsForFighter() {
-    Subject fighter = mock(Fighter.class);
-
-    List<Operation> operations = consolePresenter.showAvailableOperations(fighter);
+    List<Operation> operations = consolePresenter.showAvailableOperations(Fighter.class);
 
     assertThat(operations).contains(attackOperation);
   }

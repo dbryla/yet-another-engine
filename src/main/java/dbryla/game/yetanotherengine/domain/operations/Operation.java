@@ -1,12 +1,15 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+
 import java.util.Set;
 
-public interface Operation<S extends Subject, T extends Subject> {
+public interface Operation {
 
-  Set<Subject> invoke(S source, T... targets) throws UnsupportedGameOperationException;
+  Set<Subject> invoke(Subject source, Instrument instrument, Subject... targets) throws UnsupportedGameOperationException;
 
-  int getAllowedNumberOfTargets(S source);
+  int getAllowedNumberOfTargets(Instrument instrument);
 
 }

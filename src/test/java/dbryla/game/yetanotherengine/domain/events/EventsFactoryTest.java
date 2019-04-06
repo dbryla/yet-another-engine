@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.events;
 
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
@@ -35,11 +36,10 @@ class EventsFactoryTest {
   void shouldReturnSuccessSpellCastEventMessage() {
     Wizard attacker = mock(Wizard.class);
     when(attacker.getName()).thenReturn("attacker");
-    when(attacker.getSpell()).thenReturn(Spell.FIRE_BOLT);
     Subject target = mock(Subject.class);
     when(target.getName()).thenReturn("target");
 
-    Event event = eventsFactory.successSpellCastEvent(attacker, target);
+    Event event = eventsFactory.successSpellCastEvent(attacker, target, Spell.FIRE_BOLT);
 
     assertThat(event.toString()).isEqualTo("attacker hits target with fire bolt.");
   }

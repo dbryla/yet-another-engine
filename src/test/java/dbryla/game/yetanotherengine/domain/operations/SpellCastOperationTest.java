@@ -10,13 +10,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.spells.SpellType;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
+
 import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,95 +53,84 @@ class SpellCastOperationTest {
 
   @Test
   void shouldInvokeDmgSpell() throws UnsupportedGameOperationException {
-    when(wizard.getSpell()).thenReturn(Spell.FIRE_BOLT);
+    Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     Subject changedTarget = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(changedTarget);
 
-    Set<Subject> changes = spellCastOperation.invoke(wizard, target);
+    Set<Subject> changes = spellCastOperation.invoke(wizard, instrument, target);
 
     assertThat(changes).contains(changedTarget);
   }
 
   @Test
   void shouldInvokeEffectSpell() throws UnsupportedGameOperationException {
-    when(wizard.getSpell()).thenReturn(Spell.COLOR_SPRAY);
+    Instrument instrument = new Instrument(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
     when(target.of(Effect.BLIND)).thenReturn(changedTarget);
 
-    Set<Subject> changes = spellCastOperation.invoke(wizard, target);
+    Set<Subject> changes = spellCastOperation.invoke(wizard, instrument, target);
 
     assertThat(changes).contains(changedTarget);
   }
 
   @Test
-  void shouldThrowExceptionIfSpellDoesntSupportSoManyTargets() {
-    when(wizard.getSpell()).thenReturn(Spell.FIRE_BOLT);
+  void shouldThrowExceptionIfSpellDoesNotSupportSoManyTargets() {
+    Instrument instrument = new Instrument(Spell.FIRE_BOLT);
 
-    assertThrows(UnsupportedSpellCastException.class, () -> spellCastOperation.invoke(wizard, target, target));
+    assertThrows(UnsupportedSpellCastException.class, () -> spellCastOperation.invoke(wizard, instrument, target, target));
   }
 
   @Test
   void shouldGetHitRollIfSpellIsTypeOfAttack() throws UnsupportedGameOperationException {
-    when(wizard.getSpell()).thenReturn(Spell.FIRE_BOLT);
+    Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     Subject changedTarget = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(changedTarget);
 
-    spellCastOperation.invoke(wizard, target);
+    spellCastOperation.invoke(wizard, instrument, target);
 
     verify(fightHelper).getHitRoll(eq(wizard), eq(target));
   }
 
   @Test
   void shouldNotGetHitRollIfSpellIsTypeOfIrresistible() throws UnsupportedGameOperationException {
-    when(wizard.getSpell()).thenReturn(Spell.COLOR_SPRAY);
+    Instrument instrument = new Instrument(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
     when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
 
-    spellCastOperation.invoke(wizard, target);
+    spellCastOperation.invoke(wizard, instrument, target);
 
     verifyZeroInteractions(fightHelper);
   }
 
   @Test
-  void shouldReturnEmptyChangesUnsupportedDamageType() throws UnsupportedGameOperationException {
-    Spell spell = mock(Spell.class);
-    when(spell.getDamageType()).thenReturn("test");
-    when(wizard.getSpell()).thenReturn(spell);
-
-    Set<Subject> changes = spellCastOperation.invoke(wizard, target);
-
-    assertThat(changes).isEmpty();
-  }
-
-  @Test
   void shouldInvokeEffectConsumer() throws UnsupportedGameOperationException {
-    when(wizard.getSpell()).thenReturn(Spell.FIRE_BOLT);
+    Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     Subject changedTarget = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(changedTarget);
 
-    spellCastOperation.invoke(wizard, target);
+    spellCastOperation.invoke(wizard, instrument, target);
 
     verify(effectConsumer).apply(eq(wizard));
   }
 
   @Test
   void shouldSendSuccessEventOnSuccessfulSpellCast() throws UnsupportedGameOperationException {
-    when(wizard.getSpell()).thenReturn(Spell.COLOR_SPRAY);
+    Instrument instrument = new Instrument(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
     when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
 
-    spellCastOperation.invoke(wizard, target);
+    spellCastOperation.invoke(wizard, instrument, target);
 
-    verify(eventsFactory).successSpellCastEvent(any(), eq(changedTarget));
+    verify(eventsFactory).successSpellCastEvent(any(), eq(changedTarget), eq(Spell.COLOR_SPRAY));
     verify(eventHub).send(any());
   }
 
   @Test
   void shouldSendFailEventOnUnsuccessfulSpellCast() throws UnsupportedGameOperationException {
-    when(wizard.getSpell()).thenReturn(Spell.FIRE_BOLT);
+    Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     when(fightHelper.isMiss(anyInt(), anyInt())).thenReturn(true);
 
-    spellCastOperation.invoke(wizard, target);
+    spellCastOperation.invoke(wizard, instrument, target);
 
     verify(eventsFactory).failEvent(any(), any());
     verify(eventHub).send(any());

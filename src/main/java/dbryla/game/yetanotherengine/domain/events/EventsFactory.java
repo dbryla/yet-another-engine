@@ -1,11 +1,10 @@
 package dbryla.game.yetanotherengine.domain.events;
 
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.classes.SpellCaster;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import org.springframework.stereotype.Component;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
+import static dbryla.game.yetanotherengine.domain.spells.SpellType.EFFECT;
 
 @Component
 public class EventsFactory {
@@ -27,10 +26,9 @@ public class EventsFactory {
     return message;
   }
 
-  public Event successSpellCastEvent(SpellCaster attacker, Subject target) {
-    Spell spell = attacker.getSpell();
+  public Event successSpellCastEvent(Subject attacker, Subject target, Spell spell) {
     String message = successMessage(attacker.getName(), target.getName(), target.isTerminated(), getSpellName(spell));
-    if (EFFECT.equals(spell.getDamageType())) {
+    if (EFFECT.equals(spell.getSpellType())) {
       message += " " + target.getName() + " is " + spell.getSpellEffect().toString().toLowerCase() + "ed";
     }
     return new Event(message);
@@ -46,7 +44,14 @@ public class EventsFactory {
   }
 
   public Event effectExpiredEvent(Subject source) {
-    return new Event(source.getName() + " is no longer " + source.getActiveEffect().get().toString().toLowerCase() + "ed.");
+    return new Event(source.getName() + " is no longer " + getActiveEffectName(source) + "ed.");
   }
 
+  private String getActiveEffectName(Subject source) {
+    return source.getActiveEffect().get().toString().toLowerCase();
+  }
+
+  public Event successHealEvent(Subject source, Subject target) {
+    return new Event(source.getName() + " heals " + target.getName());
+  }
 }

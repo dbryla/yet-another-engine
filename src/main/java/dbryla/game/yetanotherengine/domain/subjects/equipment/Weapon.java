@@ -36,4 +36,7 @@ public enum Weapon {
     return !properties.contains(TWO_HANDED);
   }
 
+  public boolean isSimpleType() {
+    return SIMPLE_MELEE_WEAPON.equals(type) || SIMPLE_RANGED_WEAPON.equals(type);
+  }
 }

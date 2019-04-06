@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.domain.ai;
 
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
@@ -34,7 +35,7 @@ public class ArtificialIntelligence {
     }
     ArtificialIntelligenceConfiguration ai = subjects.get(subjectName);
     setTarget(ai);
-    return new Action(subjectName, ai.getAcquiredTarget(), attackOperation);
+    return new Action(subjectName, ai.getAcquiredTarget(), attackOperation, new Instrument(ai.getSubject().getWeapon()));
   }
 
   private void setTarget(ArtificialIntelligenceConfiguration ai) {

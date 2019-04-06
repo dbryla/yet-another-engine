@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.state.DefaultStateMachine;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
@@ -22,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -38,26 +41,26 @@ class DefaultStateMachineTest {
 
   private static final String SUBJECT_1_NAME = "subject1";
   private static final String SUBJECT_2_NAME = "subject2";
-
+  private final static Instrument TEST_INSTRUMENT = new Instrument(Weapon.SHORTSWORD);
 
   @Test
   void shouldExecuteActionOnNextSubject() throws UnsupportedGameOperationException {
     Subject subject = givenSubjectOne();
     Operation operation = mock(Operation.class);
-    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation, TEST_INSTRUMENT);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByName(eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
     StateMachine stateMachine = new DefaultStateMachine(stepTracker, stateStorage);
 
     stateMachine.execute(action);
 
-    verify(operation).invoke(eq(subject));
+    verify(operation).invoke(eq(subject), eq(TEST_INSTRUMENT));
   }
 
   @Test
   void shouldThrowExceptionWhenExecutingActionFromDifferentThanNextSubject() {
     Subject subject = givenSubjectOne();
-    Action action = new Action(SUBJECT_2_NAME, "", null);
+    Action action = new Action(SUBJECT_2_NAME, "", null, TEST_INSTRUMENT);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByName(eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
     StateMachine stateMachine = new DefaultStateMachine(stepTracker, stateStorage);
@@ -76,8 +79,8 @@ class DefaultStateMachineTest {
     Subject subject = givenSubjectOne();
     when(subject.isTerminated()).thenReturn(true);
     Operation operation = mock(Operation.class);
-    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation);
-    when(operation.invoke(eq(subject))).thenReturn(Set.of(subject));
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation, TEST_INSTRUMENT);
+    when(operation.invoke(eq(subject), eq(TEST_INSTRUMENT))).thenReturn(Set.of(subject));
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByName(SUBJECT_1_NAME)).thenReturn(Optional.of(subject));
     StateMachine stateMachine = new DefaultStateMachine(stepTracker, stateStorage);
@@ -92,7 +95,7 @@ class DefaultStateMachineTest {
     Subject subject1 = givenSubjectOne();
     Subject subject2 = mock(Subject.class);
     Operation operation = mock(Operation.class);
-    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation, TEST_INSTRUMENT);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     lenient().when(stateStorage.findByName(eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject1));
     lenient().when(stateStorage.findByName(eq(SUBJECT_2_NAME))).thenReturn(Optional.of(subject2));
@@ -115,12 +118,12 @@ class DefaultStateMachineTest {
     lenient().when(stateStorage.findByName(eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
     lenient().when(stateStorage.findByName(eq(target1Name))).thenReturn(Optional.of(target1));
     lenient().when(stateStorage.findByName(eq(target2Name))).thenReturn(Optional.of(target2));
-    Action action = new Action(SUBJECT_1_NAME, List.of(target1Name, target2Name), operation);
+    Action action = new Action(SUBJECT_1_NAME, List.of(target1Name, target2Name), operation, TEST_INSTRUMENT);
     StateMachine stateMachine = new DefaultStateMachine(stepTracker, stateStorage);
 
     stateMachine.execute(action);
 
-    verify(operation).invoke(eq(subject), eq(target1), eq(target2));
+    verify(operation).invoke(eq(subject), eq(TEST_INSTRUMENT), eq(target1), eq(target2));
   }
 
   @Test

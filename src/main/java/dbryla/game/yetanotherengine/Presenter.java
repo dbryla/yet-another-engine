@@ -16,9 +16,9 @@ public interface Presenter {
 
   List<Weapon> showAvailableWeapons(Class clazz);
 
-  List<Spell> showAvailableSpells();
+  List<Spell> showAvailableSpells(Class clazz);
 
-  List<Operation> showAvailableOperations(Subject subject);
+  List<Operation> showAvailableOperations(Class clazz);
 
   List<String> showAvailableTargets(Game game);
 

@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.cli;
 
 import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.state.StateMachine;
@@ -43,10 +44,10 @@ public class Simulator {
       stateMachine.getNextSubject().ifPresent(subject -> {
             switch (subject.getName()) {
               case player1:
-                stateMachine.execute(new Action(player1, enemy, attackOperation));
+                stateMachine.execute(new Action(player1, enemy, attackOperation, new Instrument(Weapon.SHORTSWORD)));
                 break;
               case player2:
-                stateMachine.execute(new Action(player2, enemy, attackOperation));
+                stateMachine.execute(new Action(player2, enemy, attackOperation, new Instrument(Weapon.SHORTBOW)));
                 break;
               case enemy:
                 stateMachine.execute(artificialIntelligence.attackAction(enemy));

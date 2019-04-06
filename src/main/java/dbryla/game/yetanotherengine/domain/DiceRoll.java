@@ -33,6 +33,12 @@ public class DiceRoll {
     return diceRoll;
   }
 
+  public static int k12() {
+    int diceRoll = random.nextInt(12) + 1;
+    log.trace("k12: " + diceRoll);
+    return diceRoll;
+  }
+
   public static int k20() {
     int diceRoll = random.nextInt(20) + 1;
     log.trace("k20: " + diceRoll);

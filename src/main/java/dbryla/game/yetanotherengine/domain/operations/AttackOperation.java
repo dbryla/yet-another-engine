@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component("attackOperation")
-public class AttackOperation implements Operation<Subject, Subject> {
+public class AttackOperation implements Operation {
 
   private static final int ALLOWED_NUMBER_OF_TARGETS = 1;
   private final EventHub eventHub;
@@ -22,7 +23,7 @@ public class AttackOperation implements Operation<Subject, Subject> {
   private final EventsFactory eventsFactory;
 
   @Override
-  public Set<Subject> invoke(Subject source, Subject... targets) throws UnsupportedGameOperationException {
+  public Set<Subject> invoke(Subject source, Instrument instrument, Subject... targets) throws UnsupportedGameOperationException {
     verifyParams(source, targets);
     Set<Subject> changes = new HashSet<>();
     Subject target = targets[0];
@@ -59,7 +60,7 @@ public class AttackOperation implements Operation<Subject, Subject> {
   }
 
   @Override
-  public int getAllowedNumberOfTargets(Subject source) {
+  public int getAllowedNumberOfTargets(Instrument instrument) {
     return ALLOWED_NUMBER_OF_TARGETS;
   }
 

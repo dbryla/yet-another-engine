@@ -3,8 +3,8 @@ package dbryla.game.yetanotherengine.domain.operations;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.SpellCaster;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.*;
 
 @AllArgsConstructor
 @Component("spellCastOperation")
-public class SpellCastOperation implements Operation<Mage, Subject> {
+public class SpellCastOperation implements Operation<SpellCaster, Subject> {
 
   private final EventHub eventHub;
   private final FightHelper fightHelper;
@@ -23,7 +23,7 @@ public class SpellCastOperation implements Operation<Mage, Subject> {
   private final EventsFactory eventsFactory;
 
   @Override
-  public Set<Subject> invoke(Mage source, Subject... targets) throws UnsupportedGameOperationException {
+  public Set<Subject> invoke(SpellCaster source, Subject... targets) throws UnsupportedGameOperationException {
     Spell spell = source.getSpell();
     verifyTargetsNumber(targets, spell);
     Set<Subject> changes = new HashSet<>();
@@ -70,21 +70,21 @@ public class SpellCastOperation implements Operation<Mage, Subject> {
     return spell.getNumberOfTargets() == UNLIMITED_TARGETS;
   }
 
-  private Subject dealDamage(Mage source, Subject target, int attackDamage) {
+  private Subject dealDamage(SpellCaster source, Subject target, int attackDamage) {
     int remainingHealthPoints = target.getHealthPoints() - attackDamage;
     Subject changedTarget = target.of(remainingHealthPoints);
     eventHub.send(eventsFactory.successSpellCastEvent(source, changedTarget));
     return changedTarget;
   }
 
-  private Subject applyEffect(Mage source, Spell spell, Subject target) {
+  private Subject applyEffect(SpellCaster source, Spell spell, Subject target) {
     Subject changedTarget = target.of(spell.getSpellEffect());
     eventHub.send(eventsFactory.successSpellCastEvent(source, changedTarget));
     return changedTarget;
   }
 
   @Override
-  public int getAllowedNumberOfTargets(Mage source) {
+  public int getAllowedNumberOfTargets(SpellCaster source) {
     return source.getSpell().getNumberOfTargets();
   }
 }

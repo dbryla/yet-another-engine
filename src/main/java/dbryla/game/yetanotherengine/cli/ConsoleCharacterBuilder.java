@@ -3,13 +3,14 @@ package dbryla.game.yetanotherengine.cli;
 import static dbryla.game.yetanotherengine.domain.GameOptions.PLAYER;
 
 import dbryla.game.yetanotherengine.Presenter;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,10 +37,12 @@ public class ConsoleCharacterBuilder {
     Class clazz = availableClasses.get(playerChoice);
     if (Fighter.class.equals(clazz)) {
       return buildFighter(playerName);
-    } else if (Mage.class.equals(clazz)) {
-      return buildMage(playerName);
+    } else if (Wizard.class.equals(clazz)) {
+      return buildWizard(playerName);
+    } else if (Cleric.class.equals(clazz)) {
+      return buildCleric(playerName);
     } else {
-      throw new IncorrectStateException("Wrong option");
+      throw new IncorrectStateException("Unsupported class: " + clazz);
     }
   }
 
@@ -81,11 +84,24 @@ public class ConsoleCharacterBuilder {
     return Optional.of(availableArmors.get(playerChoice));
   }
 
-  private Mage buildMage(String playerName) {
-    Mage.Builder builder = Mage.builder()
+  private Wizard buildWizard(String playerName) {
+    Wizard.Builder builder = Wizard.builder()
         .name(playerName)
         .affiliation(PLAYER);
-    getWeapon(Mage.class).ifPresent(builder::weapon);
+    getWeapon(Wizard.class).ifPresent(builder::weapon);
+    getSpell().ifPresent(builder::spell);
+    return builder.build();
+  }
+
+  private Subject buildCleric(String playerName) {
+    Cleric.Builder builder = Cleric.builder()
+        .name(playerName)
+        .affiliation(PLAYER);
+    getWeapon(Cleric.class).ifPresent(weapon -> {
+      builder.weapon(weapon);
+      getShield(weapon).ifPresent(builder::shield);
+    });
+    getArmor(Cleric.class).ifPresent(builder::armor);
     getSpell().ifPresent(builder::spell);
     return builder.build();
   }

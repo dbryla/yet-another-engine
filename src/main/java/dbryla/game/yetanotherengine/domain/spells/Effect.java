@@ -4,6 +4,7 @@ import static dbryla.game.yetanotherengine.domain.DiceRollModifier.ADVANTAGE;
 import static dbryla.game.yetanotherengine.domain.DiceRollModifier.DISADVANTAGE;
 
 import dbryla.game.yetanotherengine.domain.DiceRollModifier;
+import dbryla.game.yetanotherengine.domain.subjects.classes.ActiveEffect;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,4 +17,7 @@ public enum Effect {
   private final DiceRollModifier targetModifier;
   private final int durationInTurns;
 
+  public ActiveEffect activate() {
+    return new ActiveEffect(this, durationInTurns);
+  }
 }

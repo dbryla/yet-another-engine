@@ -1,4 +1,4 @@
-package dbryla.game.yetanotherengine.domain.subjects;
+package dbryla.game.yetanotherengine.domain.subjects.classes;
 
 public class IncorrectAttributesException extends RuntimeException {
 

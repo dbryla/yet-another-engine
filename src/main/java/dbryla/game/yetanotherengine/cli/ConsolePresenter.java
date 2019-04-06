@@ -8,10 +8,10 @@ import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -66,7 +66,9 @@ public class ConsolePresenter implements Presenter {
       communicate.append(String.format(CHOICE_FORMAT, i++, weapon.name().toLowerCase()));
       weapons.add(weapon);
     }
-    System.out.println(communicate.toString());
+    if (!weapons.isEmpty()) {
+      System.out.println(communicate.toString());
+    }
     return weapons;
   }
 
@@ -79,7 +81,9 @@ public class ConsolePresenter implements Presenter {
       communicate.append(String.format(CHOICE_FORMAT, i++, toHumanReadableName(spell.name())));
       spells.add(spell);
     }
-    System.out.println(communicate.toString());
+    if (!spells.isEmpty()) {
+      System.out.println(communicate.toString());
+    }
     return spells;
   }
 
@@ -93,7 +97,7 @@ public class ConsolePresenter implements Presenter {
     StringBuilder communicate = new StringBuilder("Which action you pick:");
     communicate.append(String.format(CHOICE_FORMAT, 0, "attack"));
     operations.add(attackOperation);
-    if (subject instanceof Mage) {
+    if (subject instanceof Wizard) {
       communicate.append(String.format(CHOICE_FORMAT, 1, "spell"));
       operations.add(spellCastOperation);
     }
@@ -129,7 +133,9 @@ public class ConsolePresenter implements Presenter {
       communicate.append(String.format(CHOICE_FORMAT, i++, toHumanReadableName(armor.name())));
       armors.add(armor);
     }
-    System.out.println(communicate.toString());
+    if (!armors.isEmpty()) {
+      System.out.println(communicate.toString());
+    }
     return armors;
   }
 

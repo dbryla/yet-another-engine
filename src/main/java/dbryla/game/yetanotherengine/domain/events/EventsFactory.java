@@ -1,11 +1,11 @@
 package dbryla.game.yetanotherengine.domain.events;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
-
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.SpellCaster;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import org.springframework.stereotype.Component;
+
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.EFFECT;
 
 @Component
 public class EventsFactory {
@@ -27,7 +27,7 @@ public class EventsFactory {
     return message;
   }
 
-  public Event successSpellCastEvent(Mage attacker, Subject target) {
+  public Event successSpellCastEvent(SpellCaster attacker, Subject target) {
     Spell spell = attacker.getSpell();
     String message = successMessage(attacker.getName(), target.getName(), target.isTerminated(), getSpellName(spell));
     if (EFFECT.equals(spell.getDamageType())) {

@@ -7,9 +7,9 @@ import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class ConsoleCharacterBuilderTest {
 
   @BeforeEach
   public void setUp() {
-    when(presenter.showAvailableClasses()).thenReturn(List.of(Fighter.class, Mage.class));
+    when(presenter.showAvailableClasses()).thenReturn(List.of(Fighter.class, Wizard.class));
     when(inputProvider.cmdLine()).thenReturn("Player");
   }
 
@@ -54,7 +54,7 @@ class ConsoleCharacterBuilderTest {
 
     Subject player = consoleCharacterBuilder.createPlayer();
 
-    assertThat(player).isInstanceOf(Mage.class);
+    assertThat(player).isInstanceOf(Wizard.class);
   }
 
   @Test

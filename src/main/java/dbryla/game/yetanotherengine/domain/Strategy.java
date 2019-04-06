@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain;
 
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import org.springframework.stereotype.Component;
 
 @Component

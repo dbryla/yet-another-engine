@@ -1,8 +1,8 @@
 package dbryla.game.yetanotherengine.domain.subjects.classes;
 
-import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.AllArgsConstructor;
 
@@ -11,13 +11,10 @@ import java.util.Optional;
 @AllArgsConstructor
 public abstract class BaseClass implements Subject {
 
-  static final int DEFAULT_ARMOR_CLASS = 10;
-  protected final String name;
-  protected final String affiliation;
+  protected final SubjectIdentifier id;
   protected final int healthPoints;
-  protected final Weapon weapon;
-  protected final Effect activeEffect;
-  protected int activeEffectDurationInTurns;
+  protected final Equipment equipment;
+  protected final ActiveEffect activeEffect;
 
   @Override
   public int getInitiativeModifier() {
@@ -26,7 +23,7 @@ public abstract class BaseClass implements Subject {
 
   @Override
   public String getName() {
-    return name;
+    return id.getName();
   }
 
   @Override
@@ -41,36 +38,34 @@ public abstract class BaseClass implements Subject {
 
   @Override
   public int getArmorClass() {
-    return DEFAULT_ARMOR_CLASS;
+    return equipment.getArmorClass();
   }
 
   @Override
   public String getAffiliation() {
-    return affiliation;
+    return id.getAffiliation();
   }
 
   @Override
   public SubjectIdentifier toIdentifier() {
-    return new SubjectIdentifier(name, affiliation);
+    return id;
   }
 
   @Override
   public Weapon getWeapon() {
-    return weapon;
+    return equipment.getWeapon();
   }
 
   @Override
-  public Optional<Effect> getActiveEffect() {
+  public Optional<ActiveEffect> getActiveEffect() {
     return Optional.ofNullable(activeEffect);
   }
 
-  @Override
-  public int getActiveEffectDurationInTurns() {
-    return activeEffectDurationInTurns;
+  protected static SubjectIdentifier buildIdentifier(String name, String affiliation) {
+    if (name == null || affiliation == null) {
+      throw new IncorrectAttributesException("Both name and affiliation attributes must be provided to builder.");
+    }
+    return new SubjectIdentifier(name, affiliation);
   }
 
-  @Override
-  public void decreaseDurationOfActiveEffect() {
-    --activeEffectDurationInTurns;
-  }
 }

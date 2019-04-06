@@ -2,8 +2,8 @@ package dbryla.game.yetanotherengine.domain.events;
 
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,7 +33,7 @@ class EventsFactoryTest {
 
   @Test
   void shouldReturnSuccessSpellCastEventMessage() {
-    Mage attacker = mock(Mage.class);
+    Wizard attacker = mock(Wizard.class);
     when(attacker.getName()).thenReturn("attacker");
     when(attacker.getSpell()).thenReturn(Spell.FIRE_BOLT);
     Subject target = mock(Subject.class);
@@ -46,7 +46,7 @@ class EventsFactoryTest {
 
   @Test
   void shouldReturnFailEventMessage() {
-    Mage attacker = mock(Mage.class);
+    Wizard attacker = mock(Wizard.class);
     when(attacker.getName()).thenReturn("attacker");
     Subject target = mock(Subject.class);
     when(target.getName()).thenReturn("target");
@@ -58,9 +58,9 @@ class EventsFactoryTest {
 
   @Test
   void shouldEffectExpiredEventMessage() {
-    Mage attacker = mock(Mage.class);
+    Wizard attacker = mock(Wizard.class);
     when(attacker.getName()).thenReturn("attacker");
-    when(attacker.getActiveEffect()).thenReturn(Optional.of(Effect.BLIND));
+    when(attacker.getActiveEffect()).thenReturn(Optional.of(Effect.BLIND.activate()));
 
     Event event = eventsFactory.effectExpiredEvent(attacker);
 

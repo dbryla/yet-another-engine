@@ -1,18 +1,18 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.DiceRoll;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FightHelper {
 
-  public int getHitRoll(Subject source, Subject target) {
+  int getHitRoll(Subject source, Subject target) {
     if (source.getActiveEffect().isPresent()) {
-      return source.getActiveEffect().get().getSourceModifier().getDiceRollModifier();
+      return source.getActiveEffect().get().getEffect().getSourceModifier().getDiceRollModifier();
     }
     if (target.getActiveEffect().isPresent()) {
-      return target.getActiveEffect().get().getTargetModifier().getDiceRollModifier();
+      return target.getActiveEffect().get().getEffect().getTargetModifier().getDiceRollModifier();
     }
     return DiceRoll.k20();
   }

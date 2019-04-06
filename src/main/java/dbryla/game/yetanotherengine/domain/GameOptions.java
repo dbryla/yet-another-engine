@@ -1,10 +1,11 @@
 package dbryla.game.yetanotherengine.domain;
 
+import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.BaseClass;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,13 +19,13 @@ public class GameOptions {
   public static final String ENEMIES = "enemies";
 
   public Set<Class<? extends BaseClass>> getAvailableClasses() {
-    return Set.of(Fighter.class, Mage.class);
+    return Set.of(Fighter.class, Wizard.class, Cleric.class);
   }
 
   public Set<Weapon> getAvailableWeapons(Class clazz) {
     if (Fighter.class.equals(clazz)) {
       return Set.of(Weapon.values());
-    } else if (Mage.class.equals(clazz)) {
+    } else if (Wizard.class.equals(clazz)) {
       return Set.of(Weapon.DAGGER, Weapon.QUARTERSTAFF);
     }
     return Set.of();

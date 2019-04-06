@@ -16,7 +16,7 @@ import dbryla.game.yetanotherengine.domain.operations.EffectConsumer;
 import dbryla.game.yetanotherengine.domain.operations.FightHelper;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedAttackException;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import java.util.Set;

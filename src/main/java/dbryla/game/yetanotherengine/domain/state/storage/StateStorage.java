@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.state.storage;
 
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import java.util.Optional;
 
 public interface StateStorage {

@@ -11,11 +11,11 @@ import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -66,7 +66,7 @@ class ConsolePresenterTest {
 
   @Test
   void shouldReturnAvailableOperationsForMage() {
-    Subject mage = mock(Mage.class);
+    Subject mage = mock(Wizard.class);
 
     List<Operation> operations = consolePresenter.showAvailableOperations(mage);
 

@@ -1,4 +1,4 @@
-package dbryla.game.yetanotherengine.domain.subjects;
+package dbryla.game.yetanotherengine.domain.subjects.classes;
 
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
@@ -28,11 +28,7 @@ public interface Subject {
 
   Weapon getWeapon();
 
-  Optional<Effect> getActiveEffect();
-
-  int getActiveEffectDurationInTurns();
-
-  void decreaseDurationOfActiveEffect();
+  Optional<ActiveEffect> getActiveEffect();
 
   Subject effectExpired();
 }

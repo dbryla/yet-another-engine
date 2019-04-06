@@ -10,7 +10,8 @@ import static org.mockito.Mockito.when;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,8 +45,7 @@ class EffectConsumerTest {
   @Test
   void shouldReturnEmptyOptionalIfEffectIsStillActive() {
     Subject subject = mock(Subject.class);
-    when(subject.getActiveEffect()).thenReturn(Optional.of(Effect.BLIND));
-    when(subject.getActiveEffectDurationInTurns()).thenReturn(1);
+    when(subject.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(Effect.BLIND, 2)));
 
     Optional<Subject> changes = effectConsumer.apply(subject);
 
@@ -53,10 +53,10 @@ class EffectConsumerTest {
   }
 
   @Test
-  void shouldReturnEmptyOptionalIfEffectExpires() {
+  void shouldReturnSubjectIfEffectExpires() {
     Subject subject = mock(Subject.class);
-    when(subject.getActiveEffect()).thenReturn(Optional.of(Effect.BLIND));
-    when(subject.getActiveEffectDurationInTurns()).thenReturn(0);
+    ActiveEffect activeEffect = Effect.BLIND.activate();
+    when(subject.getActiveEffect()).thenReturn(Optional.of(activeEffect));
     when(subject.effectExpired()).thenReturn(subject);
 
     Optional<Subject> changes = effectConsumer.apply(subject);
@@ -68,11 +68,11 @@ class EffectConsumerTest {
   @Test
   void shouldSendEventIfEffectExpires() {
     Subject subject = mock(Subject.class);
-    when(subject.getActiveEffect()).thenReturn(Optional.of(Effect.BLIND));
-    when(subject.getActiveEffectDurationInTurns()).thenReturn(0);
+    ActiveEffect activeEffect = Effect.BLIND.activate();
+    when(subject.getActiveEffect()).thenReturn(Optional.of(activeEffect));
     when(subject.effectExpired()).thenReturn(subject);
 
-    Optional<Subject> changes = effectConsumer.apply(subject);
+    effectConsumer.apply(subject);
 
     verify(eventHub).send(any());
     verify(eventsFactory).effectExpiredEvent(eq(subject));

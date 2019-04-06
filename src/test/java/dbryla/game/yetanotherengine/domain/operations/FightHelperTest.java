@@ -2,7 +2,8 @@ package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.DiceRollModifier;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -33,7 +34,7 @@ class FightHelperTest {
     Effect effect = mock(Effect.class);
     when(effect.getSourceModifier()).thenReturn(diceRollModifier);
     Subject source = mock(Subject.class);
-    when(source.getActiveEffect()).thenReturn(Optional.of(effect));
+    when(source.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(effect, 1)));
 
     int result = fightHelper.getHitRoll(source, null);
 
@@ -49,7 +50,7 @@ class FightHelperTest {
     Subject source = mock(Subject.class);
     when(source.getActiveEffect()).thenReturn(Optional.empty());
     Subject target = mock(Subject.class);
-    when(target.getActiveEffect()).thenReturn(Optional.of(effect));
+    when(target.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(effect, 1)));
 
     int result = fightHelper.getHitRoll(source, target);
 
@@ -77,7 +78,7 @@ class FightHelperTest {
   }
 
   @Test
-  void shouldGetUnchangedAttackDamageIfDidntRollTwenty() {
+  void shouldGetUnchangedAttackDamageIfDidNotRollTwenty() {
     int attackDamage = 10;
 
     int result = fightHelper.getAttackDamage(attackDamage, 10);

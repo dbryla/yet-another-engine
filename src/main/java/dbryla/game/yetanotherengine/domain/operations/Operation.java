@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import java.util.Set;
 
 public interface Operation<S extends Subject, T extends Subject> {

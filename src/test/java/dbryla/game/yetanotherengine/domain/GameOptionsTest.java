@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine.domain;
 
 import dbryla.game.yetanotherengine.domain.subjects.classes.BaseClass;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class GameOptionsTest {
 
@@ -20,7 +19,7 @@ class GameOptionsTest {
   void shouldReturnAvailableClasses() {
     Set<Class<? extends BaseClass>> availableClasses = gameOptions.getAvailableClasses();
 
-    assertThat(availableClasses).contains(Fighter.class, Mage.class);
+    assertThat(availableClasses).contains(Fighter.class, Wizard.class);
   }
 
   @Test
@@ -32,7 +31,7 @@ class GameOptionsTest {
 
   @Test
   void shouldReturnAvailableWeaponsForMage() {
-    Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(Mage.class);
+    Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(Wizard.class);
 
     assertThat(availableWeapons).contains(Weapon.DAGGER, Weapon.QUARTERSTAFF);
   }
@@ -47,7 +46,7 @@ class GameOptionsTest {
 
   @Test
   void shouldReturnAvailableArmorsForMage() {
-    Set<Armor> availableArmors = gameOptions.getAvailableArmors(Mage.class);
+    Set<Armor> availableArmors = gameOptions.getAvailableArmors(Wizard.class);
 
     assertThat(availableArmors).isEmpty();
   }

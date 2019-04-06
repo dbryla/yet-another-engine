@@ -15,11 +15,6 @@ public class Fighter extends BaseClass implements Subject {
   private final Armor shield;
   private final Armor armor;
 
-  @Deprecated
-  public Fighter(String name, String affiliation) {
-    this(name, affiliation, DEFAULT_FIGHTER_HP, Weapon.SHORTSWORD, null, null);
-  }
-
   private Fighter(String name,
                   String affiliation,
                   int healthPoints,

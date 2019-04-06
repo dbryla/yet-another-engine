@@ -11,7 +11,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public abstract class BaseClass implements Subject {
 
-  protected static final int DEFAULT_ARMOR_CLASS = 10;
+  static final int DEFAULT_ARMOR_CLASS = 10;
   protected final String name;
   protected final String affiliation;
   protected final int healthPoints;

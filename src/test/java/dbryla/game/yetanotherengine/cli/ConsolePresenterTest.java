@@ -12,6 +12,7 @@ import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Mage;
@@ -90,6 +91,23 @@ class ConsolePresenterTest {
     List<String> targets = consolePresenter.showAvailableTargets(game);
 
     assertThat(targets).contains("enemy");
+  }
+
+  @Test
+  void shouldReturnAvailableShield() {
+    List<Armor> shield = consolePresenter.showAvailableShield();
+
+    assertThat(shield.size()).isEqualTo(1);
+    assertThat(shield.get(0)).isEqualTo(Armor.SHIELD);
+  }
+
+  @Test
+  void shouldReturnAvailableArmor() {
+    when(gameOptions.getAvailableArmors(any())).thenReturn(Set.of(Armor.values()));
+
+    List<Armor> armors = consolePresenter.showAvailableArmors(Fighter.class);
+
+    assertThat(armors).contains(Armor.values());
   }
 
 }

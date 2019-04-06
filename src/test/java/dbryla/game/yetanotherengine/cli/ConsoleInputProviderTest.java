@@ -1,12 +1,14 @@
 package dbryla.game.yetanotherengine.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Game;
+import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.io.BufferedReader;
@@ -46,6 +48,20 @@ class ConsoleInputProviderTest {
     String cmdLine = consoleInputProvider.cmdLine();
 
     assertThat(cmdLine).isEqualTo("text");
+  }
+
+  @Test
+  void shouldEncapsulateExceptionForCmdLineToOption() throws IOException {
+    when(bufferedReader.readLine()).thenThrow(new IOException());
+
+    assertThrows(IncorrectStateException.class, () -> consoleInputProvider.cmdLineToOption());
+  }
+
+  @Test
+  void shouldEncapsulateExceptionForCmdLine() throws IOException {
+    when(bufferedReader.readLine()).thenThrow(new IOException());
+
+    assertThrows(IncorrectStateException.class, () -> consoleInputProvider.cmdLine());
   }
 
   @Test

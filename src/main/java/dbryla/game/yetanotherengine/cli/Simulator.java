@@ -8,6 +8,7 @@ import dbryla.game.yetanotherengine.domain.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,8 +26,8 @@ public class Simulator {
     final String player1 = "Clemens";
     final String player2 = "Maria";
     final String blueTeam = "blue";
-    stateStorage.save(new Fighter(player1, blueTeam));
-    stateStorage.save(new Fighter(player2, blueTeam));
+    stateStorage.save(Fighter.builder().name(player1).affiliation(blueTeam).weapon(Weapon.SHORTSWORD).build());
+    stateStorage.save(Fighter.builder().name(player2).affiliation(blueTeam).weapon(Weapon.SHORTBOW).build());
     final String greenTeam = "green";
     final String enemy = "Borg";
     Fighter enemyFighter = Fighter.builder()

@@ -15,7 +15,6 @@ import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.spells.SpellType;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 
@@ -128,7 +127,7 @@ class SpellCastOperationTest {
   @Test
   void shouldSendFailEventOnUnsuccessfulSpellCast() throws UnsupportedGameOperationException {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
-    when(fightHelper.isMiss(anyInt(), anyInt())).thenReturn(true);
+    when(fightHelper.isMiss(anyInt(), anyInt(), anyInt())).thenReturn(true);
 
     spellCastOperation.invoke(wizard, instrument, target);
 

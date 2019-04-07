@@ -34,7 +34,6 @@ public class Simulator {
     Fighter enemyFighter = Fighter.builder()
         .name(enemy)
         .affiliation(greenTeam)
-        .healthPoints(30)
         .build();
     stateStorage.save(enemyFighter);
     artificialIntelligence.initSubject(enemyFighter);

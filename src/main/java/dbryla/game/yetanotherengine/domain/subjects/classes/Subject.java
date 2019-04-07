@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.subjects.classes;
 
+import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
@@ -31,4 +32,6 @@ public interface Subject {
   Optional<ActiveEffect> getActiveEffect();
 
   Subject effectExpired();
+
+  Abilities getAbilities();
 }

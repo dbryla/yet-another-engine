@@ -6,11 +6,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.Presenter;
+import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
+
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +33,9 @@ class ConsoleCharacterBuilderTest {
   @Mock
   private Presenter presenter;
 
+  @Mock
+  private ConsoleAbilitiesProvider consoleAbilitiesProvider;
+
   @BeforeEach
   public void setUp() {
     when(presenter.showAvailableClasses()).thenReturn(List.of(Fighter.class, Wizard.class));
@@ -40,6 +46,8 @@ class ConsoleCharacterBuilderTest {
   void shouldCreateFighter() {
     when(presenter.showAvailableWeapons(any())).thenReturn(List.of());
     when(inputProvider.cmdLineToOption()).thenReturn(0);
+    when(consoleAbilitiesProvider.getAbilities())
+        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
 
     Subject player = consoleCharacterBuilder.createPlayer();
 
@@ -50,6 +58,8 @@ class ConsoleCharacterBuilderTest {
   void shouldCreateWizard() {
     when(presenter.showAvailableWeapons(any())).thenReturn(List.of());
     when(inputProvider.cmdLineToOption()).thenReturn(1);
+    when(consoleAbilitiesProvider.getAbilities())
+        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
 
     Subject player = consoleCharacterBuilder.createPlayer();
 

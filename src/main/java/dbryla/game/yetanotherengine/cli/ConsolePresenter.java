@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.cli;
 
 import dbryla.game.yetanotherengine.Presenter;
+import dbryla.game.yetanotherengine.domain.DiceRoll;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameOptions;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
@@ -11,6 +12,8 @@ import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -18,9 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component
@@ -141,6 +141,23 @@ public class ConsolePresenter implements Presenter {
       System.out.println(communicate.toString());
     }
     return armors;
+  }
+
+  @Override
+  public List<Integer> showGeneratedAbilityScores() {
+    List<Integer> abilityScores = new LinkedList<>();
+    for (int i = 0; i < 6; i++) {
+      List<Integer> rolls = new LinkedList<>();
+      for (int j = 0; j < 4; j++) {
+        rolls.add(DiceRoll.k6());
+      }
+      rolls.stream().sorted().skip(1).reduce(Integer::sum).ifPresent(abilityScores::add);
+    }
+    System.out.println("Your ability scores: ");
+    abilityScores.forEach(abilityScore -> System.out.print(abilityScore + " "));
+    System.out.println();
+    System.out.println("Please assign each of them respectively to abilities: Str, Dex, Con, Int, Wis, Cha");
+    return abilityScores;
   }
 
 }

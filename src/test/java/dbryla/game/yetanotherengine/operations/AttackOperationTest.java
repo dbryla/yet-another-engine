@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
@@ -32,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class AttackOperationTest {
 
-  private final static Instrument TEST_INSTRUMENT = new Instrument(Weapon.SHORTSWORD);
+  private final static Instrument TEST_INSTRUMENT = new Instrument(Weapon.SHORTBOW);
 
   @Mock
   private EventHub eventHub;
@@ -52,6 +53,8 @@ class AttackOperationTest {
   @Test
   void shouldReturnAttackedSubject() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getAbilities())
+        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
     when(source.getWeapon()).thenReturn(Weapon.SHORTSWORD);
     Subject target = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(target);
@@ -79,8 +82,10 @@ class AttackOperationTest {
   @Test
   void shouldNotReturnChangesIfTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getAbilities())
+        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
     Subject target = mock(Subject.class);
-    when(fightHelper.isMiss(anyInt(), anyInt())).thenReturn(true);
+    when(fightHelper.isMiss(anyInt(), anyInt(), anyInt())).thenReturn(true);
 
     Set<Subject> changes = operation.invoke(source, TEST_INSTRUMENT, target);
 
@@ -90,6 +95,8 @@ class AttackOperationTest {
   @Test
   void shouldChangeHealthPointsOfAttackedSubject() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getAbilities())
+        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
     Weapon weapon = mock(Weapon.class);
     when(source.getWeapon()).thenReturn(weapon);
     int attackDamage = 5;
@@ -108,6 +115,8 @@ class AttackOperationTest {
   @Test
   void shouldSendSuccessAttackEventWhenTargetWasTerminated() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getAbilities())
+        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
     Weapon weapon = mock(Weapon.class);
     int attackDamage = 10;
     when(weapon.rollAttackDamage()).thenReturn(attackDamage);
@@ -127,6 +136,8 @@ class AttackOperationTest {
   @Test
   void shouldSendSuccessAttackEventWhenTargetWasAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getAbilities())
+        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
     Weapon weapon = mock(Weapon.class);
     int attackDamage = 5;
     when(weapon.rollAttackDamage()).thenReturn(attackDamage);
@@ -145,8 +156,10 @@ class AttackOperationTest {
   @Test
   void shouldSendFailAttackEventWhenTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
+    when(source.getAbilities())
+        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
     Subject target = mock(Subject.class);
-    when(fightHelper.isMiss(anyInt(), anyInt())).thenReturn(true);
+    when(fightHelper.isMiss(anyInt(), anyInt(), anyInt())).thenReturn(true);
 
     operation.invoke(source, TEST_INSTRUMENT, target);
 

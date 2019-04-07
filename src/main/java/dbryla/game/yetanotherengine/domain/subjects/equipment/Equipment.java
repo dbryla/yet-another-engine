@@ -3,6 +3,10 @@ package dbryla.game.yetanotherengine.domain.subjects.equipment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.Optional;
+
+import static dbryla.game.yetanotherengine.domain.subjects.equipment.ArmorType.MEDIUM;
+
 @AllArgsConstructor
 public class Equipment {
 
@@ -28,5 +32,9 @@ public class Equipment {
       ac += armor.getArmorClass();
     }
     return ac;
+  }
+
+  public Optional<Armor> getArmor() {
+    return Optional.ofNullable(armor);
   }
 }

@@ -2,6 +2,10 @@ package dbryla.game.yetanotherengine.domain.subjects.equipment;
 
 import lombok.AllArgsConstructor;
 
+import java.util.Optional;
+
+import static dbryla.game.yetanotherengine.domain.subjects.equipment.ArmorType.MEDIUM;
+
 @AllArgsConstructor
 public enum Armor {
   SHIELD(2, ArmorType.SHIELD),
@@ -17,6 +21,17 @@ public enum Armor {
   }
 
   public boolean isNotHeavyArmor() {
-    return !type.equals(ArmorType.HEAVY) && !type.equals(ArmorType.SHIELD);
+    return !ArmorType.HEAVY.equals(type) && !ArmorType.SHIELD.equals(type);
+  }
+
+  public Optional<Integer> getMaxDexterityBonus() {
+    switch (type) {
+      case MEDIUM:
+        return Optional.of(2);
+      case HEAVY:
+        return Optional.of(0);
+      default:
+        return Optional.empty();
+    }
   }
 }

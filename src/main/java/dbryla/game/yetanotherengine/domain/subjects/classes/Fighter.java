@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.subjects.classes;
 
+import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
@@ -13,19 +14,23 @@ public class Fighter extends BaseClass implements Subject {
   private static final int DEFAULT_FIGHTER_HP = 10;
 
   private Fighter(Fighter oldState, int healthPoints) {
-    this(oldState.id, healthPoints, oldState.equipment, oldState.activeEffect);
+    this(oldState.id, healthPoints, oldState.equipment, oldState.abilities, oldState.activeEffect);
   }
 
   private Fighter(Fighter oldState, ActiveEffect activeEffect) {
-    this(oldState.id, oldState.healthPoints, oldState.equipment, activeEffect);
+    this(oldState.id, oldState.healthPoints, oldState.equipment, oldState.abilities, activeEffect);
   }
 
-  private Fighter(SubjectIdentifier id, int healthPoints, Equipment equipment, ActiveEffect activeEffect) {
-    super(id, healthPoints, equipment, activeEffect);
+  private Fighter(SubjectIdentifier id,
+                  int healthPoints,
+                  Equipment equipment,
+                  Abilities abilities,
+                  ActiveEffect activeEffect) {
+    super(id, healthPoints, equipment, abilities, activeEffect);
   }
 
-  private Fighter(SubjectIdentifier id, int healthPoints, Equipment equipment) {
-    this(id, healthPoints, equipment, null);
+  private Fighter(SubjectIdentifier id, int healthPoints, Equipment equipment, Abilities abilities) {
+    this(id, healthPoints, equipment, abilities, null);
   }
 
   @Override
@@ -51,10 +56,10 @@ public class Fighter extends BaseClass implements Subject {
 
     private String name;
     private String affiliation;
-    private int healthPoints = DEFAULT_FIGHTER_HP;
     private Weapon weapon;
     private Armor shield;
     private Armor armor;
+    private Abilities abilities;
 
     public Builder name(String name) {
       this.name = name;
@@ -63,11 +68,6 @@ public class Fighter extends BaseClass implements Subject {
 
     public Builder affiliation(String affiliation) {
       this.affiliation = affiliation;
-      return this;
-    }
-
-    public Builder healthPoints(int healthPoints) {
-      this.healthPoints = healthPoints;
       return this;
     }
 
@@ -86,12 +86,16 @@ public class Fighter extends BaseClass implements Subject {
       return this;
     }
 
+    public Builder abilities(Abilities abilities) {
+      this.abilities = abilities;
+      return this;
+    }
+
     public Fighter build() throws IncorrectAttributesException {
       SubjectIdentifier id = buildIdentifier(name, affiliation);
       Equipment equipment = new Equipment(weapon, shield, armor);
-      return new Fighter(id, healthPoints, equipment);
+      return new Fighter(id, DEFAULT_FIGHTER_HP + abilities.getConstitutionModifier(), equipment, abilities);
     }
-
   }
 
 }

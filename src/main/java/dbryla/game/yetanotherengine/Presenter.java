@@ -25,4 +25,6 @@ public interface Presenter {
   List<Armor> showAvailableShield();
 
   List<Armor> showAvailableArmors(Class clazz);
+
+  List<Integer> showGeneratedAbilityScores();
 }

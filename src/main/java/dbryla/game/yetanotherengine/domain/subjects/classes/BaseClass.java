@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.subjects.classes;
 
+import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
@@ -14,11 +15,12 @@ public abstract class BaseClass implements Subject {
   protected final SubjectIdentifier id;
   protected final int healthPoints;
   protected final Equipment equipment;
+  protected final Abilities abilities;
   protected final ActiveEffect activeEffect;
 
   @Override
   public int getInitiativeModifier() {
-    return 0;
+    return abilities.getDexterityModifier();
   }
 
   @Override
@@ -38,7 +40,12 @@ public abstract class BaseClass implements Subject {
 
   @Override
   public int getArmorClass() {
-    return equipment.getArmorClass();
+    int modifier = equipment.getArmor()
+        .map(Armor::getMaxDexterityBonus)
+        .map(Optional::get)
+        .map(maxDexBonus -> Math.min(maxDexBonus, abilities.getDexterityModifier()))
+        .orElse(abilities.getDexterityModifier());
+    return equipment.getArmorClass() + modifier;
   }
 
   @Override
@@ -59,6 +66,11 @@ public abstract class BaseClass implements Subject {
   @Override
   public Optional<ActiveEffect> getActiveEffect() {
     return Optional.ofNullable(activeEffect);
+  }
+
+  @Override
+  public Abilities getAbilities() {
+    return abilities;
   }
 
   protected static SubjectIdentifier buildIdentifier(String name, String affiliation) {

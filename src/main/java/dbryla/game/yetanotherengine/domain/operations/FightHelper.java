@@ -2,7 +2,9 @@ package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.DiceRoll;
 import dbryla.game.yetanotherengine.domain.spells.DiceRollModifier;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Supplier;
@@ -45,8 +47,8 @@ public class FightHelper {
     return DISADVANTAGE.equals(modifier) || ADVANTAGE.equals(modifier);
   }
 
-  public boolean isMiss(int armorClass, int hitRoll) {
-    return hitRoll == 1 || hitRoll < armorClass;
+  public boolean isMiss(int armorClass, int hitRoll, int originalHitRoll) {
+    return originalHitRoll == 1 || hitRoll < armorClass;
   }
 
   public int getAttackDamage(int attackDamage, int hitRoll) {
@@ -56,8 +58,8 @@ public class FightHelper {
     return attackDamage;
   }
 
-  int getConstitutionSavingThrow(Subject source, Subject target) {
-    return applyRulesToSavingThrow(target);
+  int getConstitutionSavingThrow(Subject target) {
+    return applyRulesToSavingThrow(target) + target.getAbilities().getConstitutionModifier();
   }
 
   private int applyRulesToSavingThrow(Subject target) {
@@ -74,11 +76,21 @@ public class FightHelper {
     return hitRoll.get() + modifiers;
   }
 
-  boolean isSaved(int savingThrow) {
-    return savingThrow >= 8;
+  boolean isSaved(Subject source, int savingThrow) {
+    return savingThrow >= 8 + getModifier(source);
   }
 
-  int getDexteritySavingThrow(Subject source, Subject target) {
-    return applyRulesToSavingThrow(target);
+  int getDexteritySavingThrow(Subject target) {
+    return applyRulesToSavingThrow(target) + target.getAbilities().getDexterityModifier();
+  }
+
+  int getModifier(Subject source) {
+    if (source instanceof Wizard) {
+      return source.getAbilities().getIntelligenceModifier();
+    }
+    if (source instanceof Cleric) {
+      return source.getAbilities().getWisdomModifier();
+    }
+    return 0;
   }
 }

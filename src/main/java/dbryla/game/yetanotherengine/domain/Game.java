@@ -11,9 +11,11 @@ import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -29,16 +31,16 @@ public class Game {
   }
 
   public void createEnemies() {
-    createEnemy("Orc", 8, Weapon.SHORTSWORD);
-    createEnemy("Goblin", 4, Weapon.DAGGER);
+    createEnemy("Orc", Weapon.SHORTSWORD);
+    createEnemy("Goblin", Weapon.DAGGER);
   }
 
-  private void createEnemy(String name, int healthPoints, Weapon weapon) {
+  private void createEnemy(String name, Weapon weapon) {
     Fighter enemy = Fighter.builder()
         .name(name)
         .affiliation(ENEMIES)
-        .healthPoints(healthPoints)
         .weapon(weapon)
+        .abilities(new Abilities(10, 10, 10, 10, 10, 10))
         .build();
     stateStorage.save(enemy);
     artificialIntelligence.initSubject(enemy);
@@ -47,6 +49,13 @@ public class Game {
   public List<String> getAllAliveEnemies() {
     return StreamSupport.stream(stateStorage.findAll().spliterator(), false)
         .filter(subject -> subject.getAffiliation().equals(ENEMIES) && !subject.isTerminated())
+        .map(Subject::getName)
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  public List<String> getAllAliveFriends() {
+    return StreamSupport.stream(stateStorage.findAll().spliterator(), false)
+        .filter(subject -> subject.getAffiliation().equals(PLAYER) && !subject.isTerminated())
         .map(Subject::getName)
         .collect(Collectors.toUnmodifiableList());
   }
@@ -64,5 +73,4 @@ public class Game {
       );
     }
   }
-
 }

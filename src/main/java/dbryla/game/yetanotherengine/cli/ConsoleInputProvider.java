@@ -54,10 +54,19 @@ public class ConsoleInputProvider implements InputProvider {
         .map(Instrument::new)
         .orElse(new Instrument(subject.getWeapon()));
     int numberOfTargets = operation.getAllowedNumberOfTargets(instrument);
+    boolean friendlyAction = isFriendlyAction(instrument);
     if (numberOfTargets == UNLIMITED_TARGETS) {
-      return new Action(subject.getName(), game.getAllAliveEnemies(), operation, instrument);
+      return new Action(subject.getName(), getAllTargets(game, friendlyAction), operation, instrument);
     }
-    return new Action(subject.getName(), pickTargets(game, numberOfTargets), operation, instrument);
+    return new Action(subject.getName(), pickTargets(game, numberOfTargets, friendlyAction), operation, instrument);
+  }
+
+  private List<String> getAllTargets(Game game, boolean friendlyAction) {
+    return friendlyAction ? game.getAllAliveFriends() : game.getAllAliveEnemies();
+  }
+
+  private boolean isFriendlyAction(Instrument instrument) {
+    return instrument.getSpell() != null && instrument.getSpell().isPositiveSpell();
   }
 
   private Optional<Spell> getSpell(Subject subject, Operation operation) {
@@ -68,9 +77,9 @@ public class ConsoleInputProvider implements InputProvider {
     return Optional.empty();
   }
 
-  private List<String> pickTargets(Game game, int numberOfTargets) {
+  private List<String> pickTargets(Game game, int numberOfTargets, boolean friendlyAction) {
     List<String> targets = new LinkedList<>();
-    List<String> aliveTargets = game.getAllAliveEnemies();
+    List<String> aliveTargets = getAllTargets(game, friendlyAction);
     if (aliveTargets.size() <= numberOfTargets) {
       return aliveTargets;
     }

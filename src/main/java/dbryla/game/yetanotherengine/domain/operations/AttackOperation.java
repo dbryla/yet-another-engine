@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
@@ -28,11 +29,12 @@ public class AttackOperation implements Operation {
     Set<Subject> changes = new HashSet<>();
     Subject target = targets[0];
     int armorClass = target.getArmorClass();
-    int hitRoll = fightHelper.getHitRoll(source, target);
-    if (fightHelper.isMiss(armorClass, hitRoll)) {
+    int originalHitRoll = fightHelper.getHitRoll(source, target);
+    int hitRoll = originalHitRoll + getModifier(instrument.getWeapon(), source.getAbilities());
+    if (fightHelper.isMiss(armorClass, hitRoll, originalHitRoll)) {
       eventHub.send(eventsFactory.failEvent(source, target));
     } else {
-      int attackDamage = getAttackDamage(source, hitRoll);
+      int attackDamage = getAttackDamage(source, hitRoll) + getModifier(instrument.getWeapon(), source.getAbilities());
       int remainingHealthPoints = target.getHealthPoints() - attackDamage;
       Subject changedTarget = target.of(remainingHealthPoints);
       changes.add(changedTarget);
@@ -42,14 +44,6 @@ public class AttackOperation implements Operation {
     return changes;
   }
 
-  private int getAttackDamage(Subject source, int hitRoll) {
-    Weapon weapon = source.getWeapon();
-    if (weapon == null) {
-      return 1;
-    }
-    return fightHelper.getAttackDamage(weapon.rollAttackDamage(), hitRoll);
-  }
-
   private void verifyParams(Subject source, Subject[] targets) throws UnsupportedAttackException {
     if (source == null) {
       throw new UnsupportedAttackException("Can't invoke operation on null source");
@@ -57,6 +51,24 @@ public class AttackOperation implements Operation {
     if (targets.length != 1) {
       throw new UnsupportedAttackException("Can't attack none or more than one target.");
     }
+  }
+
+  private int getModifier(Weapon weapon, Abilities abilities) {
+    return weapon.isMelee()
+        ? (weapon.isFinesse() ? getFinesseModifier(abilities) : abilities.getStrengthModifier())
+        : abilities.getDexterityModifier();
+  }
+
+  private int getFinesseModifier(Abilities abilities) {
+    return Math.max(abilities.getStrengthModifier(), abilities.getDexterityModifier());
+  }
+
+  private int getAttackDamage(Subject source, int hitRoll) {
+    Weapon weapon = source.getWeapon();
+    if (weapon == null) {
+      return 1;
+    }
+    return fightHelper.getAttackDamage(weapon.rollAttackDamage(), hitRoll);
   }
 
   @Override

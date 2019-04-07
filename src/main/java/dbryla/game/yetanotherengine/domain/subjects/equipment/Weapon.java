@@ -39,4 +39,12 @@ public enum Weapon {
   public boolean isSimpleType() {
     return SIMPLE_MELEE_WEAPON.equals(type) || SIMPLE_RANGED_WEAPON.equals(type);
   }
+
+  public boolean isMelee() {
+    return SIMPLE_MELEE_WEAPON.equals(type) || MARTIAL_MELEE_WEAPON.equals(type);
+  }
+
+  public boolean isFinesse() {
+    return properties.contains(FINESSE);
+  }
 }

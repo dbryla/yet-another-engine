@@ -60,22 +60,22 @@ class FightHelperTest {
 
   @Test
   void shouldMissAttackIfRollLessThanArmorClass() {
-    assertThat(fightHelper.isMiss(10, 1)).isTrue();
+    assertThat(fightHelper.isMiss(10, 6, 5)).isTrue();
   }
 
   @Test
-  void shouldMissAttackIfRollOne() {
-    assertThat(fightHelper.isMiss(0, 1)).isTrue();
+  void shouldMissAttackIfOriginalRollIsOne() {
+    assertThat(fightHelper.isMiss(1, 19, 1)).isTrue();
   }
 
   @Test
   void shouldNotMissAttackIfRollMoreThanArmorClass() {
-    assertThat(fightHelper.isMiss(5, 10)).isFalse();
+    assertThat(fightHelper.isMiss(5, 10, 10)).isFalse();
   }
 
   @Test
   void shouldNotMissAttackIfRollTheSameArmorClass() {
-    assertThat(fightHelper.isMiss(10, 10)).isFalse();
+    assertThat(fightHelper.isMiss(10, 10, 10)).isFalse();
   }
 
   @Test

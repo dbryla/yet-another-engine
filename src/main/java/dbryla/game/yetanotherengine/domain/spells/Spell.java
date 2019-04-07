@@ -43,7 +43,7 @@ public enum Spell {
   private final int maximumNumberOfTargets;
   private final Supplier<Integer> spellRoll;
   @Getter
-  private final boolean friendlyTargets;
+  private final boolean positiveSpell;
 
   Spell(Class owner,
         SpellType spellType,
@@ -55,16 +55,16 @@ public enum Spell {
     this.spellSaveType = spellSaveType;
     this.maximumNumberOfTargets = maximumNumberOfTargets;
     this.spellRoll = spellRoll;
-    this.friendlyTargets = !DAMAGE.equals(spellType);
+    this.positiveSpell = !DAMAGE.equals(spellType);
     this.spellEffect = null;
   }
 
-  Spell(Class owner, SpellType spellType, Effect spellEffect, int maximumNumberOfTargets, boolean friendlyTargets) {
+  Spell(Class owner, SpellType spellType, Effect spellEffect, int maximumNumberOfTargets, boolean positiveSpell) {
     this.owner = owner;
     this.spellType = spellType;
     this.spellEffect = spellEffect;
     this.maximumNumberOfTargets = maximumNumberOfTargets;
-    this.friendlyTargets = friendlyTargets;
+    this.positiveSpell = positiveSpell;
     this.spellSaveType = IRRESISTIBLE;
     this.spellRoll = null;
   }

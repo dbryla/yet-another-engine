@@ -29,7 +29,7 @@ public class EventsFactory {
   public Event successSpellCastEvent(Subject attacker, Subject target, Spell spell) {
     String message = successMessage(attacker.getName(), target.getName(), target.isTerminated(), getSpellName(spell));
     if (EFFECT.equals(spell.getSpellType())) {
-      message += " " + target.getName() + " is " + spell.getSpellEffect().toString().toLowerCase() + "ed";
+      message += " " + target.getName() + " is " + spell.getSpellEffect().toString().toLowerCase() + "ed.";
     }
     return new Event(message);
   }

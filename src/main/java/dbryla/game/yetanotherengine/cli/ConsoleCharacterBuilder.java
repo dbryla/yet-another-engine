@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.GameOptions.PLAYER;
+import static dbryla.game.yetanotherengine.domain.GameOptions.ALLIES;
 
 import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Abilities;
@@ -51,7 +51,7 @@ public class ConsoleCharacterBuilder {
   private Fighter buildFighter(String playerName, Abilities abilities) {
     Fighter.Builder builder = Fighter.builder()
         .name(playerName)
-        .affiliation(PLAYER)
+        .affiliation(ALLIES)
         .abilities(abilities);
     getWeapon(Fighter.class).ifPresent(weapon -> {
       builder.weapon(weapon);
@@ -90,7 +90,7 @@ public class ConsoleCharacterBuilder {
   private Wizard buildWizard(String playerName, Abilities abilities) {
     Wizard.Builder builder = Wizard.builder()
         .name(playerName)
-        .affiliation(PLAYER)
+        .affiliation(ALLIES)
         .abilities(abilities);
     getWeapon(Wizard.class).ifPresent(builder::weapon);
     return builder.build();
@@ -99,7 +99,7 @@ public class ConsoleCharacterBuilder {
   private Subject buildCleric(String playerName, Abilities abilities) {
     Cleric.Builder builder = Cleric.builder()
         .name(playerName)
-        .affiliation(PLAYER)
+        .affiliation(ALLIES)
         .abilities(abilities);
     getWeapon(Cleric.class).ifPresent(weapon -> {
       builder.weapon(weapon);

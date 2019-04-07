@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.domain;
 
 import static dbryla.game.yetanotherengine.domain.GameOptions.ENEMIES;
-import static dbryla.game.yetanotherengine.domain.GameOptions.PLAYER;
+import static dbryla.game.yetanotherengine.domain.GameOptions.ALLIES;
 
 import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
@@ -53,9 +53,9 @@ public class Game {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  public List<String> getAllAliveFriends() {
+  public List<String> getAllAliveAllies() {
     return StreamSupport.stream(stateStorage.findAll().spliterator(), false)
-        .filter(subject -> subject.getAffiliation().equals(PLAYER) && !subject.isTerminated())
+        .filter(subject -> subject.getAffiliation().equals(ALLIES) && !subject.isTerminated())
         .map(Subject::getName)
         .collect(Collectors.toUnmodifiableList());
   }
@@ -64,7 +64,7 @@ public class Game {
     StateMachine stateMachine = stateMachineFactory.createInMemoryStateMachine();
     while (!stateMachine.isInTerminalState()) {
       stateMachine.getNextSubject().ifPresent(subject -> {
-            if (PLAYER.equals(subject.getAffiliation())) {
+            if (ALLIES.equals(subject.getAffiliation())) {
               stateMachine.execute(inputProvider.askForAction(subject, this));
             } else {
               stateMachine.execute(artificialIntelligence.attackAction(subject.getName()));

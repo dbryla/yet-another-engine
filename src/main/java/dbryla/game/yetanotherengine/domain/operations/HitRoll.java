@@ -1,0 +1,20 @@
+package dbryla.game.yetanotherengine.domain.operations;
+
+import lombok.Getter;
+
+
+@Getter
+class HitRoll {
+  private final int original;
+  private int actual;
+
+  HitRoll(int original, int modifiers) {
+    this.original = original;
+    this.actual = original + modifiers;
+  }
+
+  HitRoll addModifier(int modifier) {
+    this.actual = modifier;
+    return this;
+  }
+}

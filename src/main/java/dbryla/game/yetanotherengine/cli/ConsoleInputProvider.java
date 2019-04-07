@@ -62,7 +62,7 @@ public class ConsoleInputProvider implements InputProvider {
   }
 
   private List<String> getAllTargets(Game game, boolean friendlyAction) {
-    return friendlyAction ? game.getAllAliveFriends() : game.getAllAliveEnemies();
+    return friendlyAction ? game.getAllAliveAllies() : game.getAllAliveEnemies();
   }
 
   private boolean isFriendlyAction(Instrument instrument) {

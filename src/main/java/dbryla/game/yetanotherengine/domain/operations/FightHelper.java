@@ -15,11 +15,11 @@ import static dbryla.game.yetanotherengine.domain.spells.DiceRollModifier.DISADV
 @Component
 public class FightHelper {
 
-  int getHitRoll(Subject source, Subject target) {
+  HitRoll getHitRoll(Subject source, Subject target) {
     return applyRulesToHitRoll(source, target);
   }
 
-  private int applyRulesToHitRoll(Subject source, Subject target) {
+  private HitRoll applyRulesToHitRoll(Subject source, Subject target) {
     Supplier<Integer> hitRoll = DiceRoll::k20;
     int modifiers = 0;
     boolean sourceHasDisadvantage = false;
@@ -40,15 +40,15 @@ public class FightHelper {
         modifiers += targetModifier.getDiceRollModifier();
       }
     }
-    return hitRoll.get() + modifiers;
+    return new HitRoll(hitRoll.get(), modifiers);
   }
 
   private boolean isAdvantageOrDisadvantage(DiceRollModifier modifier) {
     return DISADVANTAGE.equals(modifier) || ADVANTAGE.equals(modifier);
   }
 
-  public boolean isMiss(int armorClass, int hitRoll, int originalHitRoll) {
-    return originalHitRoll == 1 || hitRoll < armorClass;
+  public boolean isMiss(int armorClass, HitRoll hitRoll) {
+    return hitRoll.getOriginal() == 1 || hitRoll.getActual() < armorClass;
   }
 
   public int getAttackDamage(int attackDamage, int hitRoll) {
@@ -58,11 +58,11 @@ public class FightHelper {
     return attackDamage;
   }
 
-  int getConstitutionSavingThrow(Subject target) {
-    return applyRulesToSavingThrow(target) + target.getAbilities().getConstitutionModifier();
+  HitRoll getConstitutionSavingThrow(Subject target) {
+    return applyRulesToSavingThrow(target).addModifier(target.getAbilities().getConstitutionModifier());
   }
 
-  private int applyRulesToSavingThrow(Subject target) {
+  private HitRoll applyRulesToSavingThrow(Subject target) {
     Supplier<Integer> hitRoll = DiceRoll::k20;
     int modifiers = 0;
     if (target.getActiveEffect().isPresent()) {
@@ -73,15 +73,15 @@ public class FightHelper {
         modifiers += targetModifier.getDiceRollModifier();
       }
     }
-    return hitRoll.get() + modifiers;
+    return new HitRoll(hitRoll.get(), modifiers);
   }
 
   boolean isSaved(Subject source, int savingThrow) {
     return savingThrow >= 8 + getModifier(source);
   }
 
-  int getDexteritySavingThrow(Subject target) {
-    return applyRulesToSavingThrow(target) + target.getAbilities().getDexterityModifier();
+  HitRoll getDexteritySavingThrow(Subject target) {
+    return applyRulesToSavingThrow(target).addModifier(target.getAbilities().getDexterityModifier());
   }
 
   int getModifier(Subject source) {

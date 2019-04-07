@@ -29,16 +29,16 @@ public class AttackOperation implements Operation {
     Set<Subject> changes = new HashSet<>();
     Subject target = targets[0];
     int armorClass = target.getArmorClass();
-    int originalHitRoll = fightHelper.getHitRoll(source, target);
-    int hitRoll = originalHitRoll + getModifier(instrument.getWeapon(), source.getAbilities());
-    if (fightHelper.isMiss(armorClass, hitRoll, originalHitRoll)) {
+    HitRoll hitRoll = fightHelper.getHitRoll(source, target);
+    hitRoll.addModifier(getModifier(instrument.getWeapon(), source.getAbilities()));
+    if (fightHelper.isMiss(armorClass, hitRoll)) {
       eventHub.send(eventsFactory.failEvent(source, target));
     } else {
-      int attackDamage = getAttackDamage(source, hitRoll) + getModifier(instrument.getWeapon(), source.getAbilities());
+      int attackDamage = getAttackDamage(source, hitRoll.getOriginal()) + getModifier(instrument.getWeapon(), source.getAbilities());
       int remainingHealthPoints = target.getHealthPoints() - attackDamage;
       Subject changedTarget = target.of(remainingHealthPoints);
       changes.add(changedTarget);
-      eventHub.send(eventsFactory.successAttackEvent(source, changedTarget));
+      eventHub.send(eventsFactory.successAttackEvent(source, changedTarget, HitFlavor.of(hitRoll, armorClass)));
     }
     effectConsumer.apply(source).ifPresent(changes::add);
     return changes;

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GameOptions {
 
-  public static final String PLAYER = "player";
+  public static final String ALLIES = "player";
   public static final String ENEMIES = "enemies";
   private static final Set<Class> AVAILABLE_CLASSES = Set.of(Fighter.class, Wizard.class, Cleric.class);
   private static final Set<Class> SPELL_CASTERS = Set.of(Wizard.class, Cleric.class);

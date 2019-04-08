@@ -5,7 +5,7 @@ import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;

@@ -8,9 +8,7 @@ import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,25 +23,18 @@ public class Game {
   private final StateMachineFactory stateMachineFactory;
   private final ArtificialIntelligence artificialIntelligence;
   private final InputProvider inputProvider;
+  private final GameOptions gameOptions;
 
   public void createCharacter(Subject subject) {
     stateStorage.save(subject);
   }
 
-  public void createEnemies() {
-    createEnemy("Orc", Weapon.SHORTSWORD);
-    createEnemy("Goblin", Weapon.DAGGER);
-  }
-
-  private void createEnemy(String name, Weapon weapon) {
-    Fighter enemy = Fighter.builder()
-        .name(name)
-        .affiliation(ENEMIES)
-        .weapon(weapon)
-        .abilities(new Abilities(10, 10, 10, 10, 10, 10))
-        .build();
-    stateStorage.save(enemy);
-    artificialIntelligence.initSubject(enemy);
+  public void createEnemies(int playersNumber) {
+    List<Subject> subjects = gameOptions.getRandomEncounter(playersNumber);
+    subjects.forEach(subject -> {
+      stateStorage.save(subject);
+      artificialIntelligence.initSubject(subject);
+    });
   }
 
   public List<String> getAllAliveEnemies() {

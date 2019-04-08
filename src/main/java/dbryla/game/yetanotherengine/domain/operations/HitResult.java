@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

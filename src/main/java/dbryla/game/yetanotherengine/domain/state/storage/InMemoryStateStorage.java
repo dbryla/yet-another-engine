@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.state.storage;
 
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

@@ -3,6 +3,7 @@ package dbryla.game.yetanotherengine.domain;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Random;
+import java.util.function.IntUnaryOperator;
 
 @Slf4j
 public class DiceRoll {
@@ -43,5 +44,23 @@ public class DiceRoll {
     int diceRoll = random.nextInt(20) + 1;
     log.trace("k20: " + diceRoll);
     return diceRoll;
+  }
+
+  public static int of(int hitDice) {
+    switch (hitDice) {
+      case 4:
+        return k4();
+      case 6:
+        return k6();
+      case 8:
+        return k8();
+      case 10:
+        return k10();
+      case 12:
+        return k12();
+      case 20:
+        return k20();
+    }
+    throw new IllegalArgumentException("Unsupported hit dice " + hitDice);
   }
 }

@@ -13,7 +13,7 @@ import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +50,7 @@ class GameTest {
 
   @Test
   void shouldSaveCreatedEnemies() {
-    game.createEnemies();
+    game.createEnemies(playersNumber);
 
     verify(stateStorage, atLeastOnce()).save(any());
   }

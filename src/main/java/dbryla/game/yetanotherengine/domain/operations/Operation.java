@@ -1,8 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.Instrument;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 
 import java.util.Set;
 

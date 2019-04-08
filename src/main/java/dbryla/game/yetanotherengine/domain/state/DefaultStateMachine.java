@@ -5,7 +5,7 @@ import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.state.storage.StepTracker;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.*;
 
 public class DefaultStateMachine implements StateMachine {

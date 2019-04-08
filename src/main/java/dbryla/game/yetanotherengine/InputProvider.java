@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine;
 
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Game;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 
 public interface InputProvider {
 

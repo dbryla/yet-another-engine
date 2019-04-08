@@ -7,7 +7,7 @@ import static dbryla.game.yetanotherengine.domain.spells.DiceRollModifier.DISADV
 import dbryla.game.yetanotherengine.domain.DiceRoll;
 import dbryla.game.yetanotherengine.domain.spells.DiceRollModifier;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 import java.util.function.Supplier;
 import org.springframework.stereotype.Component;

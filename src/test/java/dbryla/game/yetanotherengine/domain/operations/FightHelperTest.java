@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.domain.spells.DiceRollModifier;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
-import dbryla.game.yetanotherengine.domain.subjects.classes.ActiveEffect;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

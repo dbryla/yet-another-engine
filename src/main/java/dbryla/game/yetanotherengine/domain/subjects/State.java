@@ -1,4 +1,4 @@
-package dbryla.game.yetanotherengine.domain.subjects.classes;
+package dbryla.game.yetanotherengine.domain.subjects;
 
 import lombok.AllArgsConstructor;
 

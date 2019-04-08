@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine.domain.spells;
 
 import static dbryla.game.yetanotherengine.domain.spells.DiceRollModifier.*;
 
-import dbryla.game.yetanotherengine.domain.subjects.classes.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

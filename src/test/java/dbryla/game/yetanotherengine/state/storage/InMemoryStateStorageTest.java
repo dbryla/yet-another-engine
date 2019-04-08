@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.state.storage;
 
 import dbryla.game.yetanotherengine.domain.state.storage.InMemoryStateStorage;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;

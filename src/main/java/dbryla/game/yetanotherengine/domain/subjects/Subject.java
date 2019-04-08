@@ -1,4 +1,4 @@
-package dbryla.game.yetanotherengine.domain.subjects.classes;
+package dbryla.game.yetanotherengine.domain.subjects;
 
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.spells.Effect;

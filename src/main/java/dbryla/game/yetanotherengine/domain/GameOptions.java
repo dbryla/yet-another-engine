@@ -1,26 +1,30 @@
 package dbryla.game.yetanotherengine.domain;
 
-import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
+import dbryla.game.yetanotherengine.domain.encounters.MonsterBook;
+import dbryla.game.yetanotherengine.domain.encounters.MonsterDefinition;
+import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.subjects.Monster;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.*;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import dbryla.game.yetanotherengine.domain.subjects.classes.BaseClass;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class GameOptions {
 
   public static final String ALLIES = "player";
   public static final String ENEMIES = "enemies";
   private static final Set<Class> AVAILABLE_CLASSES = Set.of(Fighter.class, Wizard.class, Cleric.class);
   private static final Set<Class> SPELL_CASTERS = Set.of(Wizard.class, Cleric.class);
+  private final MonsterBook monsterBook;
 
   public Set<Class> getAvailableClasses() {
     return AVAILABLE_CLASSES;
@@ -54,4 +58,24 @@ public class GameOptions {
   public boolean isSpellCaster(Class clazz) {
     return SPELL_CASTERS.contains(clazz);
   }
+
+  List<Subject> getRandomEncounter(int playersNumber) {
+    MonsterDefinition monsterDefinition = monsterBook.getRandomMonster();
+    List<Subject> monsters = new LinkedList<>();
+    for (int i = 0; i < playersNumber; ++i) {
+      int healthPoints = IntStream.range(0, monsterDefinition.getNumberOfHitDices())
+          .map(j -> DiceRoll.of(monsterDefinition.getHitDice()))
+          .sum();
+      monsters.add(Monster.builder()
+          .name(monsterDefinition.getDefaultName() + i)
+          .healthPoints(healthPoints)
+          .abilities(monsterDefinition.getAbilities())
+          .armor(monsterDefinition.getArmor())
+          .weapon(monsterDefinition.getWeapon())
+          .shield(monsterDefinition.getShield())
+          .build());
+    }
+    return monsters;
+  }
+
 }

@@ -6,8 +6,8 @@ import static dbryla.game.yetanotherengine.domain.spells.SpellType.EFFECT;
 
 import dbryla.game.yetanotherengine.domain.operations.HitResult;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.classes.State;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.State;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;

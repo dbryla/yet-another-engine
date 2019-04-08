@@ -3,6 +3,8 @@ package dbryla.game.yetanotherengine.domain.subjects.classes;
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;

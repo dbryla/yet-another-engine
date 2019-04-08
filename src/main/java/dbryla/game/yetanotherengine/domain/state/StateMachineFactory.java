@@ -4,7 +4,7 @@ import dbryla.game.yetanotherengine.domain.Strategy;
 import dbryla.game.yetanotherengine.domain.state.storage.InMemoryStepTracker;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.state.storage.StepTracker;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
 
 import java.util.Comparator;
 import java.util.List;

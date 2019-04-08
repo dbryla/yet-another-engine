@@ -4,7 +4,9 @@ import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
+
 import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -39,10 +41,10 @@ public abstract class BaseClass implements Subject {
 
   @Override
   public State getSubjectState() {
-    if (currentHealthPoints == 0) {
+    if (currentHealthPoints <= 0) {
       return State.TERMINATED;
     }
-    if (currentHealthPoints == 100) {
+    if (currentHealthPoints == maxHealthPoints) {
       return State.NORMAL;
     }
     if (currentHealthPoints > Math.ceil(0.75 * maxHealthPoints)) {

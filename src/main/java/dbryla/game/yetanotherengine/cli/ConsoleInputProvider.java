@@ -47,6 +47,7 @@ public class ConsoleInputProvider implements InputProvider {
 
   @Override
   public Action askForAction(Subject subject, Game game) {
+    System.out.println(subject.getName() + " your turn!");
     List<Operation> availableOperations = presenter.showAvailableOperations(subject.getClass());
     int option = cmdLineToOption();
     Operation operation = availableOperations.get(option);
@@ -65,10 +66,6 @@ public class ConsoleInputProvider implements InputProvider {
     return friendlyAction ? game.getAllAliveAllies() : game.getAllAliveEnemies();
   }
 
-  private boolean isFriendlyAction(Instrument instrument) {
-    return instrument.getSpell() != null && instrument.getSpell().isPositiveSpell();
-  }
-
   private Optional<Spell> getSpell(Subject subject, Operation operation) {
     if (operation instanceof SpellCastOperation) {
       List<Spell> spells = presenter.showAvailableSpells(subject.getClass());
@@ -77,20 +74,26 @@ public class ConsoleInputProvider implements InputProvider {
     return Optional.empty();
   }
 
-  private List<String> pickTargets(Game game, int numberOfTargets, boolean friendlyAction) {
+  private boolean isFriendlyAction(Instrument instrument) {
+    return instrument.getSpell() != null && instrument.getSpell().isPositiveSpell();
+  }
+
+  private List<String> pickTargets(Game game, int numberOfTargets, boolean friendlyTarget) {
     List<String> targets = new LinkedList<>();
-    List<String> aliveTargets = getAllTargets(game, friendlyAction);
+    List<String> aliveTargets = getAllTargets(game, friendlyTarget);
     if (aliveTargets.size() <= numberOfTargets) {
       return aliveTargets;
     }
     for (int i = 0; i < numberOfTargets; i++) {
-      targets.add(pickTarget(game));
+      targets.add(pickTarget(game, friendlyTarget));
     }
     return targets;
   }
 
-  private String pickTarget(Game game) {
-    List<String> availableTargets = presenter.showAvailableTargets(game);
+  private String pickTarget(Game game, boolean friendlyTarget) {
+    List<String> availableTargets = friendlyTarget
+        ? presenter.showAvailableFriendlyTargets(game)
+        : presenter.showAvailableEnemyTargets(game);
     return availableTargets.get(cmdLineToOption());
   }
 }

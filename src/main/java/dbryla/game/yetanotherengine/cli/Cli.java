@@ -14,21 +14,24 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class Cli implements CommandLineRunner {
 
-  public static final String SIMULATION_OPTION = "sim";
-  public static final String GAME_OPTION = "game";
+  static final String SIMULATION_OPTION = "sim";
+  static final String GAME_OPTION = "game";
   private final Presenter presenter;
   private final GameFactory gameFactory;
   private final ConsoleCharacterBuilder consoleCharacterBuilder;
   private final Simulator simulator;
+  private final ConsoleInputProvider inputProvider;
 
   public Cli(Presenter presenter,
-      GameFactory gameFactory,
-      ConsoleCharacterBuilder consoleCharacterBuilder,
-      Simulator simulator) {
+             GameFactory gameFactory,
+             ConsoleCharacterBuilder consoleCharacterBuilder,
+             Simulator simulator,
+             ConsoleInputProvider inputProvider) {
     this.presenter = presenter;
     this.gameFactory = gameFactory;
     this.consoleCharacterBuilder = consoleCharacterBuilder;
     this.simulator = simulator;
+    this.inputProvider = inputProvider;
   }
 
   @Override
@@ -51,8 +54,12 @@ public class Cli implements CommandLineRunner {
   private void game() {
     log.info("Starting game mode...");
     Game game = gameFactory.newGame();
-    Subject player = consoleCharacterBuilder.createPlayer();
-    game.createCharacter(player);
+    System.out.println("How many players want to join?");
+    int playersNumber = inputProvider.cmdLineToOption();
+    for (int i = 0; i < playersNumber; i++) {
+      Subject player = consoleCharacterBuilder.createPlayer();
+      game.createCharacter(player);
+    }
     game.createEnemies();
     presenter.showStatus();
     game.start();

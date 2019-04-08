@@ -20,7 +20,9 @@ public interface Presenter {
 
   List<Operation> showAvailableOperations(Class clazz);
 
-  List<String> showAvailableTargets(Game game);
+  List<String> showAvailableEnemyTargets(Game game);
+
+  List<String> showAvailableFriendlyTargets(Game game);
 
   List<Armor> showAvailableShield();
 

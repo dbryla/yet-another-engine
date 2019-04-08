@@ -4,6 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameFactory;
@@ -30,6 +31,9 @@ class CliTest {
 
   @Mock
   private Presenter presenter;
+
+  @Mock
+  private ConsoleInputProvider inputProvider;
 
   @Test
   void shouldRunSimulation() throws Exception {

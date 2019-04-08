@@ -12,7 +12,6 @@ import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
@@ -21,8 +20,6 @@ import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,7 +90,7 @@ class ConsolePresenterTest {
     Game game = mock(Game.class);
     when(game.getAllAliveEnemies()).thenReturn(List.of("enemy"));
 
-    List<String> targets = consolePresenter.showAvailableTargets(game);
+    List<String> targets = consolePresenter.showAvailableEnemyTargets(game);
 
     assertThat(targets).contains("enemy");
   }

@@ -110,16 +110,25 @@ public class ConsolePresenter implements Presenter {
   }
 
   @Override
-  public List<String> showAvailableTargets(Game game) {
-    List<String> enemies = new LinkedList<>();
+  public List<String> showAvailableEnemyTargets(Game game) {
+    return showAvailableTargets(game.getAllAliveEnemies());
+  }
+
+  @Override
+  public List<String> showAvailableFriendlyTargets(Game game) {
+    return showAvailableTargets(game.getAllAliveAllies());
+  }
+
+  private List<String> showAvailableTargets(List<String> allAliveAllies) {
+    List<String> targets = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your target:");
     int i = 0;
-    for (String enemy : game.getAllAliveEnemies()) {
-      communicate.append(String.format(CHOICE_FORMAT, i++, enemy));
-      enemies.add(enemy);
+    for (String target : allAliveAllies) {
+      communicate.append(String.format(CHOICE_FORMAT, i++, target));
+      targets.add(target);
     }
     System.out.println(communicate.toString());
-    return enemies;
+    return targets;
   }
 
   @Override

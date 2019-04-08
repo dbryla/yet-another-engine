@@ -36,7 +36,9 @@ public class ConsoleCharacterBuilder {
     List<Class> availableClasses = presenter.showAvailableClasses();
     int playerChoice = inputProvider.cmdLineToOption();
     Class clazz = availableClasses.get(playerChoice);
-    Abilities abilities = consoleAbilitiesProvider.getAbilities();
+    System.out.println("Do you want (0) manual or (1) automatic abilities assignment?");
+    playerChoice = inputProvider.cmdLineToOption();
+    Abilities abilities = getAbilities(playerChoice);
     if (Fighter.class.equals(clazz)) {
       return buildFighter(playerName, abilities);
     } else if (Wizard.class.equals(clazz)) {
@@ -45,6 +47,14 @@ public class ConsoleCharacterBuilder {
       return buildCleric(playerName, abilities);
     } else {
       throw new IncorrectStateException("Unsupported class: " + clazz);
+    }
+  }
+
+  private Abilities getAbilities(int playerChoice) {
+    if (playerChoice == 0) {
+      return consoleAbilitiesProvider.getAbilities();
+    } else {
+      return new Abilities(12, 12, 12, 12, 12, 12);
     }
   }
 

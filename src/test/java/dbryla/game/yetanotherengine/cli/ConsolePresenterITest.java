@@ -4,10 +4,8 @@ import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -34,7 +32,7 @@ class ConsolePresenterITest {
         .findAny()
         .ifPresent(subject -> stateStorage.save(subject.of(0)));
 
-    List<String> availableTargets = consolePresenter.showAvailableTargets(game);
+    List<String> availableTargets = consolePresenter.showAvailableEnemyTargets(game);
 
     assertThat(availableTargets).allMatch(subjectName -> !stateStorage.findByName(subjectName).get().isTerminated());
 

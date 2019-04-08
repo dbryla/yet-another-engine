@@ -58,8 +58,6 @@ class ConsoleCharacterBuilderTest {
   void shouldCreateWizard() {
     when(presenter.showAvailableWeapons(any())).thenReturn(List.of());
     when(inputProvider.cmdLineToOption()).thenReturn(1);
-    when(consoleAbilitiesProvider.getAbilities())
-        .thenReturn(new Abilities(10, 10, 10, 10, 10, 10));
 
     Subject player = consoleCharacterBuilder.createPlayer();
 

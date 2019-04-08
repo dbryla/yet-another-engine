@@ -67,12 +67,12 @@ public class SpellCastOperation implements Operation {
     if (SpellSaveType.CONSTITUTION_SAVING_THROW.equals(spell.getSpellSaveType())) {
       handleSavingThrow(changes, source, spell, targets,
           fightHelper::getConstitutionSavingThrow,
-          target -> eventHub.send(eventsFactory.failEventBySavingThrow(source, spell, target, "constitution")));
+          target -> eventHub.send(eventsFactory.failEventBySavingThrow(source, spell, target, "Constitution")));
     }
     if (SpellSaveType.DEXTERITY_SAVING_THROW.equals(spell.getSpellSaveType())) {
       handleSavingThrow(changes, source, spell, targets,
           fightHelper::getDexteritySavingThrow,
-          target -> eventHub.send(eventsFactory.failEventBySavingThrow(source, spell, target, "dexterity")));
+          target -> eventHub.send(eventsFactory.failEventBySavingThrow(source, spell, target, "Dexterity")));
     }
     if (SpellSaveType.DEXTERITY_HALF_SAVING_THROW.equals(spell.getSpellSaveType())) {
       handleSavingThrow(changes, source, spell, targets, fightHelper::getDexteritySavingThrow, target -> {

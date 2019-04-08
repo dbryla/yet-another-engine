@@ -52,7 +52,7 @@ public class ConsoleInputProvider implements InputProvider {
     Operation operation = availableOperations.get(option);
     Instrument instrument = getSpell(subject, operation)
         .map(Instrument::new)
-        .orElse(new Instrument(subject.getWeapon()));
+        .orElse(new Instrument(subject.getEquipment().getWeapon()));
     int numberOfTargets = operation.getAllowedNumberOfTargets(instrument);
     boolean friendlyAction = isFriendlyAction(instrument);
     if (numberOfTargets == UNLIMITED_TARGETS) {

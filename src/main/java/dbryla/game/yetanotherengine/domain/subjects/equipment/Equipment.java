@@ -1,11 +1,8 @@
 package dbryla.game.yetanotherengine.domain.subjects.equipment;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.Optional;
-
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.ArmorType.MEDIUM;
 
 @AllArgsConstructor
 public class Equipment {
@@ -36,5 +33,9 @@ public class Equipment {
 
   public Optional<Armor> getArmor() {
     return Optional.ofNullable(armor);
+  }
+
+  public Optional<Armor> getShield() {
+    return Optional.ofNullable(shield);
   }
 }

@@ -1,9 +1,7 @@
 package dbryla.game.yetanotherengine.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 public class Abilities {
 
   private final int strength;

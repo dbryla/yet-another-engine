@@ -3,8 +3,7 @@ package dbryla.game.yetanotherengine.domain.subjects.classes;
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import java.util.Optional;
 
 public interface Subject {
@@ -15,7 +14,9 @@ public interface Subject {
 
   boolean isTerminated();
 
-  int getHealthPoints();
+  State getSubjectState();
+
+  int getCurrentHealthPoints();
 
   int getArmorClass();
 
@@ -27,11 +28,11 @@ public interface Subject {
 
   SubjectIdentifier toIdentifier();
 
-  Weapon getWeapon();
-
   Optional<ActiveEffect> getActiveEffect();
 
   Subject effectExpired();
 
   Abilities getAbilities();
+
+  Equipment getEquipment();
 }

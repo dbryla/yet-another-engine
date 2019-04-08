@@ -29,6 +29,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class SpellCastOperationTest {
 
+  private static final HitRoll failedHitRoll = new HitRoll(1, 0);
+  private static final HitRoll successHitRoll = new HitRoll(20, 0);
+
   @InjectMocks
   private SpellCastOperation spellCastOperation;
 
@@ -45,7 +48,7 @@ class SpellCastOperationTest {
   private EventsFactory eventsFactory;
 
   @Mock
-  private Wizard wizard;
+  private Wizard source;
 
   @Mock
   private Subject target;
@@ -55,8 +58,9 @@ class SpellCastOperationTest {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     Subject changedTarget = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(changedTarget);
+    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
 
-    Set<Subject> changes = spellCastOperation.invoke(wizard, instrument, target);
+    Set<Subject> changes = spellCastOperation.invoke(source, instrument, target);
 
     assertThat(changes).contains(changedTarget);
   }
@@ -67,7 +71,7 @@ class SpellCastOperationTest {
     Subject changedTarget = mock(Subject.class);
     when(target.of(Effect.BLIND)).thenReturn(changedTarget);
 
-    Set<Subject> changes = spellCastOperation.invoke(wizard, instrument, target);
+    Set<Subject> changes = spellCastOperation.invoke(source, instrument, target);
 
     assertThat(changes).contains(changedTarget);
   }
@@ -76,7 +80,7 @@ class SpellCastOperationTest {
   void shouldThrowExceptionIfSpellDoesNotSupportSoManyTargets() {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
 
-    assertThrows(UnsupportedSpellCastException.class, () -> spellCastOperation.invoke(wizard, instrument, target, target));
+    assertThrows(UnsupportedSpellCastException.class, () -> spellCastOperation.invoke(source, instrument, target, target));
   }
 
   @Test
@@ -84,10 +88,11 @@ class SpellCastOperationTest {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     Subject changedTarget = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(changedTarget);
+    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
 
-    spellCastOperation.invoke(wizard, instrument, target);
+    spellCastOperation.invoke(source, instrument, target);
 
-    verify(fightHelper).getHitRoll(eq(wizard), eq(target));
+    verify(fightHelper).getHitRoll(eq(source), eq(target));
   }
 
   @Test
@@ -96,7 +101,7 @@ class SpellCastOperationTest {
     Subject changedTarget = mock(Subject.class);
     when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
 
-    spellCastOperation.invoke(wizard, instrument, target);
+    spellCastOperation.invoke(source, instrument, target);
 
     verifyZeroInteractions(fightHelper);
   }
@@ -106,10 +111,11 @@ class SpellCastOperationTest {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     Subject changedTarget = mock(Subject.class);
     when(target.of(anyInt())).thenReturn(changedTarget);
+    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
 
-    spellCastOperation.invoke(wizard, instrument, target);
+    spellCastOperation.invoke(source, instrument, target);
 
-    verify(effectConsumer).apply(eq(wizard));
+    verify(effectConsumer).apply(eq(source));
   }
 
   @Test
@@ -118,7 +124,7 @@ class SpellCastOperationTest {
     Subject changedTarget = mock(Subject.class);
     when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
 
-    spellCastOperation.invoke(wizard, instrument, target);
+    spellCastOperation.invoke(source, instrument, target);
 
     verify(eventsFactory).successSpellCastEvent(any(), eq(changedTarget), eq(Spell.COLOR_SPRAY));
     verify(eventHub).send(any());
@@ -127,11 +133,11 @@ class SpellCastOperationTest {
   @Test
   void shouldSendFailEventOnUnsuccessfulSpellCast() throws UnsupportedGameOperationException {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
-    when(fightHelper.isMiss(anyInt(), anyInt(), anyInt())).thenReturn(true);
+    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
 
-    spellCastOperation.invoke(wizard, instrument, target);
+    spellCastOperation.invoke(source, instrument, target);
 
-    verify(eventsFactory).failEvent(any(), any());
+    verify(eventsFactory).failEvent(any(), any(), any(), any());
     verify(eventHub).send(any());
   }
 }

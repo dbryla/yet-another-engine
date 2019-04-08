@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.cli;
 
 import dbryla.game.yetanotherengine.Presenter;
+import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
@@ -27,26 +28,39 @@ public class Simulator {
     final String player1 = "Clemens";
     final String player2 = "Maria";
     final String blueTeam = "blue";
-    stateStorage.save(Fighter.builder().name(player1).affiliation(blueTeam).weapon(Weapon.SHORTSWORD).build());
-    stateStorage.save(Fighter.builder().name(player2).affiliation(blueTeam).weapon(Weapon.SHORTBOW).build());
+    Abilities defaultAbilities = new Abilities(10, 10, 10, 10, 10, 10);
+    stateStorage.save(Fighter.builder()
+        .name(player1)
+        .affiliation(blueTeam)
+        .weapon(Weapon.CLUB)
+        .abilities(defaultAbilities)
+        .build());
+    stateStorage.save(Fighter.builder()
+        .name(player2)
+        .affiliation(blueTeam)
+        .weapon(Weapon.LONGBOW)
+        .abilities(defaultAbilities)
+        .build());
     final String greenTeam = "green";
     final String enemy = "Borg";
     Fighter enemyFighter = Fighter.builder()
         .name(enemy)
         .affiliation(greenTeam)
+        .abilities(defaultAbilities)
+        .weapon(Weapon.GREATSWORD)
         .build();
     stateStorage.save(enemyFighter);
     artificialIntelligence.initSubject(enemyFighter);
     StateMachine stateMachine = stateMachineFactory.createInMemoryStateMachine();
+    presenter.showStatus();
     while (!stateMachine.isInTerminalState()) {
-      presenter.showStatus();
       stateMachine.getNextSubject().ifPresent(subject -> {
             switch (subject.getName()) {
               case player1:
-                stateMachine.execute(new Action(player1, enemy, attackOperation, new Instrument(Weapon.SHORTSWORD)));
+                stateMachine.execute(new Action(player1, enemy, attackOperation, new Instrument(Weapon.CLUB)));
                 break;
               case player2:
-                stateMachine.execute(new Action(player2, enemy, attackOperation, new Instrument(Weapon.SHORTBOW)));
+                stateMachine.execute(new Action(player2, enemy, attackOperation, new Instrument(Weapon.LONGBOW)));
                 break;
               case enemy:
                 stateMachine.execute(artificialIntelligence.attackAction(enemy));

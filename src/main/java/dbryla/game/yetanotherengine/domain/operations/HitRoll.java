@@ -13,8 +13,7 @@ class HitRoll {
     this.actual = original + modifiers;
   }
 
-  HitRoll addModifier(int modifier) {
-    this.actual = modifier;
-    return this;
+  void addModifier(int modifier) {
+    this.actual += modifier;
   }
 }

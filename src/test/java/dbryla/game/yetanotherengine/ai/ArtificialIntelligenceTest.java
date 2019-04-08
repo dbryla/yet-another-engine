@@ -12,6 +12,8 @@ import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,7 @@ class ArtificialIntelligenceTest {
     Subject subject = mock(Subject.class);
     Subject target = mock(Subject.class);
     givenStateStorageWithSingleTarget(subject, target);
+    when(subject.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
     artificialIntelligence.initSubject(subject);
 
     Action action = artificialIntelligence.attackAction(SUBJECT_NAME);
@@ -57,6 +60,7 @@ class ArtificialIntelligenceTest {
   @Test
   void shouldReturnNextActionWithSameAcquiredTarget() {
     Subject subject = mock(Subject.class);
+    when(subject.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
     Subject target = mock(Subject.class);
     givenStateStorageWithSingleTarget(subject, target);
     when(stateStorage.findByName(eq(TARGET_NAME))).thenReturn(Optional.of(target));
@@ -76,6 +80,7 @@ class ArtificialIntelligenceTest {
     givenStateStorageWithSingleTarget(subject, target);
     when(stateStorage.findByName(eq(TARGET_NAME))).thenReturn(Optional.of(target));
     when(target.isTerminated()).thenReturn(false).thenReturn(true);
+    when(subject.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
     artificialIntelligence.initSubject(subject);
     artificialIntelligence.attackAction(SUBJECT_NAME);
 

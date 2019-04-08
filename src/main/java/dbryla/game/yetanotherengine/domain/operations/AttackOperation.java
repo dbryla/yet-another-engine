@@ -25,50 +25,53 @@ public class AttackOperation implements Operation {
 
   @Override
   public Set<Subject> invoke(Subject source, Instrument instrument, Subject... targets) throws UnsupportedGameOperationException {
-    verifyParams(source, targets);
+    verifyParams(source, instrument, targets);
     Set<Subject> changes = new HashSet<>();
     Subject target = targets[0];
-    int armorClass = target.getArmorClass();
     HitRoll hitRoll = fightHelper.getHitRoll(source, target);
-    hitRoll.addModifier(getModifier(instrument.getWeapon(), source.getAbilities()));
-    if (fightHelper.isMiss(armorClass, hitRoll)) {
-      eventHub.send(eventsFactory.failEvent(source, target));
+    Weapon weapon = instrument.getWeapon();
+    hitRoll.addModifier(getModifier(weapon, source.getAbilities()));
+    HitResult hitResult = HitResult.of(hitRoll, target);
+    if (!hitResult.isTargetHit()) {
+      eventHub.send(eventsFactory.failEvent(source, target, weapon.toString(), hitResult));
     } else {
-      int attackDamage = getAttackDamage(source, hitRoll.getOriginal()) + getModifier(instrument.getWeapon(), source.getAbilities());
-      int remainingHealthPoints = target.getHealthPoints() - attackDamage;
+      int attackDamage = fightHelper.getAttackDamage(weapon.rollAttackDamage(), hitResult) + getModifier(weapon, source.getAbilities());
+      int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
       Subject changedTarget = target.of(remainingHealthPoints);
       changes.add(changedTarget);
-      eventHub.send(eventsFactory.successAttackEvent(source, changedTarget, HitFlavor.of(hitRoll, armorClass)));
+      eventHub.send(eventsFactory.successAttackEvent(source, changedTarget, weapon, hitResult));
     }
     effectConsumer.apply(source).ifPresent(changes::add);
     return changes;
   }
 
-  private void verifyParams(Subject source, Subject[] targets) throws UnsupportedAttackException {
+  private void verifyParams(Subject source, Instrument instrument, Subject[] targets) throws UnsupportedAttackException {
     if (source == null) {
       throw new UnsupportedAttackException("Can't invoke operation on null source");
     }
     if (targets.length != 1) {
       throw new UnsupportedAttackException("Can't attack none or more than one target.");
     }
+    if (source.getEquipment() == null || source.getEquipment().getWeapon() == null) {
+      throw new UnsupportedAttackException("Can't attack without weapon.");
+    }
+    if (!source.getEquipment().getWeapon().equals(instrument.getWeapon())) {
+      throw new UnsupportedAttackException("Can't attack with different weapon than equipped one.");
+    }
   }
 
   private int getModifier(Weapon weapon, Abilities abilities) {
     return weapon.isMelee()
-        ? (weapon.isFinesse() ? getFinesseModifier(abilities) : abilities.getStrengthModifier())
+        ? getFinesseModifierIfApplicable(weapon, abilities)
         : abilities.getDexterityModifier();
+  }
+
+  private int getFinesseModifierIfApplicable(Weapon weapon, Abilities abilities) {
+    return weapon.isFinesse() ? getFinesseModifier(abilities) : abilities.getStrengthModifier();
   }
 
   private int getFinesseModifier(Abilities abilities) {
     return Math.max(abilities.getStrengthModifier(), abilities.getDexterityModifier());
-  }
-
-  private int getAttackDamage(Subject source, int hitRoll) {
-    Weapon weapon = source.getWeapon();
-    if (weapon == null) {
-      return 1;
-    }
-    return fightHelper.getAttackDamage(weapon.rollAttackDamage(), hitRoll);
   }
 
   @Override

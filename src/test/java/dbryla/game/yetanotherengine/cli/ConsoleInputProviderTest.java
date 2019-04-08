@@ -12,6 +12,8 @@ import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
@@ -72,6 +74,7 @@ class ConsoleInputProviderTest {
     when(game.getAllAliveEnemies()).thenReturn(List.of("enemy"));
     Operation operation = mock(Operation.class);
     Subject subject = mock(Subject.class);
+    when(subject.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
     when(presenter.showAvailableOperations(any())).thenReturn(List.of(operation));
 
     Action action = consoleInputProvider.askForAction(subject, game);

@@ -11,26 +11,26 @@ public class Cleric extends BaseClass implements Subject {
 
   private static final int DEFAULT_CLERIC_HP = 8;
 
-  private Cleric(SubjectIdentifier id, int healthPoints, Equipment equipment, Abilities abilities) {
-    this(id, healthPoints, equipment, abilities, null);
+  private Cleric(SubjectIdentifier id, int maxHealthPoints, Equipment equipment, Abilities abilities) {
+    this(id, maxHealthPoints, maxHealthPoints, equipment, abilities, null);
   }
 
-  private Cleric(SubjectIdentifier id, int healthPoints, Equipment equipment,
+  private Cleric(SubjectIdentifier id, int maxHealthPoints, int currentHealthPoints, Equipment equipment,
                  Abilities abilities, ActiveEffect activeEffect) {
-    super(id, healthPoints, equipment, abilities, activeEffect);
+    super(id, maxHealthPoints, currentHealthPoints, equipment, abilities, activeEffect);
   }
 
   private Cleric(Cleric oldState, int healthPoints) {
-    this(oldState.id, healthPoints, oldState.equipment, oldState.abilities, oldState.activeEffect);
+    this(oldState.id, oldState.maxHealthPoints, healthPoints, oldState.equipment, oldState.abilities, oldState.activeEffect);
   }
 
   private Cleric(Cleric oldState, ActiveEffect activeEffect) {
-    this(oldState.id, oldState.healthPoints, oldState.equipment, oldState.abilities, activeEffect);
+    this(oldState.id, oldState.maxHealthPoints, oldState.currentHealthPoints, oldState.equipment, oldState.abilities, activeEffect);
   }
 
   @Override
   public Subject of(int healthPoints) {
-    return new Cleric(this, healthPoints);
+    return new Cleric(this, Math.min(healthPoints, this.maxHealthPoints));
   }
 
   @Override

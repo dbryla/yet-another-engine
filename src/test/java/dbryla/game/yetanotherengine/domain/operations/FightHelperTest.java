@@ -1,16 +1,15 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import dbryla.game.yetanotherengine.domain.spells.DiceRollModifier;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.subjects.classes.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Subject;
-import org.junit.jupiter.api.Test;
-
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
 
 class FightHelperTest {
 
@@ -22,9 +21,9 @@ class FightHelperTest {
     Subject target = mock(Subject.class);
     when(source.getActiveEffect()).thenReturn(Optional.empty());
 
-    int result = fightHelper.getHitRoll(source, target);
+    HitRoll result = fightHelper.getHitRoll(source, target);
 
-    assertThat(result).isGreaterThanOrEqualTo(1).isLessThanOrEqualTo(20);
+    assertThat(result.getActual()).isGreaterThanOrEqualTo(1).isLessThanOrEqualTo(20);
   }
 
   @Test
@@ -37,9 +36,9 @@ class FightHelperTest {
     when(source.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(effect, 1)));
     Subject target = mock(Subject.class);
 
-    int result = fightHelper.getHitRoll(source, target);
+    HitRoll result = fightHelper.getHitRoll(source, target);
 
-    assertThat(result).isGreaterThan(100);
+    assertThat(result.getActual()).isGreaterThan(100);
   }
 
   @Test
@@ -53,36 +52,16 @@ class FightHelperTest {
     Subject target = mock(Subject.class);
     when(target.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(effect, 1)));
 
-    int result = fightHelper.getHitRoll(source, target);
+    HitRoll result = fightHelper.getHitRoll(source, target);
 
-    assertThat(result).isGreaterThan(0);
-  }
-
-  @Test
-  void shouldMissAttackIfRollLessThanArmorClass() {
-    assertThat(fightHelper.isMiss(10, 6, 5)).isTrue();
-  }
-
-  @Test
-  void shouldMissAttackIfOriginalRollIsOne() {
-    assertThat(fightHelper.isMiss(1, 19, 1)).isTrue();
-  }
-
-  @Test
-  void shouldNotMissAttackIfRollMoreThanArmorClass() {
-    assertThat(fightHelper.isMiss(5, 10, 10)).isFalse();
-  }
-
-  @Test
-  void shouldNotMissAttackIfRollTheSameArmorClass() {
-    assertThat(fightHelper.isMiss(10, 10, 10)).isFalse();
+    assertThat(result.getActual()).isGreaterThan(0);
   }
 
   @Test
   void shouldGetUnchangedAttackDamageIfDidNotRollTwenty() {
     int attackDamage = 10;
 
-    int result = fightHelper.getAttackDamage(attackDamage, 10);
+    int result = fightHelper.getAttackDamage(attackDamage, HitResult.HIT);
 
     assertThat(result).isEqualTo(attackDamage);
   }
@@ -91,7 +70,7 @@ class FightHelperTest {
   void shouldGetDoubledAttackDamageIfRollTwenty() {
     int attackDamage = 10;
 
-    int result = fightHelper.getAttackDamage(attackDamage, 20);
+    int result = fightHelper.getAttackDamage(attackDamage, HitResult.CRITICAL);
 
     assertThat(result).isEqualTo(2 * attackDamage);
   }

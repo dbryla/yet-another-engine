@@ -11,6 +11,6 @@ public class Event {
 
   @Override
   public String toString() {
-    return message;
+    return message.replace("  ", " ");
   }
 }

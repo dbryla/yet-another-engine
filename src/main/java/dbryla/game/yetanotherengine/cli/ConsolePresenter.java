@@ -38,8 +38,8 @@ public class ConsolePresenter implements Presenter {
         .collect(Collectors.groupingBy(Subject::getAffiliation))
         .forEach((team, subjects) ->
             subjects.stream()
-                .filter(subject -> subject.getHealthPoints() > 0)
-                .map(subject -> String.format("%s(%d)", subject.getName(), subject.getHealthPoints()))
+                .filter(subject -> subject.getCurrentHealthPoints() > 0)
+                .map(subject -> String.format("%s(%d)", subject.getName(), subject.getCurrentHealthPoints()))
                 .reduce((left, right) -> left + " " + right)
                 .ifPresent(status -> System.out.print("| " + status + " |")));
     System.out.println();

@@ -35,7 +35,7 @@ public class ArtificialIntelligence {
     }
     ArtificialIntelligenceConfiguration ai = subjects.get(subjectName);
     setTarget(ai);
-    return new Action(subjectName, ai.getAcquiredTarget(), attackOperation, new Instrument(ai.getSubject().getWeapon()));
+    return new Action(subjectName, ai.getAcquiredTarget(), attackOperation, new Instrument(ai.getSubject().getEquipment().getWeapon()));
   }
 
   private void setTarget(ArtificialIntelligenceConfiguration ai) {
@@ -56,7 +56,7 @@ public class ArtificialIntelligence {
   private String findNewTarget(Subject subject) {
     Optional<Subject> target = StreamSupport.stream(stateStorage.findAll().spliterator(), false)
         .filter(s -> !s.isTerminated() && !s.getAffiliation().equals(subject.getAffiliation()))
-        .min(Comparator.comparingInt(Subject::getHealthPoints));
+        .min(Comparator.comparingInt(Subject::getCurrentHealthPoints));
     return target.map(Subject::getName)
         .orElseThrow(() -> new IncorrectStateException("Target not found for subject: " + subject.getName()));
   }

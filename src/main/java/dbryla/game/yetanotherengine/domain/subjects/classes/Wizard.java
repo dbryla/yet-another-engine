@@ -11,25 +11,25 @@ public class Wizard extends BaseClass implements Subject {
   private static final int DEFAULT_WIZARD_HP = 6;
 
   private Wizard(Wizard oldState, int healthPoints) {
-    this(oldState.id, healthPoints, oldState.equipment, oldState.abilities, oldState.activeEffect);
+    this(oldState.id, oldState.maxHealthPoints, healthPoints, oldState.equipment, oldState.abilities, oldState.activeEffect);
   }
 
-  private Wizard(SubjectIdentifier id, int healthPoints, Equipment equipment,
-                 Abilities abilities, ActiveEffect activeEffect) {
-    super(id, healthPoints, equipment, abilities, activeEffect);
+  private Wizard(SubjectIdentifier id, int maxHealthPoints, int currentHealthPoints, Equipment equipment,
+      Abilities abilities, ActiveEffect activeEffect) {
+    super(id, maxHealthPoints, currentHealthPoints, equipment, abilities, activeEffect);
   }
 
   private Wizard(Wizard oldState, ActiveEffect activeEffect) {
-    this(oldState.id, oldState.healthPoints, oldState.equipment, oldState.abilities, activeEffect);
+    this(oldState.id, oldState.maxHealthPoints, oldState.currentHealthPoints, oldState.equipment, oldState.abilities, activeEffect);
   }
 
   private Wizard(SubjectIdentifier id, int healthPoints, Equipment equipment, Abilities abilities) {
-    this(id, healthPoints, equipment, abilities, null);
+    this(id, healthPoints, healthPoints, equipment, abilities, null);
   }
 
   @Override
   public Subject of(int healthPoints) {
-    return new Wizard(this, healthPoints);
+    return new Wizard(this, Math.min(healthPoints, this.maxHealthPoints));
   }
 
   @Override

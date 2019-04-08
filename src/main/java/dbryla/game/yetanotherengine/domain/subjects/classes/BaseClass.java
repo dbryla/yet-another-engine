@@ -4,16 +4,15 @@ import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import lombok.AllArgsConstructor;
-
 import java.util.Optional;
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public abstract class BaseClass implements Subject {
 
   protected final SubjectIdentifier id;
-  protected final int healthPoints;
+  protected final int maxHealthPoints;
+  protected final int currentHealthPoints;
   protected final Equipment equipment;
   protected final Abilities abilities;
   protected final ActiveEffect activeEffect;
@@ -30,12 +29,32 @@ public abstract class BaseClass implements Subject {
 
   @Override
   public boolean isTerminated() {
-    return healthPoints <= 0;
+    return currentHealthPoints <= 0;
   }
 
   @Override
-  public int getHealthPoints() {
-    return healthPoints;
+  public int getCurrentHealthPoints() {
+    return currentHealthPoints;
+  }
+
+  @Override
+  public State getSubjectState() {
+    if (currentHealthPoints == 0) {
+      return State.TERMINATED;
+    }
+    if (currentHealthPoints == 100) {
+      return State.NORMAL;
+    }
+    if (currentHealthPoints > Math.ceil(0.75 * maxHealthPoints)) {
+      return State.LIGHTLY_WOUNDED;
+    }
+    if (currentHealthPoints > Math.ceil(0.50 * maxHealthPoints)) {
+      return State.WOUNDED;
+    }
+    if (currentHealthPoints < Math.ceil(0.10 * maxHealthPoints) && currentHealthPoints < 10) {
+      return State.DEATHS_DOOR;
+    }
+    return State.HEAVILY_WOUNDED;
   }
 
   @Override
@@ -59,11 +78,6 @@ public abstract class BaseClass implements Subject {
   }
 
   @Override
-  public Weapon getWeapon() {
-    return equipment.getWeapon();
-  }
-
-  @Override
   public Optional<ActiveEffect> getActiveEffect() {
     return Optional.ofNullable(activeEffect);
   }
@@ -71,6 +85,11 @@ public abstract class BaseClass implements Subject {
   @Override
   public Abilities getAbilities() {
     return abilities;
+  }
+
+  @Override
+  public Equipment getEquipment() {
+    return equipment;
   }
 
   protected static SubjectIdentifier buildIdentifier(String name, String affiliation) {

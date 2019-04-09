@@ -5,15 +5,21 @@ import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameOptions;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import dbryla.game.yetanotherengine.session.MessageStorage;
+import dbryla.game.yetanotherengine.session.Session;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -40,11 +46,12 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
         log.info("Starting new game.");
       }
       if (commandText.startsWith(JOIN_COMMAND)) {
-        String playerName = update.getMessage().getFrom().getFirstName();
-        messageStorage.add(update.getMessage().getMessageId(), new Session(playerName));
-        sendClassChoice(update);
+        handleJoinCommand(update);
       }
     } else {
+      if (update.hasCallbackQuery()) {
+        handleCallback(update);
+      }
       if (update.hasMessage() && update.getMessage().hasText()) {
         log.trace("Update: {} [{}/{}]", update.getMessage().getText(), update.getMessage().getChatId(), update.getMessage().getMessageId());
         SendMessage message = new SendMessage()
@@ -55,6 +62,25 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
       }
       log.trace("Update: {}", update);
     }
+  }
+
+  private void handleJoinCommand(Update update) {
+    String playerName = update.getMessage().getFrom().getFirstName();
+    messageStorage.put(update.getMessage().getMessageId(), new Session(playerName));
+    sendClassChoice(update);
+  }
+
+  private void handleCallback(Update update) {
+    Integer originalMessageId = update.getCallbackQuery().getMessage().getReplyToMessage().getMessageId();
+    updateSession(update, originalMessageId);
+    Integer chooseClassMessageId = update.getCallbackQuery().getMessage().getMessageId();
+    Long chatId = update.getCallbackQuery().getMessage().getChatId();
+    sendMessage(new DeleteMessage(chatId, chooseClassMessageId));
+  }
+
+  private void updateSession(Update update, Integer originalMessageId) {
+    Session session = messageStorage.get(originalMessageId);
+    session.setClass(update.getCallbackQuery().getData());
   }
 
   private void sendClassChoice(Update update) {
@@ -71,7 +97,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     sendMessage(message);
   }
 
-  private void sendMessage(SendMessage message) {
+  private void sendMessage(BotApiMethod message) {
     try {
       execute(message);
     } catch (TelegramApiException e) {

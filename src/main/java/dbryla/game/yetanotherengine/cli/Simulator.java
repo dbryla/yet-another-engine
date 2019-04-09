@@ -1,6 +1,5 @@
 package dbryla.game.yetanotherengine.cli;
 
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Instrument;
@@ -13,16 +12,18 @@ import dbryla.game.yetanotherengine.domain.subjects.Monster;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
+@Profile("cli")
 public class Simulator {
 
   private final StateStorage stateStorage;
   private final ArtificialIntelligence artificialIntelligence;
   private final StateMachineFactory stateMachineFactory;
-  private final Presenter presenter;
+  private final ConsolePresenter presenter;
   private final Operation attackOperation;
 
   public void start() {

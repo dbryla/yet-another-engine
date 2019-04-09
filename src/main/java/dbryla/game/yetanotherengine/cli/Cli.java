@@ -1,6 +1,5 @@
 package dbryla.game.yetanotherengine.cli;
 
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameFactory;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
@@ -16,13 +15,13 @@ public class Cli implements CommandLineRunner {
 
   static final String SIMULATION_OPTION = "sim";
   static final String GAME_OPTION = "game";
-  private final Presenter presenter;
+  private final ConsolePresenter presenter;
   private final GameFactory gameFactory;
   private final ConsoleCharacterBuilder consoleCharacterBuilder;
   private final Simulator simulator;
   private final ConsoleInputProvider inputProvider;
 
-  public Cli(Presenter presenter,
+  public Cli(ConsolePresenter presenter,
       GameFactory gameFactory,
       ConsoleCharacterBuilder consoleCharacterBuilder,
       Simulator simulator,

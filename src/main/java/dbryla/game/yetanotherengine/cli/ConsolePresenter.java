@@ -1,6 +1,5 @@
 package dbryla.game.yetanotherengine.cli;
 
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.DiceRoll;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameOptions;
@@ -13,6 +12,7 @@ import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -24,7 +24,8 @@ import java.util.stream.StreamSupport;
 
 @AllArgsConstructor
 @Component
-public class ConsolePresenter implements Presenter {
+@Profile("cli")
+public class ConsolePresenter {
 
   private static final String CHOICE_FORMAT = " (%d) %s";
   private final StateStorage stateStorage;
@@ -32,7 +33,6 @@ public class ConsolePresenter implements Presenter {
   private final AttackOperation attackOperation;
   private final SpellCastOperation spellCastOperation;
 
-  @Override
   public void showStatus() {
     StreamSupport.stream(stateStorage.findAll().spliterator(), false)
         .collect(Collectors.groupingBy(Subject::getAffiliation))
@@ -45,7 +45,6 @@ public class ConsolePresenter implements Presenter {
     System.out.println();
   }
 
-  @Override
   public List<Class> showAvailableClasses() {
     List<Class> classes = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your class:");
@@ -58,7 +57,6 @@ public class ConsolePresenter implements Presenter {
     return classes;
   }
 
-  @Override
   public List<Weapon> showAvailableWeapons(Class clazz) {
     List<Weapon> weapons = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your weapon:");
@@ -73,7 +71,6 @@ public class ConsolePresenter implements Presenter {
     return weapons;
   }
 
-  @Override
   public List<Spell> showAvailableSpells(Class clazz) {
     List<Spell> spells = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your spell:");
@@ -95,7 +92,6 @@ public class ConsolePresenter implements Presenter {
     return name.toLowerCase().replace("_", " ");
   }
 
-  @Override
   public List<Operation> showAvailableOperations(Class clazz) {
     List<Operation> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
@@ -109,12 +105,10 @@ public class ConsolePresenter implements Presenter {
     return operations;
   }
 
-  @Override
   public List<String> showAvailableEnemyTargets(Game game) {
     return showAvailableTargets(game.getAllAliveEnemies());
   }
 
-  @Override
   public List<String> showAvailableFriendlyTargets(Game game) {
     return showAvailableTargets(game.getAllAliveAllies());
   }
@@ -131,13 +125,11 @@ public class ConsolePresenter implements Presenter {
     return targets;
   }
 
-  @Override
   public List<Armor> showAvailableShield() {
     System.out.println("Added shield to your equipment.");
     return List.of(Armor.SHIELD);
   }
 
-  @Override
   public List<Armor> showAvailableArmors(Class clazz) {
     List<Armor> armors = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your armor:");
@@ -152,7 +144,6 @@ public class ConsolePresenter implements Presenter {
     return armors;
   }
 
-  @Override
   public List<Integer> showGeneratedAbilityScores() {
     List<Integer> abilityScores = new LinkedList<>();
     for (int i = 0; i < 6; i++) {

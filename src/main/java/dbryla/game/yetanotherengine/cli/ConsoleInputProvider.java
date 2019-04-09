@@ -3,7 +3,6 @@ package dbryla.game.yetanotherengine.cli;
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNLIMITED_TARGETS;
 
 import dbryla.game.yetanotherengine.InputProvider;
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
@@ -20,13 +19,15 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
+@Profile("cli")
 public class ConsoleInputProvider implements InputProvider {
 
-  private final Presenter presenter;
+  private final ConsolePresenter presenter;
   private final BufferedReader input;
 
   int cmdLineToOption() {

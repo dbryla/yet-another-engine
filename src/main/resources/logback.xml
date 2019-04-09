@@ -8,7 +8,7 @@
         </encoder>
     </appender>
 
-    <logger name="dbryla" level="INFO" additivity="false">
+    <logger name="dbryla" level="TRACE" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 

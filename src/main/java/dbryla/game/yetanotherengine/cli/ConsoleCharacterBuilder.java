@@ -2,7 +2,6 @@ package dbryla.game.yetanotherengine.cli;
 
 import static dbryla.game.yetanotherengine.domain.GameOptions.ALLIES;
 
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
@@ -16,13 +15,15 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("cli")
 @AllArgsConstructor
 public class ConsoleCharacterBuilder {
 
-  private final Presenter presenter;
+  private final ConsolePresenter presenter;
   private final ConsoleInputProvider inputProvider;
   private final ConsoleAbilitiesProvider consoleAbilitiesProvider;
 

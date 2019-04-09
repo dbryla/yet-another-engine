@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
@@ -31,7 +30,7 @@ class ConsoleCharacterBuilderTest {
   private ConsoleInputProvider inputProvider;
 
   @Mock
-  private Presenter presenter;
+  private ConsolePresenter presenter;
 
   @Mock
   private ConsoleAbilitiesProvider consoleAbilitiesProvider;

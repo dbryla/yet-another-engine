@@ -4,8 +4,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.InputProvider;
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameFactory;
 import org.junit.jupiter.api.Test;
@@ -30,7 +28,7 @@ class CliTest {
   private ConsoleCharacterBuilder consoleCharacterBuilder;
 
   @Mock
-  private Presenter presenter;
+  private ConsolePresenter presenter;
 
   @Mock
   private ConsoleInputProvider inputProvider;

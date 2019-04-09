@@ -1,18 +1,19 @@
 package dbryla.game.yetanotherengine.cli;
 
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 @AllArgsConstructor
+@Profile("cli")
 class ConsoleAbilitiesProvider {
 
-  private final Presenter presenter;
+  private final ConsolePresenter presenter;
   private final ConsoleInputProvider consoleInputProvider;
 
   Abilities getAbilities() {

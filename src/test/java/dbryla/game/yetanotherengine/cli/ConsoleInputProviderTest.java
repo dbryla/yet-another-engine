@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.Presenter;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
@@ -33,7 +32,7 @@ class ConsoleInputProviderTest {
   private BufferedReader bufferedReader;
 
   @Mock
-  private Presenter presenter;
+  private ConsolePresenter presenter;
 
   @Test
   void shouldTransformCmdlineToInteger() throws IOException {

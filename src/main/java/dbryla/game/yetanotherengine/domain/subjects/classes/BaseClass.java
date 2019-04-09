@@ -67,7 +67,7 @@ public abstract class BaseClass implements Subject {
   public int getArmorClass() {
     int modifier = equipment.getArmor()
         .map(Armor::getMaxDexterityBonus)
-        .map(Optional::get)
+        .map(Optional::get) // fixme
         .map(maxDexBonus -> Math.min(maxDexBonus, abilities.getDexterityModifier()))
         .orElse(abilities.getDexterityModifier());
     return equipment.getArmorClass() + modifier;

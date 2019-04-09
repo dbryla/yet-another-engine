@@ -11,7 +11,8 @@ public enum Armor {
   SHIELD(2, ArmorType.SHIELD),
   LEATHER(1, ArmorType.LIGHT),
   CHAIN_SHIRT(3, ArmorType.MEDIUM),
-  CHAIN_MAIL(6, ArmorType.HEAVY);
+  CHAIN_MAIL(6, ArmorType.HEAVY),
+  SCRAPS(1, ArmorType.MONSTER);
 
   private final int armorClass;
   private final ArmorType type;

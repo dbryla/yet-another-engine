@@ -60,15 +60,12 @@ public class GameOptions {
   }
 
   List<Subject> getRandomEncounter(int playersNumber) {
-    MonsterDefinition monsterDefinition = monsterBook.getRandomMonster();
+    MonsterDefinition monsterDefinition = getMonster(playersNumber);
     List<Subject> monsters = new LinkedList<>();
     for (int i = 0; i < playersNumber; ++i) {
-      int healthPoints = IntStream.range(0, monsterDefinition.getNumberOfHitDices())
-          .map(j -> DiceRoll.of(monsterDefinition.getHitDice()))
-          .sum();
       monsters.add(Monster.builder()
           .name(monsterDefinition.getDefaultName() + i)
-          .healthPoints(healthPoints)
+          .healthPoints(getMonsterHealthPoints(monsterDefinition))
           .abilities(monsterDefinition.getAbilities())
           .armor(monsterDefinition.getArmor())
           .weapon(monsterDefinition.getWeapon())
@@ -76,6 +73,36 @@ public class GameOptions {
           .build());
     }
     return monsters;
+  }
+
+  private MonsterDefinition getMonster(int playersNumber) {
+    int monstersNumber = 0;
+    MonsterDefinition monsterDefinition = null;
+    while (monstersNumber == 0){
+      monsterDefinition = monsterBook.getRandomMonster(1);
+      monstersNumber = getMonstersNumber(playersNumber, monsterDefinition.getChallengeRating());
+    }
+    return monsterDefinition;
+  }
+
+  private int getMonstersNumber(int playersNumber, double challengeRating) {
+    if (challengeRating == 0.125) {
+      return playersNumber;
+    }
+    if (challengeRating == 0.25) {
+      return playersNumber / 2;
+    }
+    if (challengeRating == 0.5) {
+      return playersNumber / 4;
+    }
+    return 0;
+  }
+
+  private int getMonsterHealthPoints(MonsterDefinition monsterDefinition) {
+    int healthPoints = IntStream.range(0, monsterDefinition.getNumberOfHitDices())
+        .map(j -> DiceRoll.of(monsterDefinition.getHitDice()))
+        .sum();
+    return healthPoints + (monsterDefinition.getNumberOfHitDices() * monsterDefinition.getAbilities().getConstitutionModifier());
   }
 
 }

@@ -6,10 +6,13 @@ import static dbryla.game.yetanotherengine.domain.spells.DiceRollModifier.DISADV
 
 import dbryla.game.yetanotherengine.domain.DiceRoll;
 import dbryla.game.yetanotherengine.domain.spells.DiceRollModifier;
+import dbryla.game.yetanotherengine.domain.subjects.Monster;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
+
 import java.util.function.Supplier;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -84,7 +87,7 @@ public class FightHelper {
     if (source instanceof Wizard) {
       return source.getAbilities().getIntelligenceModifier();
     }
-    if (source instanceof Cleric) {
+    if (source instanceof Cleric || source instanceof Monster) {
       return source.getAbilities().getWisdomModifier();
     }
     return 0;

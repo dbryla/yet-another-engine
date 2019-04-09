@@ -1,16 +1,7 @@
 package dbryla.game.yetanotherengine.domain.subjects.equipment;
 
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponProperties.CHOP_HEAD;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponProperties.CUT_THROAT;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponProperties.FINESSE;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponProperties.HEADSHOT;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponProperties.LIGHT;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponProperties.SMASH_HEAD;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponProperties.TWO_HANDED;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponType.MARTIAL_MELEE_WEAPON;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponType.MARTIAL_RANGED_WEAPON;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponType.SIMPLE_MELEE_WEAPON;
-import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponType.SIMPLE_RANGED_WEAPON;
+import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponProperties.*;
+import static dbryla.game.yetanotherengine.domain.subjects.equipment.WeaponType.*;
 
 import dbryla.game.yetanotherengine.domain.DiceRoll;
 import java.util.Set;
@@ -24,7 +15,9 @@ public enum Weapon {
   GREATSWORD(MARTIAL_MELEE_WEAPON, () -> DiceRoll.k6() + DiceRoll.k6(), CHOP_HEAD, TWO_HANDED),
   SHORTSWORD(MARTIAL_MELEE_WEAPON, DiceRoll::k6, CHOP_HEAD, FINESSE, LIGHT),
   SHORTBOW(SIMPLE_RANGED_WEAPON, DiceRoll::k6, HEADSHOT, TWO_HANDED),
-  LONGBOW(MARTIAL_RANGED_WEAPON, DiceRoll::k8, HEADSHOT, TWO_HANDED);
+  LONGBOW(MARTIAL_RANGED_WEAPON, DiceRoll::k8, HEADSHOT, TWO_HANDED),
+  SCIMITAR(MARTIAL_MELEE_WEAPON, DiceRoll::k6, CHOP_HEAD, FINESSE, LIGHT),
+  BITE(MONSTER_MELEE_WEAPON, DiceRoll::k6, BITE_NECK);
 
 
   private final WeaponType type;

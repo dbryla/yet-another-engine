@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain;
 
+import dbryla.game.yetanotherengine.domain.encounters.MonsterBook;
 import dbryla.game.yetanotherengine.domain.subjects.classes.BaseClass;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
@@ -13,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class GameOptionsTest {
 
-  private GameOptions gameOptions = new GameOptions();
+  private GameOptions gameOptions = new GameOptions(new MonsterBook());
 
   @Test
   void shouldReturnAvailableClasses() {

@@ -15,9 +15,10 @@ public class GameFactory {
   private final ArtificialIntelligence artificialIntelligence;
   private final StateMachineFactory stateMachineFactory;
   private final InputProvider inputProvider;
+  private final GameOptions gameOptions;
 
   public Game newGame() {
-    return new Game(stateStorage, stateMachineFactory, artificialIntelligence, inputProvider);
+    return new Game(stateStorage, stateMachineFactory, artificialIntelligence, inputProvider, gameOptions);
   }
 
 }

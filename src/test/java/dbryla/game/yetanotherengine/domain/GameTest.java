@@ -50,7 +50,7 @@ class GameTest {
 
   @Test
   void shouldSaveCreatedEnemies() {
-    game.createEnemies(playersNumber);
+    game.createEnemies(1);
 
     verify(stateStorage, atLeastOnce()).save(any());
   }

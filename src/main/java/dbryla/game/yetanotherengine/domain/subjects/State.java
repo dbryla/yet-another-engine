@@ -16,4 +16,8 @@ public enum State {
   public static String getMessageFor(Subject target) {
     return " " + target.getName() + target.getSubjectState().message;
   }
+
+  public boolean needsHealing() {
+    return HEAVILY_WOUNDED.equals(this) || DEATHS_DOOR.equals(this);
+  }
 }

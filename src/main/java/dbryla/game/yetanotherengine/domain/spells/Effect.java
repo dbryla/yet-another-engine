@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum Effect {
-  BLIND(DISADVANTAGE, ADVANTAGE, DISADVANTAGE, 1),
+  BLIND(DISADVANTAGE, ADVANTAGE, NONE, 1),
   BLESS(BLESSED, NONE, BLESSED, SpellConstants.CONCENTRATION);
 
   private final DiceRollModifier sourceHitRollModifier;

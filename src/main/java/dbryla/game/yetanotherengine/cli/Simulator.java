@@ -9,6 +9,7 @@ import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.subjects.Monster;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import lombok.AllArgsConstructor;
@@ -41,11 +42,10 @@ public class Simulator {
         .weapon(Weapon.LONGBOW)
         .abilities(defaultAbilities)
         .build());
-    final String greenTeam = "green";
     final String enemy = "Borg";
-    Fighter enemyFighter = Fighter.builder()
+    Monster enemyFighter = Monster.builder()
         .name(enemy)
-        .affiliation(greenTeam)
+        .healthPoints(25)
         .abilities(defaultAbilities)
         .weapon(Weapon.GREATSWORD)
         .build();
@@ -63,7 +63,7 @@ public class Simulator {
                 stateMachine.execute(new Action(player2, enemy, attackOperation, new Instrument(Weapon.LONGBOW)));
                 break;
               case enemy:
-                stateMachine.execute(artificialIntelligence.attackAction(enemy));
+                stateMachine.execute(artificialIntelligence.action(enemy));
             }
           }
       );

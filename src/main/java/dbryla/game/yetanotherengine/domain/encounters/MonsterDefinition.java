@@ -24,4 +24,5 @@ public class MonsterDefinition {
   private final Armor shield;
   private final double challengeRating;
   private final List<Spell> spells;
+  private final List<String> adjectives;
 }

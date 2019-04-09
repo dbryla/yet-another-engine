@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.ai;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,11 +12,14 @@ import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.subjects.Monster;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,18 +38,26 @@ class ArtificialIntelligenceTest {
   @Mock
   private StateStorage stateStorage;
 
+  @Mock
+  private Random random;
+
   @InjectMocks
   private ArtificialIntelligence artificialIntelligence;
 
+  @BeforeEach
+  void setUp() {
+    when(random.nextInt(anyInt())).thenReturn(0);
+  }
+
   @Test
   void shouldReturnActionWithAcquiredTarget() {
-    Subject subject = mock(Subject.class);
+    Monster monster = mock(Monster.class);
     Subject target = mock(Subject.class);
-    givenStateStorageWithSingleTarget(subject, target);
-    when(subject.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
-    artificialIntelligence.initSubject(subject);
+    givenStateStorageWithSingleTarget(monster, target);
+    when(monster.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
+    artificialIntelligence.initSubject(monster);
 
-    Action action = artificialIntelligence.attackAction(SUBJECT_NAME);
+    Action action = artificialIntelligence.action(SUBJECT_NAME);
 
     assertThat(action.getTargetNames()).contains(TARGET_NAME);
   }
@@ -59,31 +71,31 @@ class ArtificialIntelligenceTest {
 
   @Test
   void shouldReturnNextActionWithSameAcquiredTarget() {
-    Subject subject = mock(Subject.class);
-    when(subject.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
+    Monster monster = mock(Monster.class);
+    when(monster.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
     Subject target = mock(Subject.class);
-    givenStateStorageWithSingleTarget(subject, target);
+    givenStateStorageWithSingleTarget(monster, target);
     when(stateStorage.findByName(eq(TARGET_NAME))).thenReturn(Optional.of(target));
     when(target.isTerminated()).thenReturn(false);
-    artificialIntelligence.initSubject(subject);
-    artificialIntelligence.attackAction(SUBJECT_NAME);
+    artificialIntelligence.initSubject(monster);
+    artificialIntelligence.action(SUBJECT_NAME);
 
-    Action action = artificialIntelligence.attackAction(SUBJECT_NAME);
+    Action action = artificialIntelligence.action(SUBJECT_NAME);
 
     assertThat(action.getTargetNames()).contains(TARGET_NAME);
   }
 
   @Test
   void shouldThrowExceptionWhenTargetIsTerminatedAndCantFindNewOne() {
-    Subject subject = mock(Subject.class);
+    Monster monster = mock(Monster.class);
     Subject target = mock(Subject.class);
-    givenStateStorageWithSingleTarget(subject, target);
+    givenStateStorageWithSingleTarget(monster, target);
     when(stateStorage.findByName(eq(TARGET_NAME))).thenReturn(Optional.of(target));
     when(target.isTerminated()).thenReturn(false).thenReturn(true);
-    when(subject.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
-    artificialIntelligence.initSubject(subject);
-    artificialIntelligence.attackAction(SUBJECT_NAME);
+    when(monster.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
+    artificialIntelligence.initSubject(monster);
+    artificialIntelligence.action(SUBJECT_NAME);
 
-    assertThrows(IncorrectStateException.class, () -> artificialIntelligence.attackAction(SUBJECT_NAME));
+    assertThrows(IncorrectStateException.class, () -> artificialIntelligence.action(SUBJECT_NAME));
   }
 }

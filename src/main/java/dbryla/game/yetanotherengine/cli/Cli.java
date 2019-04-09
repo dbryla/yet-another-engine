@@ -23,10 +23,10 @@ public class Cli implements CommandLineRunner {
   private final ConsoleInputProvider inputProvider;
 
   public Cli(Presenter presenter,
-             GameFactory gameFactory,
-             ConsoleCharacterBuilder consoleCharacterBuilder,
-             Simulator simulator,
-             ConsoleInputProvider inputProvider) {
+      GameFactory gameFactory,
+      ConsoleCharacterBuilder consoleCharacterBuilder,
+      Simulator simulator,
+      ConsoleInputProvider inputProvider) {
     this.presenter = presenter;
     this.gameFactory = gameFactory;
     this.consoleCharacterBuilder = consoleCharacterBuilder;
@@ -60,7 +60,15 @@ public class Cli implements CommandLineRunner {
       Subject player = consoleCharacterBuilder.createPlayer();
       game.createCharacter(player);
     }
-    game.createEnemies(playersNumber);
+    System.out.println("Do you want (0) random encounter or (1) specific one?");
+    int option = inputProvider.cmdLineToOption();
+    if (option == 1) {
+      System.out.println("Which encounter do you want?");
+      int encounterNumber = inputProvider.cmdLineToOption();
+      game.createEnemies(playersNumber, encounterNumber);
+    } else {
+      game.createEnemies(playersNumber);
+    }
     presenter.showStatus();
     game.start();
     presenter.showStatus();

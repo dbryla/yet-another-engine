@@ -6,11 +6,8 @@ import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subjects.IncorrectAttributesException;
 import dbryla.game.yetanotherengine.domain.subjects.State;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
-
 import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -57,7 +54,7 @@ public abstract class BaseClass implements Subject {
     if (currentHealthPoints > Math.ceil(0.50 * maxHealthPoints)) {
       return State.WOUNDED;
     }
-    if (currentHealthPoints < Math.ceil(0.10 * maxHealthPoints) && currentHealthPoints < 10) {
+    if (currentHealthPoints <= Math.ceil(0.10 * maxHealthPoints) && currentHealthPoints < 10) {
       return State.DEATHS_DOOR;
     }
     return State.HEAVILY_WOUNDED;
@@ -65,11 +62,14 @@ public abstract class BaseClass implements Subject {
 
   @Override
   public int getArmorClass() {
-    int modifier = equipment.getArmor()
-        .map(Armor::getMaxDexterityBonus)
-        .map(Optional::get) // fixme
-        .map(maxDexBonus -> Math.min(maxDexBonus, abilities.getDexterityModifier()))
-        .orElse(abilities.getDexterityModifier());
+    Integer modifier = abilities.getDexterityModifier();
+    if (equipment.getArmor().isPresent()) {
+      modifier = equipment.getArmor()
+          .get()
+          .getMaxDexterityBonus()
+          .map(maxDexBonus -> Math.min(maxDexBonus, abilities.getDexterityModifier()))
+          .orElse(abilities.getDexterityModifier());
+    }
     return equipment.getArmorClass() + modifier;
   }
 

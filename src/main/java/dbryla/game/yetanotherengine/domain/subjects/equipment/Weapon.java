@@ -55,4 +55,8 @@ public enum Weapon {
   public String getCriticalHitMessage() {
     return criticalHitMessage + this.toString().toLowerCase() + ".";
   }
+
+  public boolean isPlayable() {
+    return !MONSTER_MELEE_WEAPON.equals(type);
+  }
 }

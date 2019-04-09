@@ -1,20 +1,19 @@
 package dbryla.game.yetanotherengine.domain;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import dbryla.game.yetanotherengine.domain.encounters.MonsterBook;
-import dbryla.game.yetanotherengine.domain.subjects.classes.BaseClass;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import org.junit.jupiter.api.Test;
-
+import java.util.Random;
 import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 class GameOptionsTest {
 
-  private GameOptions gameOptions = new GameOptions(new MonsterBook());
+  private GameOptions gameOptions = new GameOptions(new MonsterBook(new Random()));
 
   @Test
   void shouldReturnAvailableClasses() {
@@ -27,7 +26,7 @@ class GameOptionsTest {
   void shouldReturnAvailableWeaponsForFighter() {
     Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(Fighter.class);
 
-    assertThat(availableWeapons).contains(Weapon.values());
+    assertThat(availableWeapons).contains(Weapon.SHORTSWORD, Weapon.SHORTBOW, Weapon.CLUB, Weapon.LONGBOW);
   }
 
   @Test

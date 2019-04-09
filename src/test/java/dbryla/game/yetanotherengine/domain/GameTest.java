@@ -3,6 +3,7 @@ package dbryla.game.yetanotherengine.domain;
 import static dbryla.game.yetanotherengine.domain.GameOptions.ENEMIES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -13,6 +14,7 @@ import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.subjects.Monster;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -39,6 +41,9 @@ class GameTest {
   @Mock
   private InputProvider inputProvider;
 
+  @Mock
+  private GameOptions gameOptions;
+
   @Test
   void shouldSaveCreatedCharacter() {
     Subject subject = mock(Subject.class);
@@ -50,6 +55,8 @@ class GameTest {
 
   @Test
   void shouldSaveCreatedEnemies() {
+    when(gameOptions.getRandomEncounter(anyInt())).thenReturn(List.of(mock(Monster.class)));
+
     game.createEnemies(1);
 
     verify(stateStorage, atLeastOnce()).save(any());

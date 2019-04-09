@@ -1,5 +1,7 @@
 package dbryla.game.yetanotherengine.domain.subjects;
 
+import static dbryla.game.yetanotherengine.domain.GameOptions.ENEMIES;
+
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
@@ -8,13 +10,12 @@ import dbryla.game.yetanotherengine.domain.subjects.classes.BaseClass;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-
 import java.util.List;
-
-import static dbryla.game.yetanotherengine.domain.GameOptions.ENEMIES;
+import lombok.Getter;
 
 public class Monster extends BaseClass implements Subject {
 
+  @Getter
   private final List<Spell> spells;
 
   private Monster(SubjectIdentifier id, int maxHealthPoints, int currentHealthPoints,
@@ -30,19 +31,19 @@ public class Monster extends BaseClass implements Subject {
 
   @Override
   public Subject of(int healthPoints) {
-    return new Monster(this.id, this.maxHealthPoints, healthPoints, this.equipment, this.abilities, spells, this.activeEffect);
+    return new Monster(this.id, this.maxHealthPoints, healthPoints, this.equipment, this.abilities, this.spells, this.activeEffect);
   }
 
   @Override
   public Subject of(Effect effect) {
     return new Monster(this.id, this.maxHealthPoints, this.currentHealthPoints,
-        this.equipment, this.abilities, spells, effect.activate());
+        this.equipment, this.abilities, this.spells, effect.activate());
   }
 
   @Override
   public Subject effectExpired() {
     return new Monster(this.id, this.maxHealthPoints, this.currentHealthPoints,
-        this.equipment, this.abilities, spells, null);
+        this.equipment, this.abilities, this.spells, null);
   }
 
   public static Builder builder() {

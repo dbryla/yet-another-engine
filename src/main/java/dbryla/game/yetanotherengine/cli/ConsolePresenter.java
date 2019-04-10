@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.cli;
 
+import dbryla.game.yetanotherengine.domain.AbilityScoresSupplier;
 import dbryla.game.yetanotherengine.domain.DiceRoll;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameOptions;
@@ -32,6 +33,7 @@ public class ConsolePresenter {
   private final GameOptions gameOptions;
   private final AttackOperation attackOperation;
   private final SpellCastOperation spellCastOperation;
+  private final AbilityScoresSupplier abilityScoresSupplier;
 
   public void showStatus() {
     StreamSupport.stream(stateStorage.findAll().spliterator(), false)
@@ -145,14 +147,7 @@ public class ConsolePresenter {
   }
 
   public List<Integer> showGeneratedAbilityScores() {
-    List<Integer> abilityScores = new LinkedList<>();
-    for (int i = 0; i < 6; i++) {
-      List<Integer> rolls = new LinkedList<>();
-      for (int j = 0; j < 4; j++) {
-        rolls.add(DiceRoll.k6());
-      }
-      rolls.stream().sorted().skip(1).reduce(Integer::sum).ifPresent(abilityScores::add);
-    }
+    List<Integer> abilityScores = abilityScoresSupplier.get();
     System.out.println("Your ability scores: ");
     abilityScores.forEach(abilityScore -> System.out.print(abilityScore + " "));
     System.out.println();

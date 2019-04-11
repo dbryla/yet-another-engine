@@ -24,38 +24,38 @@ public class GameOptions {
   public static final String ALLIES = "player";
   public static final String ENEMIES = "enemies";
   private static final Set<Class> AVAILABLE_CLASSES = Set.of(Fighter.class, Wizard.class, Cleric.class);
-  private static final Set<Class> SPELL_CASTERS = Set.of(Wizard.class, Cleric.class);
+  private static final Set<String> SPELL_CASTERS = Set.of(Wizard.class.getSimpleName(), Cleric.class.getSimpleName());
   private final MonsterBook monsterBook;
 
   public Set<Class> getAvailableClasses() {
     return AVAILABLE_CLASSES;
   }
 
-  public Set<Weapon> getAvailableWeapons(Class clazz) {
-    if (Fighter.class.equals(clazz)) {
+  public Set<Weapon> getAvailableWeapons(String className) {
+    if (Fighter.class.getSimpleName().equals(className)) {
       return Arrays.stream(Weapon.values()).filter(Weapon::isPlayable).collect(Collectors.toSet());
     }
-    if (Wizard.class.equals(clazz)) {
+    if (Wizard.class.getSimpleName().equals(className)) {
       return Set.of(Weapon.DAGGER, Weapon.QUARTERSTAFF);
     }
-    if (Cleric.class.equals(clazz)) {
+    if (Cleric.class.getSimpleName().equals(className)) {
       return Arrays.stream(Weapon.values()).filter(Weapon::isSimpleType).collect(Collectors.toSet());
     }
     return Set.of();
   }
 
-  public Set<Armor> getAvailableArmors(Class clazz) {
-    if (Fighter.class.equals(clazz)) {
+  public Set<Armor> getAvailableArmors(String className) {
+    if (Fighter.class.getSimpleName().equals(className)) {
       return Arrays.stream(Armor.values()).filter(Armor::isPlayable).collect(Collectors.toSet());
     }
-    if (Cleric.class.equals(clazz)) {
+    if (Cleric.class.getSimpleName().equals(className)) {
       return Arrays.stream(Armor.values()).filter(Armor::isLightOrMedium).collect(Collectors.toSet());
     }
     return Set.of();
   }
 
-  public boolean isSpellCaster(Class clazz) {
-    return SPELL_CASTERS.contains(clazz);
+  public boolean isSpellCaster(String className) {
+    return SPELL_CASTERS.contains(className);
   }
 
   public List<Monster> getRandomEncounter(int playersNumber) {

@@ -1,18 +1,19 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
+import java.util.List;
+import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
-import java.util.stream.StreamSupport;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
+@ActiveProfiles("cli")
 class ConsolePresenterITest {
 
   @Autowired

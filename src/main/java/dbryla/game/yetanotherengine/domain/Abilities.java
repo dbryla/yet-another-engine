@@ -1,7 +1,9 @@
 package dbryla.game.yetanotherengine.domain;
 
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString(exclude = {"strengthModifier", "dexterityModifier", "constitutionModifier", "intelligenceModifier", "wisdomModifier", "charismaModifier"})
 public class Abilities {
 
   private final int strength;

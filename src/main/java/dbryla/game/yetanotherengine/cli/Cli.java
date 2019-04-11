@@ -35,13 +35,15 @@ public class Cli implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    switch (args[0]) {
-      case SIMULATION_OPTION:
-        simulation();
-        break;
-      case GAME_OPTION:
-        game();
-        break;
+    if (args.length >= 1) {
+      switch (args[0]) {
+        case SIMULATION_OPTION:
+          simulation();
+          break;
+        case GAME_OPTION:
+          game();
+          break;
+      }
     }
   }
 

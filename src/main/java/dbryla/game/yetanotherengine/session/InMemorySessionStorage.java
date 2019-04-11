@@ -1,14 +1,15 @@
 package dbryla.game.yetanotherengine.session;
 
-import org.springframework.stereotype.Component;
-
+import dbryla.game.yetanotherengine.domain.Game;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.stereotype.Component;
 
 @Component
 public class InMemorySessionStorage implements SessionStorage {
 
   private Map<String, Session> sessions = new ConcurrentHashMap<>();
+  private Map<Long, Game> games = new ConcurrentHashMap<>();
 
   @Override
   public void put(String sessionId, Session session) {
@@ -18,5 +19,15 @@ public class InMemorySessionStorage implements SessionStorage {
   @Override
   public Session get(String sessionId) {
     return sessions.get(sessionId);
+  }
+
+  @Override
+  public void put(Long gameId, Game game) {
+    games.putIfAbsent(gameId, game);
+  }
+
+  @Override
+  public Game get(Long gameId) {
+    return games.get(gameId);
   }
 }

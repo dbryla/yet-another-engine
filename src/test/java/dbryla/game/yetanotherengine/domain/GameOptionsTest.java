@@ -24,21 +24,21 @@ class GameOptionsTest {
 
   @Test
   void shouldReturnAvailableWeaponsForFighter() {
-    Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(Fighter.class);
+    Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(Fighter.class.getSimpleName());
 
     assertThat(availableWeapons).contains(Weapon.SHORTSWORD, Weapon.SHORTBOW, Weapon.CLUB, Weapon.LONGBOW);
   }
 
   @Test
   void shouldReturnAvailableWeaponsForMage() {
-    Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(Wizard.class);
+    Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(Wizard.class.getSimpleName());
 
     assertThat(availableWeapons).contains(Weapon.DAGGER, Weapon.QUARTERSTAFF);
   }
 
   @Test
   void shouldReturnAvailableArmorsForFighter() {
-    Set<Armor> availableArmors = gameOptions.getAvailableArmors(Fighter.class);
+    Set<Armor> availableArmors = gameOptions.getAvailableArmors(Fighter.class.getSimpleName());
 
     assertThat(availableArmors).contains(Armor.LEATHER, Armor.CHAIN_MAIL, Armor.CHAIN_SHIRT);
     assertThat(availableArmors).doesNotContain(Armor.SHIELD);
@@ -46,7 +46,7 @@ class GameOptionsTest {
 
   @Test
   void shouldReturnAvailableArmorsForMage() {
-    Set<Armor> availableArmors = gameOptions.getAvailableArmors(Wizard.class);
+    Set<Armor> availableArmors = gameOptions.getAvailableArmors(Wizard.class.getSimpleName());
 
     assertThat(availableArmors).isEmpty();
   }

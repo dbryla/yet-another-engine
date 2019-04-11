@@ -59,4 +59,9 @@ public enum Weapon {
   public boolean isPlayable() {
     return !MONSTER_MELEE_WEAPON.equals(type);
   }
+
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase();
+  }
 }

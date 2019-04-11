@@ -69,8 +69,8 @@ class ConsolePresenterTest {
   }
 
   @Test
-  void shouldReturnAvailableOperationsForMage() {
-    when(gameOptions.isSpellCaster(eq(Wizard.class))).thenReturn(true);
+  void shouldReturnAvailableOperationsForWizard() {
+    when(gameOptions.isSpellCaster(eq(Wizard.class.getSimpleName()))).thenReturn(true);
 
     List<Operation> operations = consolePresenter.showAvailableOperations(Wizard.class);
 

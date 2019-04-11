@@ -34,21 +34,13 @@ public class EventsFactory {
         return String.format(weapon.getCriticalHitMessage(), attacker, target.getName())
             + String.format(TERMINATION_FORMAT, target.getName());
       }
-      return attackWithHitRoll(attacker, target.getName(), getWeaponName(weapon), hitResult) + String.format(TERMINATION_FORMAT, target.getName());
+      return attackWithHitRoll(attacker, target.getName(), weapon.toString(), hitResult) + String.format(TERMINATION_FORMAT, target.getName());
     }
-    return attackWithHitRoll(attacker, target.getName(), getWeaponName(weapon), hitResult) + State.getMessageFor(target);
+    return attackWithHitRoll(attacker, target.getName(), weapon.toString(), hitResult) + State.getMessageFor(target);
   }
 
   private String attackWithHitRoll(String attacker, String target, String instrument, HitResult hitResult) {
     return String.format(SUCCESS_HIT_FORMAT, attacker, hitResult.getMessage(), target, instrument);
-  }
-
-  private String getWeaponName(Weapon weapon) {
-    return format(weapon.toString());
-  }
-
-  private String format(String string) {
-    return string.toLowerCase().replace("_", " ");
   }
 
   public Event successSpellCastEvent(Subject attacker, Subject target, Spell spell, HitResult hitResult) {
@@ -58,26 +50,22 @@ public class EventsFactory {
             + String.format(TERMINATION_FORMAT, target.getName()));
       }
       return new Event(
-          attackWithHitRoll(attacker.getName(), target.getName(), getSpellName(spell), hitResult)
+          attackWithHitRoll(attacker.getName(), target.getName(), spell.toString(), hitResult)
               + String.format(TERMINATION_FORMAT, target.getName()));
     }
-    return new Event(attackWithHitRoll(attacker.getName(), target.getName(), getSpellName(spell), hitResult) + State.getMessageFor(target));
-  }
-
-  private String getSpellName(Spell spell) {
-    return format(spell.toString());
+    return new Event(attackWithHitRoll(attacker.getName(), target.getName(), spell.toString(), hitResult) + State.getMessageFor(target));
   }
 
   public Event successSpellCastEvent(Subject attacker, Subject target, Spell spell) {
     if (EFFECT.equals(spell.getSpellType())) {
       return new Event(String.format(EFFECT_FORMAT,
-          attacker.getName(), target.getName(), getSpellName(spell), target.getName(), format(spell.getSpellEffect().toString())));
+          attacker.getName(), target.getName(), spell.toString(), target.getName(), spell.getSpellEffect().toString()));
     }
     if (target.isTerminated()) {
       return new Event(
-          spellCastWithSaveThrow(attacker.getName(), target.getName(), getSpellName(spell)) + String.format(TERMINATION_FORMAT, target.getName()));
+          spellCastWithSaveThrow(attacker.getName(), target.getName(), spell.toString()) + String.format(TERMINATION_FORMAT, target.getName()));
     }
-    return new Event(spellCastWithSaveThrow(attacker.getName(), target.getName(), getSpellName(spell)) + State.getMessageFor(target));
+    return new Event(spellCastWithSaveThrow(attacker.getName(), target.getName(), spell.toString()) + State.getMessageFor(target));
   }
 
   private String spellCastWithSaveThrow(String attacker, String target, String spell) {
@@ -85,7 +73,7 @@ public class EventsFactory {
   }
 
   public Event failEvent(Subject attacker, Subject target, String instrumentName, HitResult hitResult) {
-    return new Event(String.format(hitResult.getMessage(), attacker.getName(), target.getName(), format(instrumentName)));
+    return new Event(String.format(hitResult.getMessage(), attacker.getName(), target.getName(), instrumentName));
   }
 
   public Event effectExpiredEvent(Subject source) {
@@ -101,6 +89,6 @@ public class EventsFactory {
   }
 
   public Event failEventBySavingThrow(Subject source, Spell spell, Subject target, String ability) {
-    return new Event(String.format(SAVE_THROW_FORMAT, source.getName(), getSpellName(spell), target.getName(), ability, target.getName()));
+    return new Event(String.format(SAVE_THROW_FORMAT, source.getName(), spell.toString(), target.getName(), ability, target.getName()));
   }
 }

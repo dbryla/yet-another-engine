@@ -86,4 +86,9 @@ public enum Spell {
   public boolean forClass(Class clazz) {
     return owner.equals(clazz);
   }
+
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase().replace("_", " ");
+  }
 }

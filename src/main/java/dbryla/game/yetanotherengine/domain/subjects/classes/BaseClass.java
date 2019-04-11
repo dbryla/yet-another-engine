@@ -6,6 +6,7 @@ import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subjects.IncorrectAttributesException;
 import dbryla.game.yetanotherengine.domain.subjects.State;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -105,4 +106,15 @@ public abstract class BaseClass implements Subject {
     return new SubjectIdentifier(name, affiliation);
   }
 
+  @Override
+  public String toString() {
+    StringBuilder stringBuilder = new StringBuilder(this.getClass().getSimpleName()
+        + " HP:" + currentHealthPoints + "/" + maxHealthPoints + " AC:" + getArmorClass() + "\n"
+        + abilities + "\n"
+        + "Equipment:\n"
+        + "- " + equipment.getWeapon() + "\n");
+    equipment.getArmor().map(Armor::toString).ifPresent(armor -> stringBuilder.append("- ").append(armor).append("\n"));
+    equipment.getShield().map(Armor::toString).ifPresent(shield -> stringBuilder.append("- ").append(shield).append("\n"));
+    return stringBuilder.toString();
+  }
 }

@@ -1,17 +1,16 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import dbryla.game.yetanotherengine.InputProvider;
-import dbryla.game.yetanotherengine.domain.AbilityScoresSupplier;
-import dbryla.game.yetanotherengine.domain.Action;
-import dbryla.game.yetanotherengine.domain.Game;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.CLASS;
 
+import dbryla.game.yetanotherengine.domain.AbilityScoresSupplier;
+import dbryla.game.yetanotherengine.domain.Game;
+import dbryla.game.yetanotherengine.domain.GameFactory;
+import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.SessionStorage;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
-
-import dbryla.game.yetanotherengine.session.SessionStorage;
-import dbryla.game.yetanotherengine.session.Session;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -27,53 +26,91 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.*;
-
 @Component
 @Profile("tg")
 @Slf4j
 @AllArgsConstructor
-public class YetAnotherGameBot extends TelegramLongPollingBot implements InputProvider {
+public class YetAnotherGameBot extends TelegramLongPollingBot {
 
   private static final String START_COMMAND = "/start";
   private static final String JOIN_COMMAND = "/join";
+  private static final String START_GAME = "Starting new game.";
+  private static final String HELP_COMMAND = "/help";
+  private static final String FIGHT_COMMAND = "/fight";
 
   private final CommunicateFactory communicateFactory;
   private final SessionStorage sessionStorage;
   private final AbilityScoresSupplier abilityScoresSupplier;
+  private final GameFactory gameFactory;
+  private final CharacterBuilder characterBuilder;
 
   @Override
   public void onUpdateReceived(Update update) {
-    if (update.hasMessage() && update.getMessage().isCommand()) {
+    if (isCommand(update)) {
       log.trace("Command: {} no:{} [{}]", update.getMessage().getText(), update.getMessage().getMessageId(),
           getSessionId(update.getMessage(), update.getMessage().getFrom()));
       String commandText = update.getMessage().getText();
       if (commandText.startsWith(START_COMMAND)) {
-        log.info("Starting new game.");
+        handleStartCommand(update);
       }
       if (commandText.startsWith(JOIN_COMMAND)) {
         handleJoinCommand(update);
       }
-    } else {
-      if (update.hasCallbackQuery()) {
-        log.trace("Callback: {} no:{} [{}]", update.getCallbackQuery().getMessage().getText(),
-            update.getCallbackQuery().getMessage().getMessageId(),
-            getSessionId(update.getCallbackQuery().getMessage(),
-                update.getCallbackQuery().getFrom()));
-        handleCallback(update);
-        return;
+      if (commandText.startsWith(HELP_COMMAND)) {
+        handleHelpCommand(update);
       }
-      if (update.hasMessage() && update.getMessage().hasText()) {
-        log.trace("Update: {} no:{} [{}]", update.getMessage().getText(), update.getMessage().getMessageId(),
-            getSessionId(update.getMessage(), update.getMessage().getFrom()));
-        SendMessage message = new SendMessage()
-            .setChatId(update.getMessage().getChatId())
-            .setText("understand!");
-
-        log.info("Session: {}", sessionStorage.get(getSessionId(update.getMessage(), update.getMessage().getFrom())));
-        sendMessage(message);
+      if (commandText.startsWith(FIGHT_COMMAND)) {
+        handleFightCommand(update);
       }
+      return;
     }
+    if (isCallback(update)) {
+      log.trace("Callback: {} no:{} [{}]", update.getCallbackQuery().getMessage().getText(),
+          update.getCallbackQuery().getMessage().getMessageId(),
+          getSessionId(update.getCallbackQuery().getMessage(),
+              update.getCallbackQuery().getFrom()));
+      handleCallback(update);
+      return;
+    }
+    if (isRegularMessage(update)) {
+      log.trace("Update: {} no:{} [{}]", update.getMessage().getText(), update.getMessage().getMessageId(),
+          getSessionId(update.getMessage(), update.getMessage().getFrom()));
+    }
+
+  }
+
+  private boolean isCommand(Update update) {
+    return update.hasMessage() && update.getMessage().isCommand();
+  }
+
+  private void handleStartCommand(Update update) {
+    Long chatId = update.getMessage().getChatId();
+    sessionStorage.put(chatId, gameFactory.newGame());
+    sendTextMessage(chatId, "Welcome to real RPG feeling! " + START_GAME);
+  }
+
+  private void handleHelpCommand(Update update) {
+    Long chatId = update.getMessage().getChatId();
+    sendTextMessage(chatId, "This is real RPG!\nSupported commands:\n/start - Start game\n/join - Joins you to game"
+        + "\nfight - Fight random encounter\n/help - This manual");
+  }
+
+  private void handleFightCommand(Update update) {
+
+  }
+
+  private boolean isCallback(Update update) {
+    return update.hasCallbackQuery();
+  }
+
+  private boolean isRegularMessage(Update update) {
+    return update.hasMessage() && update.getMessage().hasText();
+  }
+
+  private void sendTextMessage(Long chatId, String text) {
+    sendMessage(new SendMessage()
+        .setChatId(chatId)
+        .setText(text));
   }
 
   private String getSessionId(Message message, User user) {
@@ -99,25 +136,49 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     Session session = sessionStorage
         .get(getSessionId(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getFrom()));
     String callbackData = update.getCallbackQuery().getData();
-    session.update(update.getCallbackQuery().getMessage().getText(), callbackData);
+    String messageText = update.getCallbackQuery().getMessage().getText();
+    session.update(messageText, callbackData);
     Integer originalMessageId = update.getCallbackQuery().getMessage().getMessageId();
     Long chatId = update.getCallbackQuery().getMessage().getChatId();
-    if (assigningAbilities(update, session) && session.getAbilityScores().size() > 1) {
+    if (messageText.contains(CLASS)) {
+      session.addLastCommunicate(communicateFactory.chooseWeaponCommunicate(callbackData));
+      communicateFactory.chooseArmorCommunicate(callbackData).ifPresent(session::addLastCommunicate);
+    }
+    if (assigningAbilities(messageText) && session.getAbilityScores().size() > 1) {
       session.addNextCommunicate(
           communicateFactory.nextAbilityAssignment(session, callbackData));
     }
     session.getNextCommunicate().ifPresentOrElse(communicate -> {
-      if (assigningAbilities(update, session) && ABILITIES.equals(communicate.getText())) {
+      if (assigningAbilities(messageText) && ABILITIES.equals(communicate.getText())) {
         sendEditKeyboard(communicate, chatId, originalMessageId);
       } else {
         sendMessage(new DeleteMessage(chatId, originalMessageId));
         sendKeyboard(communicate, chatId, session.getOriginalMessageId());
       }
-    }, () -> sendMessage(new DeleteMessage(chatId, originalMessageId)));
+    }, () -> {
+      sendMessage(new DeleteMessage(chatId, originalMessageId));
+      createCharacter(chatId, session);
+    });
   }
 
-  private boolean assigningAbilities(Update update, Session session) {
-    return ABILITIES.equals(update.getCallbackQuery().getMessage().getText());
+  private void createCharacter(Long chatId, Session session) {
+    Subject subject = characterBuilder.create(session);
+    Game game = getGame(chatId);
+    game.createCharacter(subject);
+    sendTextMessage(chatId, session.getPlayerName() + ": Your character has been created. \n" + subject);
+  }
+
+  private Game getGame(Long chatId) {
+    Game game = sessionStorage.get(chatId);
+    if (game == null) {
+      sessionStorage.put(chatId, gameFactory.newGame());
+      game = sessionStorage.get(chatId);
+    }
+    return game;
+  }
+
+  private boolean assigningAbilities(String messageText) {
+    return messageText.contains(ABILITIES);
   }
 
   private void sendEditKeyboard(Communicate communicate, Long chatId, Integer messageId) {
@@ -125,7 +186,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     sendMessage.setChatId(chatId);
     sendMessage.setMessageId(messageId);
     InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-    keyboardMarkup.setKeyboard(List.of(communicate.getKeyboardButtons()));
+    keyboardMarkup.setKeyboard(communicate.getKeyboardButtons());
     sendMessage.setReplyMarkup(keyboardMarkup);
     sendMessage(sendMessage);
   }
@@ -136,7 +197,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     sendMessage.setChatId(chatId);
     sendMessage.setReplyToMessageId(messageId);
     InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-    keyboardMarkup.setKeyboard(List.of(communicate.getKeyboardButtons()));
+    keyboardMarkup.setKeyboard(communicate.getKeyboardButtons());
     sendMessage.setReplyMarkup(keyboardMarkup);
     sendMessage(sendMessage);
   }
@@ -159,8 +220,4 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     return System.getenv("TELEGRAM_TOKEN");
   }
 
-  @Override
-  public Action askForAction(Subject subject, Game game) {
-    return null;
-  }
 }

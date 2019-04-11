@@ -1,7 +1,6 @@
 package dbryla.game.yetanotherengine.cli;
 
 import dbryla.game.yetanotherengine.domain.AbilityScoresSupplier;
-import dbryla.game.yetanotherengine.domain.DiceRoll;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameOptions;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
@@ -12,16 +11,15 @@ import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component
@@ -63,7 +61,7 @@ public class ConsolePresenter {
     List<Weapon> weapons = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your weapon:");
     int i = 0;
-    for (Weapon weapon : gameOptions.getAvailableWeapons(clazz)) {
+    for (Weapon weapon : gameOptions.getAvailableWeapons(clazz.getSimpleName())) {
       communicate.append(String.format(CHOICE_FORMAT, i++, weapon.name().toLowerCase()));
       weapons.add(weapon);
     }
@@ -99,7 +97,7 @@ public class ConsolePresenter {
     StringBuilder communicate = new StringBuilder("Which action you pick:");
     communicate.append(String.format(CHOICE_FORMAT, 0, "attack"));
     operations.add(attackOperation);
-    if (gameOptions.isSpellCaster(clazz)) {
+    if (gameOptions.isSpellCaster(clazz.getSimpleName())) {
       communicate.append(String.format(CHOICE_FORMAT, 1, "spell"));
       operations.add(spellCastOperation);
     }
@@ -136,7 +134,7 @@ public class ConsolePresenter {
     List<Armor> armors = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your armor:");
     int i = 0;
-    for (Armor armor : gameOptions.getAvailableArmors(clazz)) {
+    for (Armor armor : gameOptions.getAvailableArmors(clazz.getSimpleName())) {
       communicate.append(String.format(CHOICE_FORMAT, i++, toHumanReadableName(armor.name())));
       armors.add(armor);
     }

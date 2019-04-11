@@ -10,5 +10,5 @@ import java.util.List;
 @Getter
 public class Communicate {
   private final String text;
-  private final List<InlineKeyboardButton> keyboardButtons;
+  private final List<List<InlineKeyboardButton>> keyboardButtons;
 }

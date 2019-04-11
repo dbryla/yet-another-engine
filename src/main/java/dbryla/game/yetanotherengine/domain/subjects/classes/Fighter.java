@@ -8,9 +8,7 @@ import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import lombok.ToString;
 
-@ToString
 public class Fighter extends BaseClass implements Subject {
 
   private static final int DEFAULT_FIGHTER_HP = 10;

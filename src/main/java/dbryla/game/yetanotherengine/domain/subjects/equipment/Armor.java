@@ -36,4 +36,9 @@ public enum Armor {
   public boolean isPlayable() {
     return ArmorType.LIGHT.equals(type) || ArmorType.MEDIUM.equals(type) || ArmorType.HEAVY.equals(type);
   }
+
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase().replace("_", " ");
+  }
 }

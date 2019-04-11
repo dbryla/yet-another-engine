@@ -7,6 +7,7 @@ import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.Instrument;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
@@ -29,6 +30,8 @@ public class ConsoleInputProvider implements InputProvider {
 
   private final ConsolePresenter presenter;
   private final BufferedReader input;
+  private final Game game; //fixme
+  private final EventHub eventHub;
 
   int cmdLineToOption() {
     try {
@@ -47,7 +50,7 @@ public class ConsoleInputProvider implements InputProvider {
   }
 
   @Override
-  public Action askForAction(Subject subject, Game game) {
+  public void askForAction(Subject subject, Long gameId) {
     System.out.println(subject.getName() + " your turn!");
     List<Operation> availableOperations = presenter.showAvailableOperations(subject.getClass());
     int option = cmdLineToOption();
@@ -58,12 +61,13 @@ public class ConsoleInputProvider implements InputProvider {
     int numberOfTargets = operation.getAllowedNumberOfTargets(instrument);
     boolean friendlyAction = isFriendlyAction(instrument);
     if (numberOfTargets == UNLIMITED_TARGETS) {
-      return new Action(subject.getName(), getAllTargets(game, friendlyAction), operation, instrument);
+      game.move(new Action(subject.getName(), getAllTargets(friendlyAction), operation, instrument), eventHub);
+    } else {
+      game.move(new Action(subject.getName(), pickTargets(numberOfTargets, friendlyAction), operation, instrument), eventHub);
     }
-    return new Action(subject.getName(), pickTargets(game, numberOfTargets, friendlyAction), operation, instrument);
   }
 
-  private List<String> getAllTargets(Game game, boolean friendlyAction) {
+  private List<String> getAllTargets(boolean friendlyAction) {
     return friendlyAction ? game.getAllAliveAllies() : game.getAllAliveEnemies();
   }
 
@@ -79,19 +83,19 @@ public class ConsoleInputProvider implements InputProvider {
     return instrument.getSpell() != null && instrument.getSpell().isPositiveSpell();
   }
 
-  private List<String> pickTargets(Game game, int numberOfTargets, boolean friendlyTarget) {
+  private List<String> pickTargets(int numberOfTargets, boolean friendlyTarget) {
     List<String> targets = new LinkedList<>();
-    List<String> aliveTargets = getAllTargets(game, friendlyTarget);
+    List<String> aliveTargets = getAllTargets(friendlyTarget);
     if (aliveTargets.size() <= numberOfTargets) {
       return aliveTargets;
     }
     for (int i = 0; i < numberOfTargets; i++) {
-      targets.add(pickTarget(game, friendlyTarget));
+      targets.add(pickTarget(friendlyTarget));
     }
     return targets;
   }
 
-  private String pickTarget(Game game, boolean friendlyTarget) {
+  private String pickTarget(boolean friendlyTarget) {
     List<String> availableTargets = friendlyTarget
         ? presenter.showAvailableFriendlyTargets(game)
         : presenter.showAvailableEnemyTargets(game);

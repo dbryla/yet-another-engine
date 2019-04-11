@@ -4,6 +4,7 @@ import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
@@ -25,6 +26,7 @@ public class Simulator {
   private final StateMachineFactory stateMachineFactory;
   private final ConsolePresenter presenter;
   private final Operation attackOperation;
+  private final EventHub eventHub;
 
   public void start() {
     final String player1 = "Clemens";
@@ -52,17 +54,19 @@ public class Simulator {
         .build();
     stateStorage.save(enemyFighter);
     artificialIntelligence.initSubject(enemyFighter);
+    long gameId = 123L;
     StateMachine stateMachine = stateMachineFactory.createInMemoryStateMachine();
     presenter.showStatus();
     while (!stateMachine.isInTerminalState()) {
       stateMachine.getNextSubject().ifPresent(subject -> {
             switch (subject.getName()) {
               case player1:
-                stateMachine.execute(new Action(player1, enemy, attackOperation, new Instrument(Weapon.CLUB)));
+                stateMachine.execute(new Action(player1, enemy, attackOperation, new Instrument(Weapon.CLUB)))
+                    .forEach(event -> eventHub.send(event, gameId));
                 break;
               case player2:
-                stateMachine.execute(new Action(player2, enemy, attackOperation, new Instrument(Weapon.LONGBOW)));
-                break;
+                stateMachine.execute(new Action(player2, enemy, attackOperation, new Instrument(Weapon.LONGBOW)))
+                    .forEach(event -> eventHub.send(event, gameId));
               case enemy:
                 stateMachine.execute(artificialIntelligence.action(enemy));
             }

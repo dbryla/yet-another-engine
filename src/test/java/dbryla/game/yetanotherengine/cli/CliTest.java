@@ -1,11 +1,13 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameFactory;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,6 +35,9 @@ class CliTest {
   @Mock
   private ConsoleInputProvider inputProvider;
 
+  @Mock
+  private EventHub eventHub;
+
   @Test
   void shouldRunSimulation() throws Exception {
     cli.run(Cli.SIMULATION_OPTION);
@@ -43,10 +48,10 @@ class CliTest {
   @Test
   void shouldRunGame() throws Exception {
     Game game = mock(Game.class);
-    when(gameFactory.newGame()).thenReturn(game);
+    when(gameFactory.newGame(anyLong())).thenReturn(game);
 
     cli.run(Cli.GAME_OPTION);
 
-    verify(game).start();
+    verify(game).start(eventHub);
   }
 }

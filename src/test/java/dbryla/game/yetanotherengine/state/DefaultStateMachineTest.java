@@ -10,21 +10,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.domain.Action;
-import dbryla.game.yetanotherengine.domain.Instrument;
-import dbryla.game.yetanotherengine.domain.state.DefaultStateMachine;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
+import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
+import dbryla.game.yetanotherengine.domain.operations.OperationResult;
+import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
+import dbryla.game.yetanotherengine.domain.state.DefaultStateMachine;
 import dbryla.game.yetanotherengine.domain.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
+import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -80,7 +80,7 @@ class DefaultStateMachineTest {
     when(subject.isTerminated()).thenReturn(true);
     Operation operation = mock(Operation.class);
     Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), operation, TEST_INSTRUMENT);
-    when(operation.invoke(eq(subject), eq(TEST_INSTRUMENT))).thenReturn(Set.of(subject));
+    when(operation.invoke(eq(subject), eq(TEST_INSTRUMENT))).thenReturn(new OperationResult(Set.of(subject), Set.of()));
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByName(SUBJECT_1_NAME)).thenReturn(Optional.of(subject));
     StateMachine stateMachine = new DefaultStateMachine(stepTracker, stateStorage);

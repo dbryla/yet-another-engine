@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.cli;
 
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameFactory;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -20,17 +21,20 @@ public class Cli implements CommandLineRunner {
   private final ConsoleCharacterBuilder consoleCharacterBuilder;
   private final Simulator simulator;
   private final ConsoleInputProvider inputProvider;
+  private final EventHub eventHub;
 
   public Cli(ConsolePresenter presenter,
       GameFactory gameFactory,
       ConsoleCharacterBuilder consoleCharacterBuilder,
       Simulator simulator,
-      ConsoleInputProvider inputProvider) {
+      ConsoleInputProvider inputProvider,
+      EventHub eventHub) {
     this.presenter = presenter;
     this.gameFactory = gameFactory;
     this.consoleCharacterBuilder = consoleCharacterBuilder;
     this.simulator = simulator;
     this.inputProvider = inputProvider;
+    this.eventHub = eventHub;
   }
 
   @Override
@@ -54,7 +58,7 @@ public class Cli implements CommandLineRunner {
 
   private void game() {
     log.info("Starting game mode...");
-    Game game = gameFactory.newGame();
+    Game game = gameFactory.newGame(123L);
     System.out.println("How many players want to join?");
     int playersNumber = inputProvider.cmdLineToOption();
     for (int i = 0; i < playersNumber; i++) {
@@ -71,7 +75,7 @@ public class Cli implements CommandLineRunner {
       game.createEnemies(playersNumber);
     }
     presenter.showStatus();
-    game.start();
+    game.start(eventHub);
     presenter.showStatus();
     log.info("The end.");
   }

@@ -1,13 +1,11 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
@@ -24,10 +22,6 @@ class EffectConsumerTest {
 
   @InjectMocks
   private EffectConsumer effectConsumer;
-
-  @Mock
-  private EventHub eventHub;
-
   @Mock
   private EventsFactory eventsFactory;
 
@@ -36,7 +30,7 @@ class EffectConsumerTest {
     Subject subject = mock(Subject.class);
     when(subject.getActiveEffect()).thenReturn(Optional.empty());
 
-    Optional<Subject> changes = effectConsumer.apply(subject);
+    Optional<OperationResult> changes = effectConsumer.apply(subject);
 
     assertThat(changes).isEmpty();
   }
@@ -47,7 +41,7 @@ class EffectConsumerTest {
     Subject subject = mock(Subject.class);
     when(subject.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(Effect.BLIND, 2)));
 
-    Optional<Subject> changes = effectConsumer.apply(subject);
+    Optional<OperationResult> changes = effectConsumer.apply(subject);
 
     assertThat(changes).isEmpty();
   }
@@ -59,10 +53,10 @@ class EffectConsumerTest {
     when(subject.getActiveEffect()).thenReturn(Optional.of(activeEffect));
     when(subject.effectExpired()).thenReturn(subject);
 
-    Optional<Subject> changes = effectConsumer.apply(subject);
+    Optional<OperationResult> changes = effectConsumer.apply(subject);
 
     assertThat(changes).isPresent();
-    assertThat(changes).contains(subject);
+    assertThat(changes.get().getChangedSubjects()).contains(subject);
   }
 
   @Test
@@ -74,7 +68,6 @@ class EffectConsumerTest {
 
     effectConsumer.apply(subject);
 
-    verify(eventHub).send(any());
     verify(eventsFactory).effectExpiredEvent(eq(subject));
   }
 }

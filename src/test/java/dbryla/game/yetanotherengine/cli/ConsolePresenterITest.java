@@ -27,7 +27,7 @@ class ConsolePresenterITest {
 
   @Test
   void shouldReturnOnlyAliveTargets() {
-    Game game = gameFactory.newGame();
+    Game game = gameFactory.newGame(1L);
     game.createEnemies(2);
     StreamSupport.stream(stateStorage.findAll().spliterator(), false)
         .findAny()

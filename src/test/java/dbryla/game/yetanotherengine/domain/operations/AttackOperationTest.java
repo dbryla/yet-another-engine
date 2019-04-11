@@ -13,11 +13,10 @@ import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.Instrument;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,9 +55,9 @@ class AttackOperationTest {
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
     when(source.getEquipment()).thenReturn(new Equipment(TEST_INSTRUMENT.getWeapon()));
 
-    Set<Subject> changes = operation.invoke(source, TEST_INSTRUMENT, target);
+    OperationResult operationResult = operation.invoke(source, TEST_INSTRUMENT, target);
 
-    assertThat(changes).extracting("name").containsExactly(target.getName());
+    assertThat(operationResult.getChangedSubjects()).extracting("name").containsExactly(target.getName());
   }
 
   @Test
@@ -84,9 +83,9 @@ class AttackOperationTest {
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
 
-    Set<Subject> changes = operation.invoke(source, TEST_INSTRUMENT, target);
+    OperationResult operationResult = operation.invoke(source, TEST_INSTRUMENT, target);
 
-    assertThat(changes).isEmpty();
+    assertThat(operationResult.getChangedSubjects()).isEmpty();
   }
 
   @Test
@@ -102,14 +101,14 @@ class AttackOperationTest {
     when(target.getCurrentHealthPoints()).thenReturn(initialHealth);
     when(source.getEquipment()).thenReturn(new Equipment(TEST_INSTRUMENT.getWeapon()));
 
-    Set<Subject> changes = operation.invoke(source, TEST_INSTRUMENT, target);
+    OperationResult operationResult = operation.invoke(source, TEST_INSTRUMENT, target);
 
-    assertThat(changes.size()).isEqualTo(1);
+    assertThat(operationResult.getChangedSubjects().size()).isEqualTo(1);
     verify(target).of(initialHealth - attackDamage);
   }
 
   @Test
-  void shouldSendSuccessAttackEventWhenTargetWasTerminated() throws UnsupportedGameOperationException {
+  void shouldCreateSuccessAttackEventWhenTargetWasTerminated() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     when(source.getAbilities())
         .thenReturn(DEFAULT_ABILITIES);
@@ -125,12 +124,11 @@ class AttackOperationTest {
 
     operation.invoke(source, TEST_INSTRUMENT, target);
 
-    verify(eventHub).send(any());
     verify(eventsFactory).successAttackEvent(any(), eq(changedTarget), any(), any());
   }
 
   @Test
-  void shouldSendSuccessAttackEventWhenTargetWasAttacked() throws UnsupportedGameOperationException {
+  void shouldCreateSuccessAttackEventWhenTargetWasAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
     Subject target = mock(Subject.class);
@@ -142,12 +140,11 @@ class AttackOperationTest {
 
     operation.invoke(source, TEST_INSTRUMENT, target);
 
-    verify(eventHub).send(any());
     verify(eventsFactory).successAttackEvent(any(), any(), any(), any());
   }
 
   @Test
-  void shouldSendFailAttackEventWhenTargetWasNotAttacked() throws UnsupportedGameOperationException {
+  void shouldCreateFailAttackEventWhenTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Fighter source = mock(Fighter.class);
     when(source.getAbilities())
         .thenReturn(DEFAULT_ABILITIES);
@@ -157,7 +154,6 @@ class AttackOperationTest {
 
     operation.invoke(source, TEST_INSTRUMENT, target);
 
-    verify(eventHub).send(any());
     verify(eventsFactory).failEvent(any(), any(), any(), any());
   }
 }

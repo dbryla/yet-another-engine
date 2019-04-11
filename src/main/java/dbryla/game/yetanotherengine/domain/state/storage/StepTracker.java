@@ -7,7 +7,7 @@ public interface StepTracker {
 
   Optional<String> getNextSubjectName();
 
-  void removeSubject(SubjectIdentifier idenitifier);
+  void removeSubject(SubjectIdentifier identifier);
 
   void moveToNextSubject();
 

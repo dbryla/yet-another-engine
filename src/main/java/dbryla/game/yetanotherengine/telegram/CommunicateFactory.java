@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameOptions;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
@@ -75,5 +76,16 @@ public class CommunicateFactory {
         .map(armor -> new InlineKeyboardButton(armor.toString()).setCallbackData(armor.name()))
         .collect(Collectors.toList());
     return Optional.of(new Communicate(ARMOR, List.of(keyboardButtons)));
+  }
+
+  public Optional<Communicate> attackCommunicate(Game game) {
+    List<String> allAliveEnemies = game.getAllAliveEnemies();
+    if (allAliveEnemies.size() == 1) {
+      return Optional.empty();
+    }
+    List<InlineKeyboardButton> keyboardButtons = allAliveEnemies.stream()
+        .map(enemy -> new InlineKeyboardButton(enemy).setCallbackData(enemy))
+        .collect(Collectors.toList());
+    return Optional.of(new Communicate("Choose your target: ", List.of(keyboardButtons)));
   }
 }

@@ -17,9 +17,6 @@ import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
-
-import java.util.Set;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -60,9 +57,9 @@ class SpellCastOperationTest {
     when(target.of(anyInt())).thenReturn(changedTarget);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
 
-    Set<Subject> changes = spellCastOperation.invoke(source, instrument, target);
+    OperationResult operationResult = spellCastOperation.invoke(source, instrument, target);
 
-    assertThat(changes).contains(changedTarget);
+    assertThat(operationResult.getChangedSubjects()).contains(changedTarget);
   }
 
   @Test
@@ -71,9 +68,9 @@ class SpellCastOperationTest {
     Subject changedTarget = mock(Subject.class);
     when(target.of(Effect.BLIND)).thenReturn(changedTarget);
 
-    Set<Subject> changes = spellCastOperation.invoke(source, instrument, target);
+    OperationResult operationResult = spellCastOperation.invoke(source, instrument, target);
 
-    assertThat(changes).contains(changedTarget);
+    assertThat(operationResult.getChangedSubjects()).contains(changedTarget);
   }
 
   @Test
@@ -119,7 +116,7 @@ class SpellCastOperationTest {
   }
 
   @Test
-  void shouldSendSuccessEventOnSuccessfulSpellCast() throws UnsupportedGameOperationException {
+  void shouldCreateEventOnSuccessfulSpellCast() throws UnsupportedGameOperationException {
     Instrument instrument = new Instrument(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
     when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
@@ -127,17 +124,15 @@ class SpellCastOperationTest {
     spellCastOperation.invoke(source, instrument, target);
 
     verify(eventsFactory).successSpellCastEvent(any(), eq(changedTarget), eq(Spell.COLOR_SPRAY));
-    verify(eventHub).send(any());
   }
 
   @Test
-  void shouldSendFailEventOnUnsuccessfulSpellCast() throws UnsupportedGameOperationException {
+  void shouldCreateEventOnUnsuccessfulSpellCast() throws UnsupportedGameOperationException {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
 
     spellCastOperation.invoke(source, instrument, target);
 
     verify(eventsFactory).failEvent(any(), any(), any(), any());
-    verify(eventHub).send(any());
   }
 }

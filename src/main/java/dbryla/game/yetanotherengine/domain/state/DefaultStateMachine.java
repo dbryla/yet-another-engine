@@ -2,11 +2,15 @@ package dbryla.game.yetanotherengine.domain.state;
 
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
+import dbryla.game.yetanotherengine.domain.events.Event;
+import dbryla.game.yetanotherengine.domain.operations.OperationResult;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 public class DefaultStateMachine implements StateMachine {
 
@@ -28,19 +32,19 @@ public class DefaultStateMachine implements StateMachine {
   }
 
   @Override
-  public StateMachine execute(Action action) {
+  public Set<Event> execute(Action action) {
+    Set<Event> events = new HashSet<>();
     getNextSubject().ifPresent(subject -> {
       verifySource(action, subject);
-      invokeOperation(action, subject);
+      events.addAll(invokeOperation(action, subject));
       stepTracker.moveToNextSubject();
     });
-    return this;
+    return events;
   }
 
-  @SuppressWarnings("unchecked")
-  private void invokeOperation(Action action, Subject subject) {
+  private Set<Event> invokeOperation(Action action, Subject subject) {
     try {
-      apply(action.getOperation().invoke(subject, action.getInstrument(), getTargets(action)));
+      return apply(action.getOperation().invoke(subject, action.getInstrument(), getTargets(action)));
     } catch (UnsupportedGameOperationException e) {
       throw new IncorrectStateException("Couldn't invoke operation on targets.", e);
     }
@@ -61,13 +65,14 @@ public class DefaultStateMachine implements StateMachine {
         .toArray(Subject[]::new);
   }
 
-  private void apply(Set<Subject> changedSubjects) {
-    changedSubjects.forEach(subject -> {
+  private Set<Event> apply(OperationResult operationResult) {
+    operationResult.getChangedSubjects().forEach(subject -> {
       stateStorage.save(subject);
       if (subject.isTerminated()) {
         stepTracker.removeSubject(subject.toIdentifier());
       }
     });
+    return operationResult.getEmittedEvents();
   }
 
   @Override

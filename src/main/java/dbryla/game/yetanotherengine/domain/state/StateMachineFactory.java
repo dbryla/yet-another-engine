@@ -29,7 +29,7 @@ public class StateMachineFactory {
         .collect(Collectors.toMap(Function.identity(), strategy::calculateInitiative));
     List<SubjectIdentifier> subjectsForAction = StreamSupport
         .stream(stateStorage.findAll().spliterator(), false)
-        .sorted(Comparator.comparingInt(initiatives::get).reversed()) // bug here
+        .sorted(Comparator.comparingInt(initiatives::get).reversed())
         .map(Subject::toIdentifier)
         .collect(Collectors.toList());
     Map<String, Long> affiliationMap = StreamSupport

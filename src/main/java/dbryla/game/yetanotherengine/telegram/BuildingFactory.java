@@ -5,6 +5,7 @@ import dbryla.game.yetanotherengine.domain.GameOptions;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 @AllArgsConstructor
 @Component
 @Profile("tg")
-public class CommunicateFactory {
+public class BuildingFactory {
 
   public static final String CLASS = "Choose a class:";
   public static final String ABILITIES = "Assign scores to your abilities: Str, Dex, Con, Int, Wis, Cha";
@@ -78,14 +80,5 @@ public class CommunicateFactory {
     return Optional.of(new Communicate(ARMOR, List.of(keyboardButtons)));
   }
 
-  public Optional<Communicate> attackCommunicate(Game game) {
-    List<String> allAliveEnemies = game.getAllAliveEnemies();
-    if (allAliveEnemies.size() == 1) {
-      return Optional.empty();
-    }
-    List<InlineKeyboardButton> keyboardButtons = allAliveEnemies.stream()
-        .map(enemy -> new InlineKeyboardButton(enemy).setCallbackData(enemy))
-        .collect(Collectors.toList());
-    return Optional.of(new Communicate("Choose your target: ", List.of(keyboardButtons)));
-  }
+
 }

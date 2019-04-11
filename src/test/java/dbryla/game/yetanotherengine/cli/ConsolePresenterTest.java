@@ -56,7 +56,7 @@ class ConsolePresenterTest {
     List<Spell> spells = consolePresenter.showAvailableSpells(Wizard.class);
 
     assertThat(spells)
-        .contains(Arrays.stream(Spell.values()).filter(spell -> spell.forClass(Wizard.class)).toArray(Spell[]::new));
+        .contains(Arrays.stream(Spell.values()).filter(spell -> spell.forClass(Wizard.class.getSimpleName())).toArray(Spell[]::new));
   }
 
   @Test

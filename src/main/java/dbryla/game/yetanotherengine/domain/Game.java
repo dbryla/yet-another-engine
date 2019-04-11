@@ -6,7 +6,9 @@ import static dbryla.game.yetanotherengine.domain.GameOptions.ENEMIES;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
+import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
+import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import dbryla.game.yetanotherengine.telegram.YetAnotherGameBot;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -111,7 +115,11 @@ public class Game {
   }
 
   public void attack(String playerName, Operation operation, EventHub eventHub) {
-    move(new Action(playerName, getAllAliveEnemies().get(0), operation,
+    attack(playerName, operation, getAllAliveEnemies().get(0), eventHub);
+  }
+
+  public void attack(String playerName, Operation operation, String target, EventHub eventHub) {
+    move(new Action(playerName, target, operation,
         new Instrument(stateStorage.findByName(playerName).get().getEquipment().getWeapon())), eventHub);
   }
 }

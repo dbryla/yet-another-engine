@@ -83,8 +83,8 @@ public enum Spell {
     return spellRoll.get();
   }
 
-  public boolean forClass(Class clazz) {
-    return owner.equals(clazz);
+  public boolean forClass(String className) {
+    return owner.getSimpleName().equals(className);
   }
 
   @Override

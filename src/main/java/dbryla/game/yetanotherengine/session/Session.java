@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.session;
 
-import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
 
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @ToString
@@ -23,6 +24,12 @@ public class Session {
   private final Integer originalMessageId;
   @Getter
   private final List<Integer> abilityScores;
+  @Getter
+  @Setter
+  private boolean readyToPlay;
+  @Getter
+  @Setter
+  private boolean spellCasting;
 
   public Session(String playerName, Integer originalMessageId,
                  List<Communicate> communicates, List<Integer> abilityScores) {
@@ -41,7 +48,7 @@ public class Session {
     }
   }
 
-  public Optional<Communicate> getNextCommunicate() {
+  public Optional<Communicate> getNextBuildingCommunicate() {
     if (communicates.isEmpty()) {
       return Optional.empty();
     }

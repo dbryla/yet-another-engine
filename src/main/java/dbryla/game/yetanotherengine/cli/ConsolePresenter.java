@@ -75,21 +75,17 @@ public class ConsolePresenter {
     List<Spell> spells = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your spell:");
     Set<Spell> spellsForClass = Arrays.stream(Spell.values())
-        .filter(spell -> spell.forClass(clazz))
+        .filter(spell -> spell.forClass(clazz.getSimpleName()))
         .collect(Collectors.toSet());
     int i = 0;
     for (Spell spell : spellsForClass) {
-      communicate.append(String.format(CHOICE_FORMAT, i++, toHumanReadableName(spell.name())));
+      communicate.append(String.format(CHOICE_FORMAT, i++, spell.name()));
       spells.add(spell);
     }
     if (!spells.isEmpty()) {
       System.out.println(communicate.toString());
     }
     return spells;
-  }
-
-  private String toHumanReadableName(String name) {
-    return name.toLowerCase().replace("_", " ");
   }
 
   public List<Operation> showAvailableOperations(Class clazz) {
@@ -135,7 +131,7 @@ public class ConsolePresenter {
     StringBuilder communicate = new StringBuilder("Choose your armor:");
     int i = 0;
     for (Armor armor : gameOptions.getAvailableArmors(clazz.getSimpleName())) {
-      communicate.append(String.format(CHOICE_FORMAT, i++, toHumanReadableName(armor.name())));
+      communicate.append(String.format(CHOICE_FORMAT, i++, armor.toString()));
       armors.add(armor);
     }
     if (!armors.isEmpty()) {

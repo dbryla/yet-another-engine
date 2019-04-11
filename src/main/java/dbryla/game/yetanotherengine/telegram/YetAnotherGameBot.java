@@ -1,6 +1,9 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
 
 import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.domain.Game;
@@ -10,6 +13,8 @@ import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.LoggingEventHub;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
+import dbryla.game.yetanotherengine.domain.operations.Operation;
+import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.session.SessionStorage;
@@ -28,6 +33,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.Optional;
+
 @Primary
 @Component
 @Profile("tg")
@@ -41,16 +48,17 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
   private static final String HELP_COMMAND = "/help";
   private static final String FIGHT_COMMAND = "/fight";
   private static final String ATTACK_COMMAND = "/attack";
+  private static final String SPELL_COMMAND = "/spell";
 
   private final SessionStorage sessionStorage;
   private final GameFactory gameFactory;
-  private final CharacterBuilder characterBuilder;
   private final SessionFactory sessionFactory;
   private final KeyboardFactory keyboardFactory;
   private final LoggingEventHub loggingEventHub;
   private final GameOptions gameOptions;
-  private final CommunicateFactory communicateFactory;
   private final AttackOperation attackOperation;
+  private final SpellCastOperation spellCastOperation;
+  private final FightFactory fightFactory;
 
   @Override
   @Async
@@ -86,6 +94,9 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
       }
       if (commandText.startsWith(ATTACK_COMMAND)) {
         handleAttackCommand(update);
+      }
+      if (commandText.startsWith(SPELL_COMMAND)) {
+        handleSpellCommand(update);
       }
       return;
     }
@@ -129,7 +140,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     Message message = update.getMessage();
     Session session = sessionFactory.createSession(playerName, message.getMessageId());
     sessionStorage.put(getSessionId(message, message.getFrom()), session);
-    Communicate communicate = session.getNextCommunicate().get();
+    Communicate communicate = session.getNextBuildingCommunicate().get();
     sendMessage(keyboardFactory.replyKeyboard(communicate, update.getMessage().getChatId(), session.getOriginalMessageId()));
   }
 
@@ -152,12 +163,27 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
   private void handleAttackCommand(Update update) {
     Long chatId = update.getMessage().getChatId();
     Game game = sessionStorage.get(chatId);
-    String playerName = update.getMessage().getFrom().getFirstName();
+    Session session = sessionStorage.get(getSessionId(update.getMessage(), update.getMessage().getFrom()));
+    String playerName = session.getPlayerName();
     if (game.isStarted() && isNextUser(playerName, game)) {
-      communicateFactory.attackCommunicate(game)
-          .ifPresentOrElse(communicate -> sendMessage(keyboardFactory.replyKeyboard(communicate, chatId, update.getMessage().getMessageId())),
+      session.setSpellCasting(false);
+      fightFactory.targetCommunicate(game)
+          .ifPresentOrElse(
+              communicate -> sendMessage(keyboardFactory
+                  .replyKeyboard(communicate, chatId, update.getMessage().getMessageId())),
               () -> game.attack(playerName, attackOperation, this));
+    }
+  }
 
+  private void handleSpellCommand(Update update) {
+    Long chatId = update.getMessage().getChatId();
+    Game game = sessionStorage.get(chatId);
+    Session session = sessionStorage.get(getSessionId(update.getMessage(), update.getMessage().getFrom()));
+    String playerName = session.getPlayerName();
+    if (game.isStarted() && isNextUser(playerName, game)) {
+      Communicate communicate = fightFactory.spellCommunicate((String) session.getData().get(CLASS));
+      session.setSpellCasting(true);
+      sendMessage(keyboardFactory.replyKeyboard(communicate, chatId, update.getMessage().getMessageId()));
     }
   }
 
@@ -176,22 +202,44 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
   private void handleCallback(Update update) {
     Session session = sessionStorage
         .get(getSessionId(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getFrom()));
+    String playerName = update.getCallbackQuery().getFrom().getFirstName();
     String callbackData = update.getCallbackQuery().getData();
     String messageText = update.getCallbackQuery().getMessage().getText();
     Integer originalMessageId = update.getCallbackQuery().getMessage().getMessageId();
     Long chatId = update.getCallbackQuery().getMessage().getChatId();
     sessionFactory.updateSession(messageText, session, callbackData);
-    session.getNextCommunicate().ifPresentOrElse(communicate -> {
-      if (messageText.contains(ABILITIES) && ABILITIES.equals(communicate.getText())) {
-        sendMessage(keyboardFactory.editKeyboard(communicate, chatId, originalMessageId));
-      } else {
-        sendMessage(new DeleteMessage(chatId, originalMessageId));
-        sendMessage(keyboardFactory.replyKeyboard(communicate, chatId, session.getOriginalMessageId()));
-      }
-    }, () -> {
+    session.getNextBuildingCommunicate()
+        .ifPresentOrElse(communicate ->
+                handleCharacterBuilding(communicate, session, messageText, originalMessageId, chatId),
+            () -> {
+              Game game = getGame(chatId);
+              if (messageText.startsWith(SPELL)) {
+                Optional<Communicate> communicate = fightFactory.targetCommunicate(game); //fixme not every spell needs to check that
+                if (communicate.isPresent()) {
+                  sendMessage(keyboardFactory.editKeyboard(communicate.get(), chatId, originalMessageId));
+                  return;
+                }
+                game.attack(playerName, spellCastOperation, this); // fixme pass spell
+              }
+              sendMessage(new DeleteMessage(chatId, originalMessageId));
+              if (messageText.startsWith(TARGET)) {
+                game.attack(playerName, getAction(session), callbackData, this); // fixme spellcast needs an target and spell
+              }
+              createCharacterIfNeeded(chatId, session);
+            });
+  }
+
+  private Operation getAction(Session session) {
+    return session.isSpellCasting() ? spellCastOperation : attackOperation;
+  }
+
+  private void handleCharacterBuilding(Communicate communicate, Session session, String messageText, Integer originalMessageId, Long chatId) {
+    if (messageText.contains(ABILITIES) && ABILITIES.equals(communicate.getText())) {
+      sendMessage(keyboardFactory.editKeyboard(communicate, chatId, originalMessageId));
+    } else {
       sendMessage(new DeleteMessage(chatId, originalMessageId));
-      createCharacter(chatId, session);
-    });
+      sendMessage(keyboardFactory.replyKeyboard(communicate, chatId, session.getOriginalMessageId()));
+    }
   }
 
   private void sendMessage(BotApiMethod message) {
@@ -202,11 +250,14 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     }
   }
 
-  private void createCharacter(Long chatId, Session session) {
-    Subject subject = characterBuilder.create(session);
-    Game game = getGame(chatId);
-    game.createCharacter(subject);
-    sendTextMessage(chatId, session.getPlayerName() + ": Your character has been created. \n" + subject);
+  private void createCharacterIfNeeded(Long chatId, Session session) {
+    if (!session.isReadyToPlay()) {
+      Subject subject = sessionFactory.createCharacter(session);
+      session.setReadyToPlay(true);
+      Game game = getGame(chatId);
+      game.createCharacter(subject);
+      sendTextMessage(chatId, session.getPlayerName() + ": Your character has been created. \n" + subject);
+    }
   }
 
   private Game getGame(Long chatId) {

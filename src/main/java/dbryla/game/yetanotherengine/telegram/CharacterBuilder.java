@@ -1,10 +1,10 @@
 package dbryla.game.yetanotherengine.telegram;
 
 import static dbryla.game.yetanotherengine.domain.GameOptions.ALLIES;
-import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.ARMOR;
-import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.CLASS;
-import static dbryla.game.yetanotherengine.telegram.CommunicateFactory.WEAPON;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ARMOR;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.WEAPON;
 
 import dbryla.game.yetanotherengine.domain.Abilities;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;

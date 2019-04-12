@@ -66,6 +66,9 @@ public class DefaultStateMachine implements StateMachine {
   }
 
   private Set<Event> apply(OperationResult operationResult) {
+    if (operationResult == null) {
+      return Set.of();
+    }
     operationResult.getChangedSubjects().forEach(subject -> {
       stateStorage.save(subject);
       if (subject.isTerminated()) {

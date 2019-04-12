@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
@@ -37,9 +36,6 @@ class GameTest {
 
   @Mock
   private ArtificialIntelligence artificialIntelligence;
-
-  @Mock
-  private InputProvider inputProvider;
 
   @Mock
   private GameOptions gameOptions;

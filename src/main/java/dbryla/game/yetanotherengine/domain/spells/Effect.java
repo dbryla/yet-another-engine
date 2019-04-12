@@ -20,4 +20,9 @@ public enum Effect {
   public ActiveEffect activate() {
     return new ActiveEffect(this, durationInTurns);
   }
+
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase();
+  }
 }

@@ -91,4 +91,8 @@ public enum Spell {
   public String toString() {
     return super.toString().toLowerCase().replace("_", " ");
   }
+
+  public boolean hasUnlimitedTargets() {
+    return maximumNumberOfTargets == SpellConstants.UNLIMITED_TARGETS;
+  }
 }

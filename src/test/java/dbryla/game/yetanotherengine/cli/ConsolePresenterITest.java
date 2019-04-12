@@ -36,6 +36,5 @@ class ConsolePresenterITest {
     List<String> availableTargets = consolePresenter.showAvailableEnemyTargets(game);
 
     assertThat(availableTargets).allMatch(subjectName -> !stateStorage.findByName(subjectName).get().isTerminated());
-
   }
 }

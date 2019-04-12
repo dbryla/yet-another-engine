@@ -62,7 +62,7 @@ public class ConsolePresenter {
     StringBuilder communicate = new StringBuilder("Choose your weapon:");
     int i = 0;
     for (Weapon weapon : gameOptions.getAvailableWeapons(clazz.getSimpleName())) {
-      communicate.append(String.format(CHOICE_FORMAT, i++, weapon.name().toLowerCase()));
+      communicate.append(String.format(CHOICE_FORMAT, i++, weapon.toString()));
       weapons.add(weapon);
     }
     if (!weapons.isEmpty()) {
@@ -79,7 +79,7 @@ public class ConsolePresenter {
         .collect(Collectors.toSet());
     int i = 0;
     for (Spell spell : spellsForClass) {
-      communicate.append(String.format(CHOICE_FORMAT, i++, spell.name()));
+      communicate.append(String.format(CHOICE_FORMAT, i++, spell.toString()));
       spells.add(spell);
     }
     if (!spells.isEmpty()) {

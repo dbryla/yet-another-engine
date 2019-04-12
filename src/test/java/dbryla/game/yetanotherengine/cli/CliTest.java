@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -42,7 +43,7 @@ class CliTest {
   void shouldRunSimulation() throws Exception {
     cli.run(Cli.SIMULATION_OPTION);
 
-    verify(simulator).start();
+    verify(simulator).start(any());
   }
 
   @Test
@@ -52,6 +53,6 @@ class CliTest {
 
     cli.run(Cli.GAME_OPTION);
 
-    verify(game).start(eventHub);
+    verify(game).start(any());
   }
 }

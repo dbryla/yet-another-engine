@@ -30,4 +30,9 @@ public class InMemorySessionStorage implements SessionStorage {
   public Game get(Long gameId) {
     return games.get(gameId);
   }
+
+  @Override
+  public void clear(Long gameId) {
+    games.remove(gameId);
+  }
 }

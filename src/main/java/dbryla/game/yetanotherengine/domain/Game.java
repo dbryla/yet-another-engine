@@ -6,9 +6,8 @@ import static dbryla.game.yetanotherengine.domain.GameOptions.ENEMIES;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
-import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
 import dbryla.game.yetanotherengine.domain.operations.Operation;
-import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
@@ -18,11 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import dbryla.game.yetanotherengine.telegram.YetAnotherGameBot;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 
 @RequiredArgsConstructor
 public class Game {
@@ -71,7 +67,10 @@ public class Game {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  @Async
+  public List<String> getAllAlive(boolean allies) {
+    return allies ? getAllAliveAllies() : getAllAliveEnemies();
+  }
+
   public void start(EventHub eventHub) {
     eventHub.send(new Event("You have approached hostile enemies.\n" + getAllAliveEnemies()), id);
     if (!isStarted()) {
@@ -95,7 +94,6 @@ public class Game {
     }
   }
 
-  @Async
   public void move(Action action, EventHub eventHub) {
     stateMachine.execute(action).forEach(event -> eventHub.send(event, id));
     gameLoop(eventHub);
@@ -121,5 +119,17 @@ public class Game {
   public void attack(String playerName, Operation operation, String target, EventHub eventHub) {
     move(new Action(playerName, target, operation,
         new Instrument(stateStorage.findByName(playerName).get().getEquipment().getWeapon())), eventHub);
+  }
+
+  public void spell(String playerName, Operation operation, Spell spell, EventHub eventHub) {
+    spell(playerName, operation, getAllAlive(spell.isPositiveSpell()), spell, eventHub);
+  }
+
+  public void spell(String playerName, Operation operation, List<String> targets, Spell spell, EventHub eventHub) {
+    move(new Action(playerName, targets, operation, new Instrument(spell)), eventHub);
+  }
+
+  public List<Subject> getAllSubjects() {
+    return StreamSupport.stream(stateStorage.findAll().spliterator(), false).collect(Collectors.toList());
   }
 }

@@ -1,11 +1,12 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import static dbryla.game.yetanotherengine.domain.GameOptions.ALLIES;
+import static dbryla.game.yetanotherengine.domain.GameOptions.ENEMIES;
 import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
 import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
 import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
 import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
 
-import dbryla.game.yetanotherengine.InputProvider;
 import dbryla.game.yetanotherengine.domain.Game;
 import dbryla.game.yetanotherengine.domain.GameFactory;
 import dbryla.game.yetanotherengine.domain.GameOptions;
@@ -13,11 +14,15 @@ import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.LoggingEventHub;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
-import dbryla.game.yetanotherengine.domain.operations.Operation;
 import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subjects.Subject;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.session.SessionStorage;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -33,14 +38,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.Optional;
-
 @Primary
 @Component
 @Profile("tg")
 @Slf4j
 @AllArgsConstructor
-public class YetAnotherGameBot extends TelegramLongPollingBot implements InputProvider, EventHub {
+public class YetAnotherGameBot extends TelegramLongPollingBot implements EventHub {
 
   private static final String START_COMMAND = "/start";
   private static final String JOIN_COMMAND = "/join";
@@ -49,6 +52,8 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
   private static final String FIGHT_COMMAND = "/fight";
   private static final String ATTACK_COMMAND = "/attack";
   private static final String SPELL_COMMAND = "/spell";
+  private static final String STATUS_COMMAND = "/status";
+  private static final String RESET_COMMAND = "/reset";
 
   private final SessionStorage sessionStorage;
   private final GameFactory gameFactory;
@@ -71,7 +76,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
   @Async
   public void nextMove(Subject subject, Long gameId) {
     loggingEventHub.nextMove(subject, gameId);
-    askForAction(subject, gameId);
+    sendTextMessage(gameId, subject.getName() + " your move: /attack " + getSpellCommandIfApplicable(subject));
   }
 
   @Override
@@ -80,24 +85,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
       log.trace("Command: {} no:{} [{}]", update.getMessage().getText(), update.getMessage().getMessageId(),
           getSessionId(update.getMessage(), update.getMessage().getFrom()));
       String commandText = update.getMessage().getText();
-      if (commandText.startsWith(START_COMMAND)) {
-        handleStartCommand(update);
-      }
-      if (commandText.startsWith(JOIN_COMMAND)) {
-        handleJoinCommand(update);
-      }
-      if (commandText.startsWith(HELP_COMMAND)) {
-        handleHelpCommand(update);
-      }
-      if (commandText.startsWith(FIGHT_COMMAND)) {
-        handleFightCommand(update);
-      }
-      if (commandText.startsWith(ATTACK_COMMAND)) {
-        handleAttackCommand(update);
-      }
-      if (commandText.startsWith(SPELL_COMMAND)) {
-        handleSpellCommand(update);
-      }
+      handleCommand(update, commandText);
       return;
     }
     if (isCallback(update)) {
@@ -113,6 +101,33 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
           getSessionId(update.getMessage(), update.getMessage().getFrom()));
     }
 
+  }
+
+  private void handleCommand(Update update, String commandText) {
+    if (commandText.startsWith(START_COMMAND)) {
+      handleStartCommand(update);
+    }
+    if (commandText.startsWith(JOIN_COMMAND)) {
+      handleJoinCommand(update);
+    }
+    if (commandText.startsWith(HELP_COMMAND)) {
+      handleHelpCommand(update);
+    }
+    if (commandText.startsWith(FIGHT_COMMAND)) {
+      handleFightCommand(update);
+    }
+    if (commandText.startsWith(ATTACK_COMMAND)) {
+      handleAttackCommand(update);
+    }
+    if (commandText.startsWith(SPELL_COMMAND)) {
+      handleSpellCommand(update);
+    }
+    if (commandText.startsWith(STATUS_COMMAND)) {
+      handleStatusCommand(update);
+    }
+    if (commandText.startsWith(RESET_COMMAND)) {
+      handleResetCommand(update);
+    }
   }
 
   private boolean isCommand(Update update) {
@@ -148,13 +163,14 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
   private void handleHelpCommand(Update update) {
     Long chatId = update.getMessage().getChatId();
     sendTextMessage(chatId, "This is real RPG!\nSupported commands:\n/start - Start game\n/join - Join to game"
-        + "\n/fight - Fight random encounter\n/attack - Attack with your weapon\n/spell - Cast a spell\n/help - This manual");
+        + "\n/fight - Fight random encounter\n/attack - Attack with your weapon\n/spell - Cast a spell\n/status - Show status of fight"
+        + "\n/reset - Reset game\n/help - This manual");
   }
 
   private void handleFightCommand(Update update) {
     Long chatId = update.getMessage().getChatId();
     Game game = sessionStorage.get(chatId);
-    if (!game.isStarted()) {
+    if (game != null && !game.isStarted()) {
       game.createEnemies((int) game.getPlayersNumber());
       game.start(this);
     }
@@ -191,6 +207,24 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     return game.getNextSubjectName().isPresent() && playerName.equals(game.getNextSubjectName().get());
   }
 
+  private void handleStatusCommand(Update update) {
+    Long chatId = update.getMessage().getChatId();
+    StringBuilder sb = new StringBuilder("Fight status:\n");
+    Game game = getGame(chatId);
+    Map<String, List<Subject>> subjects = game.getAllSubjects().stream().collect(Collectors.groupingBy(Subject::getAffiliation));
+    sb.append("Your team:\n");
+    subjects.get(ALLIES).forEach(subject -> sb.append(subject.getName()).append(subject.getSubjectState()).append(" "));
+    sb.append("\nEnemies:\n");
+    subjects.get(ENEMIES).forEach(subject -> sb.append(subject.getName()).append(subject.getSubjectState()).append(" "));
+    sendTextMessage(chatId, sb.toString());
+  }
+
+  private void handleResetCommand(Update update) {
+    Long chatId = update.getMessage().getChatId();
+    sessionStorage.clear(chatId);
+    sendTextMessage(chatId, "Ok :) I'll forget anything what happened.");
+  }
+
   private boolean isCallback(Update update) {
     return update.hasCallbackQuery();
   }
@@ -211,26 +245,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
     session.getNextBuildingCommunicate()
         .ifPresentOrElse(communicate ->
                 handleCharacterBuilding(communicate, session, messageText, originalMessageId, chatId),
-            () -> {
-              Game game = getGame(chatId);
-              if (messageText.startsWith(SPELL)) {
-                Optional<Communicate> communicate = fightFactory.targetCommunicate(game); //fixme not every spell needs to check that
-                if (communicate.isPresent()) {
-                  sendMessage(keyboardFactory.editKeyboard(communicate.get(), chatId, originalMessageId));
-                  return;
-                }
-                game.attack(playerName, spellCastOperation, this); // fixme pass spell
-              }
-              sendMessage(new DeleteMessage(chatId, originalMessageId));
-              if (messageText.startsWith(TARGET)) {
-                game.attack(playerName, getAction(session), callbackData, this); // fixme spellcast needs an target and spell
-              }
-              createCharacterIfNeeded(chatId, session);
-            });
-  }
-
-  private Operation getAction(Session session) {
-    return session.isSpellCasting() ? spellCastOperation : attackOperation;
+            () -> handleFight(session, playerName, callbackData, messageText, originalMessageId, chatId));
   }
 
   private void handleCharacterBuilding(Communicate communicate, Session session, String messageText, Integer originalMessageId, Long chatId) {
@@ -240,6 +255,49 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
       sendMessage(new DeleteMessage(chatId, originalMessageId));
       sendMessage(keyboardFactory.replyKeyboard(communicate, chatId, session.getOriginalMessageId()));
     }
+  }
+
+  private void handleFight(Session session, String playerName, String callbackData, String messageText, Integer originalMessageId, Long chatId) {
+    Game game = getGame(chatId);
+    if (messageText.startsWith(SPELL)) {
+      handleSpellCallback(playerName, callbackData, originalMessageId, chatId, game);
+      return;
+    }
+    if (messageText.startsWith(TARGET)) {
+      if (session.isSpellCasting()) {
+        Spell spell = Spell.valueOf((String) session.getData().get("SPELL"));
+        if (session.areAllTargetsAcquired()) {
+          sendMessage(new DeleteMessage(chatId, originalMessageId));
+          game.spell(playerName, spellCastOperation, session.getTargets(), spell, this);
+          session.clearTargets();
+          return;
+        }
+        Optional<Communicate> communicate = fightFactory.targetCommunicate(game, spell.isPositiveSpell(), session.getTargets());
+        if (communicate.isPresent()) {
+          sendMessage(keyboardFactory.editKeyboard(communicate.get(), chatId, originalMessageId));
+          return;
+        }
+      } else {
+        sendMessage(new DeleteMessage(chatId, originalMessageId));
+        game.attack(playerName, attackOperation, callbackData, this);
+        return;
+      }
+    }
+    sendMessage(new DeleteMessage(chatId, originalMessageId));
+    createCharacterIfNeeded(chatId, session);
+  }
+
+  private void handleSpellCallback(String playerName, String callbackData, Integer originalMessageId, Long chatId, Game game) {
+    Spell spell = Spell.valueOf(callbackData);
+    if (!spell.hasUnlimitedTargets()) {
+      Optional<Communicate> communicate = fightFactory.targetCommunicate(game, spell.isPositiveSpell());
+      if (communicate.isPresent()) {
+        sendMessage(keyboardFactory.editKeyboard(communicate.get(), chatId, originalMessageId));
+        return;
+      }
+    }
+    sendMessage(new DeleteMessage(chatId, originalMessageId));
+    game.spell(playerName, spellCastOperation, spell, this);
   }
 
   private void sendMessage(BotApiMethod message) {
@@ -267,11 +325,6 @@ public class YetAnotherGameBot extends TelegramLongPollingBot implements InputPr
       game = sessionStorage.get(chatId);
     }
     return game;
-  }
-
-  @Override
-  public void askForAction(Subject subject, Long gameId) {
-    sendTextMessage(gameId, subject.getName() + " your move: /attack " + getSpellCommandIfApplicable(subject));
   }
 
   private String getSpellCommandIfApplicable(Subject subject) {

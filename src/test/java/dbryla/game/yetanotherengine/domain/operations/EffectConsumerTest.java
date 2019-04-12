@@ -1,11 +1,13 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.spells.Effect;
 import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
@@ -52,6 +54,7 @@ class EffectConsumerTest {
     ActiveEffect activeEffect = Effect.BLIND.activate();
     when(subject.getActiveEffect()).thenReturn(Optional.of(activeEffect));
     when(subject.effectExpired()).thenReturn(subject);
+    when(eventsFactory.effectExpiredEvent(any())).thenReturn(new Event(""));
 
     Optional<OperationResult> changes = effectConsumer.apply(subject);
 
@@ -65,6 +68,7 @@ class EffectConsumerTest {
     ActiveEffect activeEffect = Effect.BLIND.activate();
     when(subject.getActiveEffect()).thenReturn(Optional.of(activeEffect));
     when(subject.effectExpired()).thenReturn(subject);
+    when(eventsFactory.effectExpiredEvent(any())).thenReturn(new Event(""));
 
     effectConsumer.apply(subject);
 

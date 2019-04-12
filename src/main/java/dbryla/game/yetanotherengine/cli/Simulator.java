@@ -26,9 +26,8 @@ public class Simulator {
   private final StateMachineFactory stateMachineFactory;
   private final ConsolePresenter presenter;
   private final Operation attackOperation;
-  private final EventHub eventHub;
 
-  public void start() {
+  public void start(EventHub eventHub) {
     final String player1 = "Clemens";
     final String player2 = "Maria";
     final String blueTeam = "blue";

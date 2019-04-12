@@ -1,7 +1,10 @@
 package dbryla.game.yetanotherengine.session;
 
 import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
 
+import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -32,7 +35,7 @@ public class Session {
   private boolean spellCasting;
 
   public Session(String playerName, Integer originalMessageId,
-                 List<Communicate> communicates, List<Integer> abilityScores) {
+      List<Communicate> communicates, List<Integer> abilityScores) {
     this.playerName = playerName;
     this.originalMessageId = originalMessageId;
     this.communicates = communicates;
@@ -43,9 +46,15 @@ public class Session {
     if (key.equals(ABILITIES)) {
       data.putIfAbsent(ABILITIES, new LinkedList<>());
       ((LinkedList) data.get(ABILITIES)).add(value);
-    } else {
-      data.put(key, value);
+      return;
     }
+    if (key.equals(TARGET)) {
+      data.putIfAbsent(TARGET, new LinkedList<>());
+      ((LinkedList) data.get(TARGET)).add(value);
+      return;
+    }
+    data.put(key, value);
+
   }
 
   public Optional<Communicate> getNextBuildingCommunicate() {
@@ -61,5 +70,17 @@ public class Session {
 
   public void addLastCommunicate(Communicate communicate) {
     communicates.add(communicate);
+  }
+
+  public boolean areAllTargetsAcquired() {
+    return Spell.valueOf((String) data.get(SPELL)).getMaximumNumberOfTargets() == ((List) data.get(TARGET)).size();
+  }
+
+  public List<String> getTargets() {
+    return (List<String>) data.get(TARGET);
+  }
+
+  public void clearTargets() {
+    ((List) data.get(TARGET)).clear();
   }
 }

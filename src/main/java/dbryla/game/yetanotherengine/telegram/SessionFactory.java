@@ -3,11 +3,16 @@ package dbryla.game.yetanotherengine.telegram;
 import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
 import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
 
-import dbryla.game.yetanotherengine.domain.AbilityScoresSupplier;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.game.Game;
+import dbryla.game.yetanotherengine.domain.game.GameFactory;
+import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.Session;
+
 import java.util.LinkedList;
 import java.util.List;
+
+import dbryla.game.yetanotherengine.session.SessionStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -18,21 +23,23 @@ import org.springframework.stereotype.Component;
 public class SessionFactory {
 
   private final BuildingFactory buildingFactory;
-  private final CharacterBuilder characterBuilder;
   private final AbilityScoresSupplier abilityScoresSupplier;
+  private final SessionStorage sessionStorage;
+  private final GameFactory gameFactory;
 
-
-  public Session createSession(String playerName, Integer messageId) {
+  public Session createSessionAndPrepareCommunicates(String sessionId, String playerName) {
     List<Integer> abilityScores = abilityScoresSupplier.get();
-    return new Session(playerName, messageId, new LinkedList<>(List.of(buildingFactory.chooseClassCommunicate(),
+    Session session = new Session(playerName, new LinkedList<>(List.of(buildingFactory.chooseClassCommunicate(),
         buildingFactory.assignAbilitiesCommunicate(abilityScores))), abilityScores);
+    sessionStorage.put(sessionId, session);
+    return session;
   }
 
-  public void updateSession(String messageText, Session session, String callbackData) {
+  void updateSession(String messageText, Session session, String callbackData) {
     session.update(messageText, callbackData);
     if (messageText.contains(CLASS)) {
-      session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(callbackData));
-      buildingFactory.chooseArmorCommunicate(callbackData).ifPresent(session::addLastCommunicate);
+/*      session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(callbackData, race)); todo ask for race first
+      buildingFactory.chooseArmorCommunicate(callbackData).ifPresent(session::addLastCommunicate);*/
     }
     if (messageText.contains(ABILITIES) && session.getAbilityScores().size() > 1) {
       session.addNextCommunicate(
@@ -40,7 +47,26 @@ public class SessionFactory {
     }
   }
 
-  public Subject createCharacter(Session session) {
-    return characterBuilder.create(session);
+  public Session createSession(String sessionId, String playerName, Subject subject) {
+    Session session = new Session(playerName, subject);
+    sessionStorage.put(sessionId, session);
+    return session;
+  }
+
+  public Session getSession(String sessionId) {
+    return sessionStorage.get(sessionId);
+  }
+
+  public Game getGameOrCreate(Long chatId) {
+    Game game = sessionStorage.get(chatId);
+    if (game == null) {
+      sessionStorage.put(chatId, gameFactory.newGame(chatId));
+      game = sessionStorage.get(chatId);
+    }
+    return game;
+  }
+
+  public Game getGame(Long chatId) {
+    return sessionStorage.get(chatId);
   }
 }

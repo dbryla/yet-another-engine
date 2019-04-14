@@ -3,19 +3,19 @@ package dbryla.game.yetanotherengine.cli;
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNLIMITED_TARGETS;
 
 import dbryla.game.yetanotherengine.domain.Action;
-import dbryla.game.yetanotherengine.domain.Game;
-import dbryla.game.yetanotherengine.domain.GameFactory;
-import dbryla.game.yetanotherengine.domain.Instrument;
-import dbryla.game.yetanotherengine.domain.events.Event;
-import dbryla.game.yetanotherengine.domain.events.EventHub;
-import dbryla.game.yetanotherengine.domain.events.LoggingEventHub;
-import dbryla.game.yetanotherengine.domain.operations.Operation;
-import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
+import dbryla.game.yetanotherengine.domain.encounters.MonstersFactory;
+import dbryla.game.yetanotherengine.domain.game.Game;
+import dbryla.game.yetanotherengine.domain.game.GameFactory;
+import dbryla.game.yetanotherengine.domain.operations.Instrument;
+import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Primary;
@@ -26,7 +26,8 @@ import org.springframework.stereotype.Component;
 @Profile("cli")
 @Slf4j
 @Primary
-public class Cli implements CommandLineRunner, EventHub {
+@RequiredArgsConstructor
+public class Cli implements CommandLineRunner {
 
   static final String SIMULATION_OPTION = "sim";
   static final String GAME_OPTION = "game";
@@ -35,25 +36,11 @@ public class Cli implements CommandLineRunner, EventHub {
   private final ConsoleCharacterBuilder consoleCharacterBuilder;
   private final Simulator simulator;
   private final ConsoleInputProvider inputProvider;
-  private final LoggingEventHub loggingEventHub;
+  private final MonstersFactory monstersFactory;
   private Game game;
 
-  public Cli(ConsolePresenter presenter,
-      GameFactory gameFactory,
-      ConsoleCharacterBuilder consoleCharacterBuilder,
-      Simulator simulator,
-      ConsoleInputProvider inputProvider,
-      LoggingEventHub loggingEventHub) {
-    this.presenter = presenter;
-    this.gameFactory = gameFactory;
-    this.consoleCharacterBuilder = consoleCharacterBuilder;
-    this.simulator = simulator;
-    this.inputProvider = inputProvider;
-    this.loggingEventHub = loggingEventHub;
-  }
-
   @Override
-  public void run(String... args) throws Exception {
+  public void run(String... args) {
     if (args.length >= 1) {
       switch (args[0]) {
         case SIMULATION_OPTION:
@@ -68,12 +55,13 @@ public class Cli implements CommandLineRunner, EventHub {
 
   private void simulation() {
     log.info("Starting simulation...");
-    simulator.start(this);
+    simulator.start();
   }
 
   private void game() {
     log.info("Starting game mode...");
-    game = gameFactory.newGame(123L);
+    long gameId = 123L;
+    game = gameFactory.newGame(gameId);
     System.out.println("How many players want to join?");
     int playersNumber = inputProvider.cmdLineToOption();
     for (int i = 0; i < playersNumber; i++) {
@@ -85,19 +73,22 @@ public class Cli implements CommandLineRunner, EventHub {
     if (option == 1) {
       System.out.println("Which encounter do you want?");
       int encounterNumber = inputProvider.cmdLineToOption();
-      game.createEnemies(playersNumber, encounterNumber);
+      game.createEnemies(monstersFactory.createEncounter(game.getPlayersNumber(), encounterNumber));
     } else {
-      game.createEnemies(playersNumber);
+      game.createEnemies(monstersFactory.createEncounter(game.getPlayersNumber()));
     }
-    presenter.showStatus();
-    game.start(this);
-    presenter.showStatus();
+    presenter.showStatus(gameId);
+    game.start();
+    while (!game.isEnded()) {
+      game.getNextSubjectName().ifPresent(this::handleNextMove);
+    }
+    presenter.showStatus(gameId);
     log.info("The end.");
   }
 
-  private Optional<Spell> getSpell(Subject subject, Operation operation) {
-    if (operation instanceof SpellCastOperation) {
-      List<Spell> spells = presenter.showAvailableSpells(subject.getClass());
+  private Optional<Spell> getSpell(Subject subject, OperationType operation) {
+    if (OperationType.SPELL_CAST.equals(operation)) {
+      List<Spell> spells = presenter.showAvailableSpells(subject.getCharacterClass());
       return Optional.of(spells.get(inputProvider.cmdLineToOption()));
     }
     return Optional.empty();
@@ -109,7 +100,7 @@ public class Cli implements CommandLineRunner, EventHub {
 
   private List<String> pickTargets(int numberOfTargets, boolean friendlyTarget) {
     List<String> targets = new LinkedList<>();
-    List<String> aliveTargets = game.getAllAlive(friendlyTarget);
+    List<String> aliveTargets = game.getAllAliveSubjectNames(friendlyTarget);
     if (aliveTargets.size() <= numberOfTargets) {
       return aliveTargets;
     }
@@ -126,26 +117,20 @@ public class Cli implements CommandLineRunner, EventHub {
     return availableTargets.get(inputProvider.cmdLineToOption());
   }
 
-  @Override
-  public void send(Event event, Long gameId) {
-    loggingEventHub.send(event, gameId);
-  }
-
-  @Override
-  public void nextMove(Subject subject, Long gameId) {
-    log.info("{} your turn!", subject.getName());
-    List<Operation> availableOperations = presenter.showAvailableOperations(subject.getClass());
+  private void handleNextMove(String subjectName) {
+    Subject subject = game.getSubject(subjectName);
+    List<OperationType> availableOperations = presenter.showAvailableOperations(subject.getCharacterClass());
     int option = inputProvider.cmdLineToOption();
-    Operation operation = availableOperations.get(option);
+    OperationType operation = availableOperations.get(option);
     Instrument instrument = getSpell(subject, operation)
         .map(Instrument::new)
         .orElse(new Instrument(subject.getEquipment().getWeapon()));
-    int numberOfTargets = operation.getAllowedNumberOfTargets(instrument);
+    int numberOfTargets = instrument.getAllowedNumberOfTargets();
     boolean friendlyAction = isFriendlyAction(instrument);
     if (numberOfTargets == UNLIMITED_TARGETS) {
-      game.move(new Action(subject.getName(), game.getAllAlive(friendlyAction), operation, instrument), this);
+      game.executeAction(new Action(subject.getName(), game.getAllAliveSubjectNames(friendlyAction), operation, instrument));
     } else {
-      game.move(new Action(subject.getName(), pickTargets(numberOfTargets, friendlyAction), operation, instrument), this);
+      game.executeAction(new Action(subject.getName(), pickTargets(numberOfTargets, friendlyAction), operation, instrument));
     }
   }
 }

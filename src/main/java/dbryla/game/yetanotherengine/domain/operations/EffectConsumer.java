@@ -1,10 +1,13 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
-import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
+
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,15 +17,21 @@ public class EffectConsumer {
 
   private final EventsFactory eventsFactory;
 
-  Optional<OperationResult> apply(Subject source) {
-    Optional<ActiveEffect> activeEffect = source.getActiveEffect();
-    if (activeEffect.isPresent()) {
-      activeEffect.get().decreaseDuration();
-      if (activeEffect.get().getDurationInTurns() == 0) {
-        return Optional.of(new OperationResult(Set.of(source.effectExpired()), Set.of(eventsFactory.effectExpiredEvent(source))));
-      }
-    }
-    return Optional.empty();
+  OperationResult apply(Subject source) {
+    OperationResult operationResult = new OperationResult();
+    source.getActiveEffects().forEach(
+        activeEffect -> {
+          if (activeEffect.getDurationInTurns() > 0) {
+            activeEffect.decreaseDuration();
+            if (activeEffect.getDurationInTurns() == 0) {
+              operationResult.addAll(
+                  Set.of(source.effectExpired(activeEffect.getEffect())),
+                  Set.of(eventsFactory.effectExpiredEvent(source, activeEffect.getEffect())));
+            }
+          }
+        }
+    );
+    return operationResult;
   }
 
 }

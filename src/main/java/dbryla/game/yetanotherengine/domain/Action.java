@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.domain;
 
-import dbryla.game.yetanotherengine.domain.operations.Operation;
+import dbryla.game.yetanotherengine.domain.operations.Instrument;
+import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,13 +13,13 @@ public class Action {
 
   private final String sourceName;
   private final List<String> targetNames;
-  private final Operation operation;
+  private final OperationType operationType;
   private final Instrument instrument;
 
-  public Action(String sourceName, String targetName, Operation operation, Instrument instrument) {
+  public Action(String sourceName, String targetName, OperationType operationType, Instrument instrument) {
     this.sourceName = sourceName;
     this.targetNames = List.of(targetName);
-    this.operation = operation;
+    this.operationType = operationType;
     this.instrument = instrument;
   }
 

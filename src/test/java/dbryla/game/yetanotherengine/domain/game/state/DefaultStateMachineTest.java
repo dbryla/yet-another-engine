@@ -1,0 +1,145 @@
+package dbryla.game.yetanotherengine.domain.game.state;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.IncorrectStateException;
+import dbryla.game.yetanotherengine.domain.events.EventHub;
+import dbryla.game.yetanotherengine.domain.operations.*;
+import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class DefaultStateMachineTest {
+
+  @Mock
+  private StateStorage stateStorage;
+
+  @Mock
+  private StepTracker stepTracker;
+
+  @Mock
+  private SpellCastOperation spellCastOperation;
+
+  @Mock
+  private AttackOperation attackOperation;
+
+  @Mock
+  private EventHub eventHub;
+
+  private static final Long GAME_ID = 123L;
+  private static final String SUBJECT_1_NAME = "subject1";
+  private static final String SUBJECT_2_NAME = "subject2";
+  private final static Instrument TEST_INSTRUMENT = new Instrument(Weapon.SHORTSWORD);
+  private StateMachine stateMachine;
+
+  @BeforeEach
+  void setUp() {
+    stateMachine = new DefaultStateMachine(GAME_ID, stepTracker, stateStorage, eventHub, attackOperation, spellCastOperation);
+  }
+
+  @Test
+  void shouldExecuteActionOnNextSubject() throws UnsupportedGameOperationException {
+    Subject subject = givenSubjectOne();
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_INSTRUMENT);
+    when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
+    when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+
+    stateMachine.execute(action);
+
+    verify(attackOperation).invoke(eq(subject), eq(TEST_INSTRUMENT));
+  }
+
+  @Test
+  void shouldThrowExceptionWhenExecutingActionFromDifferentThanNextSubject() {
+    Subject subject = givenSubjectOne();
+    Action action = new Action(SUBJECT_2_NAME, "", null, TEST_INSTRUMENT);
+    when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
+    when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+
+    assertThrows(IncorrectStateException.class, () -> stateMachine.execute(action));
+  }
+
+  private Subject givenSubjectOne() {
+    Subject subject = mock(Subject.class);
+    when(subject.getName()).thenReturn(SUBJECT_1_NAME);
+    return subject;
+  }
+
+  @Test
+  void shouldRemoveSubjectIfWasTerminated() throws UnsupportedGameOperationException {
+    Subject subject = givenSubjectOne();
+    when(subject.isTerminated()).thenReturn(true);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_INSTRUMENT);
+    when(attackOperation.invoke(eq(subject), eq(TEST_INSTRUMENT))).thenReturn(new OperationResult(Set.of(subject), Set.of()));
+    when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
+    when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+
+    stateMachine.execute(action);
+
+    verify(stepTracker).removeSubject(any());
+  }
+
+  @Test
+  void shouldMoveCursorToNextSubjectAfterExecutionOfAction() {
+    Subject subject1 = givenSubjectOne();
+    Subject subject2 = mock(Subject.class);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_INSTRUMENT);
+    when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
+    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject1));
+    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_2_NAME))).thenReturn(Optional.of(subject2));
+
+    stateMachine.execute(action);
+
+    verify(stepTracker).moveToNextSubject();
+  }
+
+  @Test
+  void shouldExecuteActionOnEveryTarget() throws UnsupportedGameOperationException {
+    Subject subject = givenSubjectOne();
+    String target1Name = "target_name1";
+    Subject target1 = mock(Subject.class);
+    String target2Name = "target_name2";
+    Subject target2 = mock(Subject.class);
+    when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
+    Action action = new Action(SUBJECT_1_NAME, List.of(target1Name, target2Name), OperationType.ATTACK, TEST_INSTRUMENT);
+    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(target1Name))).thenReturn(Optional.of(target1));
+    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(target2Name))).thenReturn(Optional.of(target2));
+
+
+    stateMachine.execute(action);
+
+    verify(attackOperation).invoke(eq(subject), eq(TEST_INSTRUMENT), eq(target1), eq(target2));
+  }
+
+  @Test
+  void shouldNotReturnNextSubjectWhenThereIsNoAction() {
+        assertThat(stateMachine.getNextSubject()).isNotPresent();
+  }
+
+  @Test
+  void shouldNotTerminateIfMoreThanOneSubjectToActionRemains() {
+    assertThat(stateMachine.isInTerminalState()).isFalse();
+  }
+
+}

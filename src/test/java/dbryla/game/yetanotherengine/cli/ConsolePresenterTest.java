@@ -1,31 +1,29 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import dbryla.game.yetanotherengine.domain.Game;
-import dbryla.game.yetanotherengine.domain.GameOptions;
-import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
-import dbryla.game.yetanotherengine.domain.operations.Operation;
-import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
+import dbryla.game.yetanotherengine.domain.game.Game;
+import dbryla.game.yetanotherengine.domain.game.GameOptions;
+import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
+import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ConsolePresenterTest {
@@ -36,59 +34,51 @@ class ConsolePresenterTest {
   @Mock
   private GameOptions gameOptions;
 
-  @Mock
-  private AttackOperation attackOperation;
-
-  @Mock
-  private SpellCastOperation spellCastOperation;
-
   @Test
   void shouldReturnAvailableClasses() {
-    when(gameOptions.getAvailableClasses()).thenReturn(Set.of(Fighter.class));
+    when(gameOptions.getAvailableClasses()).thenReturn(Set.of(FIGHTER));
 
-    List<Class> classes = consolePresenter.showAvailableClasses();
+    List<CharacterClass> classes = consolePresenter.showAvailableClasses();
 
-    assertThat(classes).contains(Fighter.class);
+    assertThat(classes).contains(FIGHTER);
   }
 
   @Test
-  void shouldReturnAvailableSpellsForWizard() {
-    List<Spell> spells = consolePresenter.showAvailableSpells(Wizard.class);
+  void shouldReturnAvailableSpellsForSubject() {
+    List<Spell> spells = consolePresenter.showAvailableSpells(WIZARD);
 
     assertThat(spells)
-        .contains(Arrays.stream(Spell.values()).filter(spell -> spell.forClass(Wizard.class.getSimpleName())).toArray(Spell[]::new));
+        .contains(Arrays.stream(Spell.values()).filter(spell -> spell.forClass(WIZARD)).toArray(Spell[]::new));
   }
 
   @Test
   void shouldReturnAvailableWeapons() {
-    when(gameOptions.getAvailableWeapons(any())).thenReturn(Set.of(Weapon.values()));
+    when(gameOptions.getAvailableWeapons(any(), any())).thenReturn(Set.of(Weapon.values()));
 
-    List<Weapon> weapons = consolePresenter.showAvailableWeapons(Fighter.class);
+    List<Weapon> weapons = consolePresenter.showAvailableWeapons(WIZARD, Race.HUMAN);
 
     assertThat(weapons).contains(Weapon.values());
   }
 
   @Test
-  void shouldReturnAvailableOperationsForWizard() {
-    when(gameOptions.isSpellCaster(eq(Wizard.class.getSimpleName()))).thenReturn(true);
+  void shouldReturnAvailableOperationsForSubject() {
+    List<OperationType> operations = consolePresenter.showAvailableOperations(WIZARD);
 
-    List<Operation> operations = consolePresenter.showAvailableOperations(Wizard.class);
-
-    assertThat(operations).contains(attackOperation, spellCastOperation);
+    assertThat(operations).contains(OperationType.ATTACK, OperationType.SPELL_CAST);
   }
 
 
   @Test
   void shouldReturnAvailableOperationsForFighter() {
-    List<Operation> operations = consolePresenter.showAvailableOperations(Fighter.class);
+    List<OperationType> operations = consolePresenter.showAvailableOperations(FIGHTER);
 
-    assertThat(operations).contains(attackOperation);
+    assertThat(operations).contains(OperationType.ATTACK);
   }
 
   @Test
   void shouldReturnAvailableTargets() {
     Game game = mock(Game.class);
-    when(game.getAllAliveEnemies()).thenReturn(List.of("enemy"));
+    when(game.getAllAliveEnemyNames()).thenReturn(List.of("enemy"));
 
     List<String> targets = consolePresenter.showAvailableEnemyTargets(game);
 
@@ -105,9 +95,9 @@ class ConsolePresenterTest {
 
   @Test
   void shouldReturnAvailableArmor() {
-    when(gameOptions.getAvailableArmors(any())).thenReturn(Set.of(Armor.values()));
+    when(gameOptions.getAvailableArmors(any(), any())).thenReturn(Set.of(Armor.values()));
 
-    List<Armor> armors = consolePresenter.showAvailableArmors(Fighter.class);
+    List<Armor> armors = consolePresenter.showAvailableArmors(FIGHTER, Race.HUMAN);
 
     assertThat(armors).contains(Armor.values());
   }

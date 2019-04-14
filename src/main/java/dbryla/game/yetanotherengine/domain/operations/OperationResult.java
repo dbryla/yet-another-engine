@@ -1,9 +1,11 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

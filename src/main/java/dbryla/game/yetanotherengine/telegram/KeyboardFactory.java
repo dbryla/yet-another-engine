@@ -6,9 +6,9 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 @Component
-public class KeyboardFactory {
+class KeyboardFactory {
 
-  public EditMessageReplyMarkup editKeyboard(Communicate communicate, Long chatId, Integer messageId) {
+  EditMessageReplyMarkup editKeyboard(Communicate communicate, Long chatId, Integer messageId) {
     EditMessageReplyMarkup sendMessage = new EditMessageReplyMarkup();
     sendMessage.setChatId(chatId);
     sendMessage.setMessageId(messageId);
@@ -18,7 +18,7 @@ public class KeyboardFactory {
     return sendMessage;
   }
 
-  public SendMessage replyKeyboard(Communicate communicate, Long chatId, Integer messageId) {
+  SendMessage replyKeyboard(Communicate communicate, Long chatId, Integer messageId) {
     SendMessage sendMessage = new SendMessage();
     sendMessage.setText(communicate.getText());
     sendMessage.setChatId(chatId);

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Profile("cli")
 @Component
-public class ConsoleInputProvider {
+class ConsoleInputProvider {
 
   private final BufferedReader input;
 
@@ -29,6 +29,4 @@ public class ConsoleInputProvider {
       throw new IncorrectStateException("Exception while reading cmdline option.", e);
     }
   }
-
-
 }

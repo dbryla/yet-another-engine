@@ -11,11 +11,10 @@ import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
-import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.subjects.Monster;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Equipment;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -31,6 +30,7 @@ class ArtificialIntelligenceTest {
 
   private static final String SUBJECT_NAME = "subject";
   private static final String TARGET_NAME = "acquiredTarget";
+  private static final Long GAME_ID = 123L;
 
   @Mock
   private EventHub eventHub;
@@ -51,11 +51,11 @@ class ArtificialIntelligenceTest {
 
   @Test
   void shouldReturnActionWithAcquiredTarget() {
-    Monster monster = mock(Monster.class);
+    Subject monster = mock(Subject.class);
     Subject target = mock(Subject.class);
     givenStateStorageWithSingleTarget(monster, target);
     when(monster.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
-    artificialIntelligence.initSubject(monster);
+    artificialIntelligence.initSubject(GAME_ID, monster);
 
     Action action = artificialIntelligence.action(SUBJECT_NAME);
 
@@ -66,18 +66,18 @@ class ArtificialIntelligenceTest {
     when(subject.getName()).thenReturn(SUBJECT_NAME);
     when(target.getName()).thenReturn(TARGET_NAME);
     when(target.getAffiliation()).thenReturn("enemy");
-    when(stateStorage.findAll()).thenReturn(List.of(target));
+    when(stateStorage.findAll(GAME_ID)).thenReturn(List.of(target));
   }
 
   @Test
   void shouldReturnNextActionWithSameAcquiredTarget() {
-    Monster monster = mock(Monster.class);
+    Subject monster = mock(Subject.class);
     when(monster.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
     Subject target = mock(Subject.class);
     givenStateStorageWithSingleTarget(monster, target);
-    when(stateStorage.findByName(eq(TARGET_NAME))).thenReturn(Optional.of(target));
+    when(stateStorage.findByIdAndName(eq(GAME_ID), eq(TARGET_NAME))).thenReturn(Optional.of(target));
     when(target.isTerminated()).thenReturn(false);
-    artificialIntelligence.initSubject(monster);
+    artificialIntelligence.initSubject(GAME_ID, monster);
     artificialIntelligence.action(SUBJECT_NAME);
 
     Action action = artificialIntelligence.action(SUBJECT_NAME);
@@ -87,13 +87,13 @@ class ArtificialIntelligenceTest {
 
   @Test
   void shouldThrowExceptionWhenTargetIsTerminatedAndCantFindNewOne() {
-    Monster monster = mock(Monster.class);
+    Subject monster = mock(Subject.class);
     Subject target = mock(Subject.class);
     givenStateStorageWithSingleTarget(monster, target);
-    when(stateStorage.findByName(eq(TARGET_NAME))).thenReturn(Optional.of(target));
+    when(stateStorage.findByIdAndName(eq(GAME_ID), eq(TARGET_NAME))).thenReturn(Optional.of(target));
     when(target.isTerminated()).thenReturn(false).thenReturn(true);
     when(monster.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
-    artificialIntelligence.initSubject(monster);
+    artificialIntelligence.initSubject(GAME_ID, monster);
     artificialIntelligence.action(SUBJECT_NAME);
 
     assertThrows(IncorrectStateException.class, () -> artificialIntelligence.action(SUBJECT_NAME));

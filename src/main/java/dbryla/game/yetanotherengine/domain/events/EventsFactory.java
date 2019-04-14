@@ -5,10 +5,11 @@ import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.ARMOR_CLA
 import static dbryla.game.yetanotherengine.domain.spells.SpellType.EFFECT;
 
 import dbryla.game.yetanotherengine.domain.operations.HitResult;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.State;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.State;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,7 @@ public class EventsFactory {
   private static final String TERMINATION_FORMAT = " %s drops dead.";
   private static final String EFFECT_FORMAT = "%s hits %s with %s. %s is %sed.";
   private static final String SUCCESS_SPELL_HIT_FORMAT = "%s casts %s and hits %s.";
-  private static final String SAVE_THROW_FORMAT = "%s casts %s, but fails to harm %s. %s of %s is incredible.";
+  private static final String SAVE_THROW_FORMAT = "%s casts %s, but fails to harm %s.";
   private static final String HEAL_FORMAT = "%s heals %s.";
 
   public Event successAttackEvent(Subject attacker, Subject target, Weapon weapon, HitResult hitResult) {
@@ -76,19 +77,15 @@ public class EventsFactory {
     return new Event(String.format(hitResult.getMessage(), attacker.getName(), target.getName(), instrumentName));
   }
 
-  public Event effectExpiredEvent(Subject source) {
-    return new Event(source.getName() + " is no longer " + getActiveEffectName(source) + "ed.");
-  }
-
-  private String getActiveEffectName(Subject source) {
-    return source.getActiveEffect().get().toString().toLowerCase();
+  public Event effectExpiredEvent(Subject source, Effect effect) {
+    return new Event(source.getName() + " is no longer " + effect + "ed.");
   }
 
   public Event successHealEvent(Subject source, Subject target) {
     return new Event(String.format(HEAL_FORMAT, source.getName(), target.getName()) + State.getMessageFor(target));
   }
 
-  public Event failEventBySavingThrow(Subject source, Spell spell, Subject target, String ability) {
-    return new Event(String.format(SAVE_THROW_FORMAT, source.getName(), spell.toString(), target.getName(), ability, target.getName()));
+  public Event failEventBySavingThrow(Subject source, Spell spell, Subject target) {
+    return new Event(String.format(SAVE_THROW_FORMAT, source.getName(), spell.toString(), target.getName()));
   }
 }

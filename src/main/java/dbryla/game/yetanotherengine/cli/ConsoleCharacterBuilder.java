@@ -1,54 +1,68 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.GameOptions.ALLIES;
-
-import dbryla.game.yetanotherengine.domain.Abilities;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.IncorrectStateException;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Fighter;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
-
-import java.util.List;
-import java.util.Optional;
-
+import dbryla.game.yetanotherengine.db.CharacterRepository;
+import dbryla.game.yetanotherengine.db.PlayerCharacter;
+import dbryla.game.yetanotherengine.domain.subject.*;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Optional;
+
+import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
+
 @Component
 @Profile("cli")
 @AllArgsConstructor
-public class ConsoleCharacterBuilder {
+class ConsoleCharacterBuilder {
 
   private final ConsolePresenter presenter;
   private final ConsoleInputProvider inputProvider;
   private final ConsoleAbilitiesProvider consoleAbilitiesProvider;
+  private final CharacterRepository characterRepository;
+  private final SubjectMapper subjectMapper;
 
   Subject createPlayer() {
-    System.out.println("Type your character name and press enter to start.");
+    System.out.println("Would you like to create new character (0) or load existing one (1) ?");
+    int playerChoice = inputProvider.cmdLineToOption();
+    System.out.println("Type your character name and press enter.");
     String playerName = inputProvider.cmdLine();
-    return chooseClass(playerName);
+    if (playerChoice == 1) {
+      Optional<PlayerCharacter> character = characterRepository.findByName(playerName);
+      if (character.isPresent()) {
+        return subjectMapper.fromCharacter(character.get());
+      }
+      System.out.println("Character doesn't exist in database, falling back to character creation.");
+    }
+    CharacterClass characterClass = chooseClass();
+    Race race = chooseRace();
+    Subject subject = buildSubject(playerName, characterClass, race);
+    characterRepository.save(subjectMapper.toCharacter(subject));
+    return subject;
   }
 
-  private Subject chooseClass(String playerName) {
-    List<Class> availableClasses = presenter.showAvailableClasses();
+  private CharacterClass chooseClass() {
+    List<CharacterClass> availableClasses = presenter.showAvailableClasses();
     int playerChoice = inputProvider.cmdLineToOption();
-    Class clazz = availableClasses.get(playerChoice);
+    return availableClasses.get(playerChoice);
+  }
+
+  private Race chooseRace() {
+    // presenter.showAvailableRaces(); fixme
+    return null;
+  }
+
+  private Subject buildSubject(String playerName, CharacterClass characterClass, Race race) {
     System.out.println("Do you want (0) manual or (1) automatic abilities assignment?");
-    playerChoice = inputProvider.cmdLineToOption();
+    int playerChoice = inputProvider.cmdLineToOption();
     Abilities abilities = getAbilities(playerChoice);
-    if (Fighter.class.equals(clazz)) {
-      return buildFighter(playerName, abilities);
-    } else if (Wizard.class.equals(clazz)) {
-      return buildWizard(playerName, abilities);
-    } else if (Cleric.class.equals(clazz)) {
-      return buildCleric(playerName, abilities);
-    } else {
-      throw new IncorrectStateException("Unsupported class: " + clazz);
-    }
+    Weapon weapon = getWeapon(characterClass, race);
+    Armor shield = getShield(weapon);
+    Armor armor = getArmor(characterClass, race);
+    return subjectMapper.createNewSubject(playerName, race, characterClass, PLAYERS, abilities, weapon, armor, shield, null);
   }
 
   private Abilities getAbilities(int playerChoice) {
@@ -59,65 +73,30 @@ public class ConsoleCharacterBuilder {
     }
   }
 
-  private Fighter buildFighter(String playerName, Abilities abilities) {
-    Fighter.Builder builder = Fighter.builder()
-        .name(playerName)
-        .affiliation(ALLIES)
-        .abilities(abilities);
-    getWeapon(Fighter.class).ifPresent(weapon -> {
-      builder.weapon(weapon);
-      getShield(weapon).ifPresent(builder::shield);
-    });
-    getArmor(Fighter.class).ifPresent(builder::armor);
-    return builder.build();
-  }
-
-  private Optional<Weapon> getWeapon(Class clazz) {
-    List<Weapon> availableWeapons = presenter.showAvailableWeapons(clazz);
+  private Weapon getWeapon(CharacterClass characterClass, Race race) {
+    List<Weapon> availableWeapons = presenter.showAvailableWeapons(characterClass, race);
     if (availableWeapons.isEmpty()) {
-      return Optional.empty();
+      return null;
     }
     int playerChoice = inputProvider.cmdLineToOption();
-    return Optional.of(availableWeapons.get(playerChoice));
+    return availableWeapons.get(playerChoice);
   }
 
-  private Optional<Armor> getShield(Weapon weapon) {
+  private Armor getShield(Weapon weapon) {
     if (!weapon.isEligibleForShield()) {
-      return Optional.empty();
+      return null;
     }
     List<Armor> shield = presenter.showAvailableShield();
-    return Optional.of(shield.get(0));
+    return shield.get(0);
   }
 
-  private Optional<Armor> getArmor(Class clazz) {
-    List<Armor> availableArmors = presenter.showAvailableArmors(clazz);
+  private Armor getArmor(CharacterClass characterClass, Race race) {
+    List<Armor> availableArmors = presenter.showAvailableArmors(characterClass, race);
     if (availableArmors.isEmpty()) {
-      return Optional.empty();
+      return null;
     }
     int playerChoice = inputProvider.cmdLineToOption();
-    return Optional.of(availableArmors.get(playerChoice));
-  }
-
-  private Wizard buildWizard(String playerName, Abilities abilities) {
-    Wizard.Builder builder = Wizard.builder()
-        .name(playerName)
-        .affiliation(ALLIES)
-        .abilities(abilities);
-    getWeapon(Wizard.class).ifPresent(builder::weapon);
-    return builder.build();
-  }
-
-  private Subject buildCleric(String playerName, Abilities abilities) {
-    Cleric.Builder builder = Cleric.builder()
-        .name(playerName)
-        .affiliation(ALLIES)
-        .abilities(abilities);
-    getWeapon(Cleric.class).ifPresent(weapon -> {
-      builder.weapon(weapon);
-      getShield(weapon).ifPresent(builder::shield);
-    });
-    getArmor(Cleric.class).ifPresent(builder::armor);
-    return builder.build();
+    return availableArmors.get(playerChoice);
   }
 
 }

@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,7 +13,7 @@ public enum HitResult {
   MISS(false, "%s misses attack on %s with %s."),
   ARMOR(false, "%s hits %s's armor with %s, but it's untouched."),
   SHIELD(false, "%s hits %s's shield with %s, but it's untouched."),
-  DODGE(false, "%s attacks, but %s dodges hit with %s."),
+  DODGE(false, "%s attacks %s with %s, but they dodge it."),
   BARELY_HIT(true, "barely"),
   EASILY_HIT(true, "easily"),
   HIT(true, "");

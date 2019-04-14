@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.events;
 
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 public class LoggingEventHub implements EventHub {
 
   @Override
-  public void send(Event event, Long gameId) {
-    log.info("{}", event.toString());
+  public void send(Long gameId, Event event) {
+    log.info("Game[{}]: {}", gameId, event.toString());
   }
 
   @Override
-  public void nextMove(Subject subject, Long gameId) {
-    log.info("Next move: {} for game {}", subject.getName(), gameId);
+  public void notifySubjectAboutNextMove(Long gameId, Subject subject) {
+    log.info("Game[{}]: Next move: {}", gameId, subject.getName());
   }
 }

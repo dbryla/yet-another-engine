@@ -1,8 +1,10 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import dbryla.game.yetanotherengine.domain.GameOptions;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.game.GameOptions;
+import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,10 +32,10 @@ public class BuildingFactory {
   private final GameOptions gameOptions;
 
   public Communicate chooseClassCommunicate() {
-    ArrayList<Class> classes = new ArrayList<>(gameOptions.getAvailableClasses());
+    ArrayList<CharacterClass> classes = new ArrayList<>(gameOptions.getAvailableClasses());
     List<InlineKeyboardButton> keyboardButtons = new LinkedList<>();
-    classes.forEach(clazz -> keyboardButtons.add(
-        new InlineKeyboardButton(clazz.getSimpleName()).setCallbackData(clazz.getSimpleName())));
+    classes.forEach(characterClass -> keyboardButtons.add(
+        new InlineKeyboardButton(characterClass.toString()).setCallbackData(characterClass.name())));
     return new Communicate(CLASS, List.of(keyboardButtons));
   }
 
@@ -56,8 +58,8 @@ public class BuildingFactory {
     return new Communicate(ABILITIES, createKeyboardButtons(session.getAbilityScores()));
   }
 
-  public Communicate chooseWeaponCommunicate(String className) {
-    Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(className);
+  public Communicate chooseWeaponCommunicate(CharacterClass characterClass, Race race) {
+    Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(characterClass, race);
     AtomicInteger counter = new AtomicInteger();
     Collection<List<InlineKeyboardButton>> values = availableWeapons.stream()
         .map(weapon -> new InlineKeyboardButton(weapon.toString()).setCallbackData(weapon.name()))
@@ -66,8 +68,8 @@ public class BuildingFactory {
     return new Communicate(WEAPON, new ArrayList<>(values));
   }
 
-  public Optional<Communicate> chooseArmorCommunicate(String className) {
-    Set<Armor> availableArmors = gameOptions.getAvailableArmors(className);
+  public Optional<Communicate> chooseArmorCommunicate(CharacterClass characterClass, Race race) {
+    Set<Armor> availableArmors = gameOptions.getAvailableArmors(characterClass, race);
     if (availableArmors.isEmpty()) {
       return Optional.empty();
     }

@@ -1,22 +1,22 @@
 package dbryla.game.yetanotherengine.cli;
 
-import dbryla.game.yetanotherengine.domain.AbilityScoresSupplier;
-import dbryla.game.yetanotherengine.domain.Game;
-import dbryla.game.yetanotherengine.domain.GameOptions;
-import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
-import dbryla.game.yetanotherengine.domain.operations.Operation;
-import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
+import dbryla.game.yetanotherengine.domain.operations.OperationType;
+import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
+import dbryla.game.yetanotherengine.domain.game.Game;
+import dbryla.game.yetanotherengine.domain.game.GameOptions;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -29,12 +29,10 @@ public class ConsolePresenter {
   private static final String CHOICE_FORMAT = " (%d) %s";
   private final StateStorage stateStorage;
   private final GameOptions gameOptions;
-  private final AttackOperation attackOperation;
-  private final SpellCastOperation spellCastOperation;
   private final AbilityScoresSupplier abilityScoresSupplier;
 
-  public void showStatus() {
-    StreamSupport.stream(stateStorage.findAll().spliterator(), false)
+  public void showStatus(Long gameId) {
+    stateStorage.findAll(gameId).stream()
         .collect(Collectors.groupingBy(Subject::getAffiliation))
         .forEach((team, subjects) ->
             subjects.stream()
@@ -45,23 +43,23 @@ public class ConsolePresenter {
     System.out.println();
   }
 
-  public List<Class> showAvailableClasses() {
-    List<Class> classes = new LinkedList<>();
+  public List<CharacterClass> showAvailableClasses() {
+    List<CharacterClass> classes = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your class:");
     int i = 0;
-    for (Class clazz : gameOptions.getAvailableClasses()) {
-      communicate.append(String.format(CHOICE_FORMAT, i++, clazz.getSimpleName()));
-      classes.add(clazz);
+    for (CharacterClass characterClass : gameOptions.getAvailableClasses()) {
+      communicate.append(String.format(CHOICE_FORMAT, i++, characterClass));
+      classes.add(characterClass);
     }
     System.out.println(communicate.toString());
     return classes;
   }
 
-  public List<Weapon> showAvailableWeapons(Class clazz) {
+  public List<Weapon> showAvailableWeapons(CharacterClass characterClass, Race race) {
     List<Weapon> weapons = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your weapon:");
     int i = 0;
-    for (Weapon weapon : gameOptions.getAvailableWeapons(clazz.getSimpleName())) {
+    for (Weapon weapon : gameOptions.getAvailableWeapons(characterClass, race)) {
       communicate.append(String.format(CHOICE_FORMAT, i++, weapon.toString()));
       weapons.add(weapon);
     }
@@ -71,11 +69,11 @@ public class ConsolePresenter {
     return weapons;
   }
 
-  public List<Spell> showAvailableSpells(Class clazz) {
+  public List<Spell> showAvailableSpells(CharacterClass characterClass) {
     List<Spell> spells = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your spell:");
     Set<Spell> spellsForClass = Arrays.stream(Spell.values())
-        .filter(spell -> spell.forClass(clazz.getSimpleName()))
+        .filter(spell -> spell.forClass(characterClass))
         .collect(Collectors.toSet());
     int i = 0;
     for (Spell spell : spellsForClass) {
@@ -88,25 +86,25 @@ public class ConsolePresenter {
     return spells;
   }
 
-  public List<Operation> showAvailableOperations(Class clazz) {
-    List<Operation> operations = new LinkedList<>();
+  List<OperationType> showAvailableOperations(CharacterClass characterClass) {
+    List<OperationType> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
     communicate.append(String.format(CHOICE_FORMAT, 0, "attack"));
-    operations.add(attackOperation);
-    if (gameOptions.isSpellCaster(clazz.getSimpleName())) {
+    operations.add(OperationType.ATTACK);
+    if (characterClass.isSpellCaster()) {
       communicate.append(String.format(CHOICE_FORMAT, 1, "spell"));
-      operations.add(spellCastOperation);
+      operations.add(OperationType.SPELL_CAST);
     }
     System.out.println(communicate.toString());
     return operations;
   }
 
-  public List<String> showAvailableEnemyTargets(Game game) {
-    return showAvailableTargets(game.getAllAliveEnemies());
+  List<String> showAvailableEnemyTargets(Game game) {
+    return showAvailableTargets(game.getAllAliveEnemyNames());
   }
 
-  public List<String> showAvailableFriendlyTargets(Game game) {
-    return showAvailableTargets(game.getAllAliveAllies());
+  List<String> showAvailableFriendlyTargets(Game game) {
+    return showAvailableTargets(game.getAllAliveAllyNames());
   }
 
   private List<String> showAvailableTargets(List<String> allAliveAllies) {
@@ -126,11 +124,11 @@ public class ConsolePresenter {
     return List.of(Armor.SHIELD);
   }
 
-  public List<Armor> showAvailableArmors(Class clazz) {
+  public List<Armor> showAvailableArmors(CharacterClass characterClass, Race race) {
     List<Armor> armors = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your armor:");
     int i = 0;
-    for (Armor armor : gameOptions.getAvailableArmors(clazz.getSimpleName())) {
+    for (Armor armor : gameOptions.getAvailableArmors(characterClass, race)) {
       communicate.append(String.format(CHOICE_FORMAT, i++, armor.toString()));
       armors.add(armor);
     }

@@ -1,56 +1,83 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-import dbryla.game.yetanotherengine.domain.spells.DiceRollModifier;
-import dbryla.game.yetanotherengine.domain.spells.Effect;
-import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import java.util.Optional;
+import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
+import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.effects.EffectLogic;
+import dbryla.game.yetanotherengine.domain.effects.EffectsMapper;
+import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
+
+import java.util.Set;
+
+import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 class FightHelperTest {
 
-  private FightHelper fightHelper = new FightHelper();
+  @InjectMocks
+  private FightHelper fightHelper;
+
+  @Mock
+  private DiceRollService diceRollService;
+
+  @Mock
+  private EffectsMapper effectsMapper;
 
   @Test
-  void shouldReturnRandomHitRollIfNoEffectIsActive() {
+  void shouldReturnHitRollIfNoEffectIsActive() {
     Subject source = mock(Subject.class);
     Subject target = mock(Subject.class);
-    when(source.getActiveEffect()).thenReturn(Optional.empty());
+    when(source.getActiveEffects()).thenReturn(Set.of());
+    when(source.getRace()).thenReturn(Race.HALF_ELF);
+    when(diceRollService.k20()).thenReturn(13);
 
     HitRoll result = fightHelper.getHitRoll(source, target);
 
-    assertThat(result.getActual()).isGreaterThanOrEqualTo(1).isLessThanOrEqualTo(20);
+    assertThat(result.getActual()).isEqualTo(13);
   }
 
   @Test
   void shouldAddSourceModifierIfEffectIsActiveOnIt() {
-    DiceRollModifier diceRollModifier = mock(DiceRollModifier.class);
-    when(diceRollModifier.getDiceRollModifier()).thenReturn(100);
+    HitDiceRollModifier hitDiceRollModifier = mock(HitDiceRollModifier.class);
+    when(hitDiceRollModifier.apply(anyInt())).thenReturn(100);
     Effect effect = mock(Effect.class);
-    when(effect.getSourceHitRollModifier()).thenReturn(diceRollModifier);
+    EffectLogic effectLogic = mock(EffectLogic.class);
+    when(effectsMapper.getLogic(eq(effect))).thenReturn(effectLogic);
+    when(effectLogic.getSourceHitRollModifier()).thenReturn(hitDiceRollModifier);
     Subject source = mock(Subject.class);
-    when(source.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(effect, 1)));
+    when(source.getRace()).thenReturn(Race.HALF_ELF);
+    when(source.getActiveEffects()).thenReturn(Set.of(new ActiveEffect(effect, 1)));
     Subject target = mock(Subject.class);
 
     HitRoll result = fightHelper.getHitRoll(source, target);
 
-    assertThat(result.getActual()).isGreaterThan(100);
+    assertThat(result.getActual()).isEqualTo(100);
   }
 
   @Test
   void shouldAddTargetModifierIfEffectIsActiveOnIt() {
-    DiceRollModifier diceRollModifier = mock(DiceRollModifier.class);
-    when(diceRollModifier.getDiceRollModifier()).thenReturn(100);
+    HitDiceRollModifier hitDiceRollModifier = mock(HitDiceRollModifier.class);
+    when(hitDiceRollModifier.apply(anyInt())).thenReturn(100);
     Effect effect = mock(Effect.class);
-    when(effect.getTargetHitRollModifier()).thenReturn(diceRollModifier);
+    EffectLogic effectLogic = mock(EffectLogic.class);
+    when(effectsMapper.getLogic(eq(effect))).thenReturn(effectLogic);
+    when(effectLogic.getTargetHitRollModifier()).thenReturn(hitDiceRollModifier);
     Subject source = mock(Subject.class);
-    when(source.getActiveEffect()).thenReturn(Optional.empty());
+    when(source.getRace()).thenReturn(Race.HALF_ELF);
+    when(source.getActiveEffects()).thenReturn(Set.of());
     Subject target = mock(Subject.class);
-    when(target.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(effect, 1)));
+    when(target.getActiveEffects()).thenReturn(Set.of(new ActiveEffect(effect, 1)));
 
     HitRoll result = fightHelper.getHitRoll(source, target);
 
@@ -73,5 +100,34 @@ class FightHelperTest {
     int result = fightHelper.getAttackDamage(attackDamage, HitResult.CRITICAL);
 
     assertThat(result).isEqualTo(2 * attackDamage);
+  }
+
+  @Test
+  void shouldReRollOneIfHasLuckyEffect() {
+    Subject source = mock(Subject.class);
+    when(source.getRace()).thenReturn(Race.LIGHTFOOT_HALFLING);
+    Subject target = mock(Subject.class);
+    EffectLogic effectLogic = mock(EffectLogic.class);
+    when(effectsMapper.getLogic(LUCKY)).thenReturn(effectLogic);
+    HitDiceRollModifier hitRollModifier = mock(HitDiceRollModifier.class);
+    when(effectLogic.getSourceHitRollModifier()).thenReturn(hitRollModifier);
+    when(hitRollModifier.apply(anyInt())).thenReturn(10);
+
+    HitRoll hitRoll = fightHelper.getHitRoll(source, target);
+
+    assertThat(hitRoll.getOriginal()).isEqualTo(10);
+  }
+
+  @Test
+  void shouldLeaveOrcWithOneHealthPointWhenReducedToZero() {
+    Subject target = mock(Subject.class);
+    when(target.getRace()).thenReturn(Race.HALF_ORC);
+    when(target.getCurrentHealthPoints()).thenReturn(10);
+    Subject changedTarget = mock(Subject.class);
+    when(target.of(eq(1))).thenReturn(changedTarget);
+
+    Subject resultTarget  = fightHelper.dealDamage(target, 10);
+
+    assertThat(resultTarget).isEqualTo(changedTarget);
   }
 }

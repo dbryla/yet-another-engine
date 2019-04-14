@@ -1,54 +1,60 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
-import static dbryla.game.yetanotherengine.domain.spells.DiceRollModifier.ADVANTAGE;
-import static dbryla.game.yetanotherengine.domain.spells.DiceRollModifier.DISADVANTAGE;
-
-import dbryla.game.yetanotherengine.domain.DiceRoll;
-import dbryla.game.yetanotherengine.domain.spells.DiceRollModifier;
-import dbryla.game.yetanotherengine.domain.subjects.Monster;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Cleric;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
-
-import java.util.function.Supplier;
-
+import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
+import dbryla.game.yetanotherengine.domain.dice.DisadvantageRollModifier;
+import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
+import dbryla.game.yetanotherengine.domain.effects.EffectsMapper;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
+
 @Component
-public class FightHelper {
+@AllArgsConstructor
+class FightHelper {
+
+  private final DiceRollService diceRollService;
+  private final EffectsMapper effectsMapper;
 
   HitRoll getHitRoll(Subject source, Subject target) {
-    return applyRulesToHitRoll(source, target);
-  }
-
-  private HitRoll applyRulesToHitRoll(Subject source, Subject target) {
-    Supplier<Integer> hitRoll = DiceRoll::k20;
+    int hitRoll = diceRollService.k20();
     int modifiers = 0;
     boolean sourceHasDisadvantage = false;
-    if (source.getActiveEffect().isPresent()) {
-      DiceRollModifier sourceModifier = source.getActiveEffect().get().getEffect().getSourceHitRollModifier();
-      if (isAdvantageOrDisadvantage(sourceModifier)) {
-        sourceHasDisadvantage = DISADVANTAGE.equals(sourceModifier);
-        hitRoll = sourceModifier::getDiceRollModifier;
+    for (ActiveEffect activeEffect : source.getActiveEffects()) {
+      HitDiceRollModifier sourceModifier = effectsMapper.getLogic(activeEffect.getEffect()).getSourceHitRollModifier();
+      if (sourceModifier.canModifyOriginalHitRoll()) {
+        sourceHasDisadvantage = sourceModifier instanceof DisadvantageRollModifier;
+        hitRoll = sourceModifier.apply(hitRoll);
       } else {
-        modifiers += sourceModifier.getDiceRollModifier();
+        modifiers += sourceModifier.apply(hitRoll);
       }
     }
-    if (target.getActiveEffect().isPresent()) {
-      DiceRollModifier targetModifier = target.getActiveEffect().get().getEffect().getTargetHitRollModifier();
-      if (!sourceHasDisadvantage && isAdvantageOrDisadvantage(targetModifier)) {
-        hitRoll = targetModifier::getDiceRollModifier;
+    hitRoll = handleLuckyEffect(source, hitRoll);
+    for (ActiveEffect activeEffect : target.getActiveEffects()) {
+      HitDiceRollModifier targetModifier = effectsMapper.getLogic(activeEffect.getEffect()).getTargetHitRollModifier();
+      if (!sourceHasDisadvantage && targetModifier.canModifyOriginalHitRoll()) {
+        hitRoll = targetModifier.apply(hitRoll);
       } else {
-        modifiers += targetModifier.getDiceRollModifier();
+        modifiers += targetModifier.apply(hitRoll);
       }
     }
-    return new HitRoll(hitRoll.get(), modifiers);
+    return new HitRoll(hitRoll, modifiers);
   }
 
-  private boolean isAdvantageOrDisadvantage(DiceRollModifier modifier) {
-    return DISADVANTAGE.equals(modifier) || ADVANTAGE.equals(modifier);
+  private Integer handleLuckyEffect(Subject source, Integer hitRoll) {
+    if (source.getRace().getClassEffects().contains(LUCKY)) {
+      HitDiceRollModifier sourceModifier = effectsMapper.getLogic(LUCKY).getSourceHitRollModifier();
+      hitRoll = sourceModifier.apply(hitRoll);
+    }
+    return hitRoll;
   }
+
 
   int getAttackDamage(int attackDamage, HitResult hitResult) {
     if (CRITICAL.equals(hitResult)) {
@@ -62,34 +68,43 @@ public class FightHelper {
   }
 
   private int applyRulesToSavingThrow(Subject target) {
-    Supplier<Integer> hitRoll = DiceRoll::k20;
+    int hitRoll = diceRollService.k20();
     int modifiers = 0;
-    if (target.getActiveEffect().isPresent()) {
-      DiceRollModifier targetModifier = target.getActiveEffect().get().getEffect().getTargetSavingThrowModifier();
-      if (isAdvantageOrDisadvantage(targetModifier)) {
-        hitRoll = targetModifier::getDiceRollModifier;
+    for (ActiveEffect activeEffect : target.getActiveEffects()) {
+      HitDiceRollModifier targetModifier = effectsMapper.getLogic(activeEffect.getEffect()).getTargetSavingThrowModifier();
+      if (targetModifier.canModifyOriginalHitRoll()) {
+        hitRoll = targetModifier.apply(hitRoll);
       } else {
-        modifiers += targetModifier.getDiceRollModifier();
+        modifiers += targetModifier.apply(hitRoll);
       }
     }
-    return hitRoll.get() + modifiers;
+    hitRoll = handleLuckyEffect(target, hitRoll);
+    return hitRoll + modifiers;
   }
 
-  boolean isSaved(Subject source, int savingThrow) {
-    return savingThrow >= 8 + getModifier(source);
+  boolean isSaved(Subject source, Spell spell, int savingThrow) {
+    return savingThrow >= 8 + getModifier(source, spell);
   }
 
   int getDexteritySavingThrow(Subject target) {
     return applyRulesToSavingThrow(target) + target.getAbilities().getDexterityModifier();
   }
 
-  int getModifier(Subject source) {
-    if (source instanceof Wizard) {
+  int getModifier(Subject source, Spell spell) {
+    if (spell.forClass(CharacterClass.WIZARD)) {
       return source.getAbilities().getIntelligenceModifier();
     }
-    if (source instanceof Cleric || source instanceof Monster) {
+    if (spell.forClass(CharacterClass.CLERIC)) {
       return source.getAbilities().getWisdomModifier();
     }
     return 0;
+  }
+
+  Subject dealDamage(Subject target, int attackDamage) {
+    int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
+    if (remainingHealthPoints == 0 && target.getRace().getClassEffects().contains(RELENTLESS_ENDURANCE)) {
+      return target.of(1);
+    }
+    return target.of(remainingHealthPoints);
   }
 }

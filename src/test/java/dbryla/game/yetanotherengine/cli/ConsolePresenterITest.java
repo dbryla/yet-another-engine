@@ -2,11 +2,12 @@ package dbryla.game.yetanotherengine.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import dbryla.game.yetanotherengine.domain.Game;
-import dbryla.game.yetanotherengine.domain.GameFactory;
-import dbryla.game.yetanotherengine.domain.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.encounters.MonstersFactory;
+import dbryla.game.yetanotherengine.domain.game.Game;
+import dbryla.game.yetanotherengine.domain.game.GameFactory;
+import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import java.util.List;
-import java.util.stream.StreamSupport;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,16 +26,20 @@ class ConsolePresenterITest {
   @Autowired
   private StateStorage stateStorage;
 
+  @Autowired
+  private MonstersFactory monstersFactory;
+
   @Test
   void shouldReturnOnlyAliveTargets() {
-    Game game = gameFactory.newGame(1L);
-    game.createEnemies(2);
-    StreamSupport.stream(stateStorage.findAll().spliterator(), false)
+    Long gameId = 123L;
+    Game game = gameFactory.newGame(gameId);
+    game.createEnemies(monstersFactory.createEncounter(2, 0));
+    stateStorage.findAll(gameId).stream()
         .findAny()
-        .ifPresent(subject -> stateStorage.save(subject.of(0)));
+        .ifPresent(subject -> stateStorage.save(gameId, subject.of(0)));
 
     List<String> availableTargets = consolePresenter.showAvailableEnemyTargets(game);
 
-    assertThat(availableTargets).allMatch(subjectName -> !stateStorage.findByName(subjectName).get().isTerminated());
+    assertThat(availableTargets).allMatch(subjectName -> !stateStorage.findByIdAndName(gameId, subjectName).get().isTerminated());
   }
 }

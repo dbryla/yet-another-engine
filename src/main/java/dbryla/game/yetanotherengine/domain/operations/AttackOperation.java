@@ -1,11 +1,11 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import dbryla.game.yetanotherengine.domain.Abilities;
-import dbryla.game.yetanotherengine.domain.Instrument;
+import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
+import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -13,14 +13,13 @@ import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component("attackOperation")
-public class AttackOperation implements Operation {
+public class AttackOperation {
 
-  private static final int ALLOWED_NUMBER_OF_TARGETS = 1;
   private final FightHelper fightHelper;
   private final EffectConsumer effectConsumer;
   private final EventsFactory eventsFactory;
+  private final DiceRollService diceRollService;
 
-  @Override
   public OperationResult invoke(Subject source, Instrument instrument, Subject... targets) throws UnsupportedGameOperationException {
     verifyParams(source, instrument, targets);
     Set<Subject> changes = new HashSet<>();
@@ -33,13 +32,13 @@ public class AttackOperation implements Operation {
     if (!hitResult.isTargetHit()) {
       events.add(eventsFactory.failEvent(source, target, weapon.toString(), hitResult));
     } else {
-      int attackDamage = fightHelper.getAttackDamage(weapon.rollAttackDamage(), hitResult) + getModifier(weapon, source.getAbilities());
-      int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
-      Subject changedTarget = target.of(remainingHealthPoints);
+      int attackDamage = fightHelper.getAttackDamage(weapon.rollAttackDamage(diceRollService), hitResult)
+          + getModifier(weapon, source.getAbilities());
+      Subject changedTarget = fightHelper.dealDamage(target, attackDamage);
       changes.add(changedTarget);
       events.add(eventsFactory.successAttackEvent(source, changedTarget, weapon, hitResult));
     }
-    OperationResult operationResult = effectConsumer.apply(source).orElseGet(OperationResult::new);
+    OperationResult operationResult = effectConsumer.apply(source);
     return operationResult.addAll(changes, events);
   }
 
@@ -71,11 +70,5 @@ public class AttackOperation implements Operation {
   private int getFinesseModifier(Abilities abilities) {
     return Math.max(abilities.getStrengthModifier(), abilities.getDexterityModifier());
   }
-
-  @Override
-  public int getAllowedNumberOfTargets(Instrument instrument) {
-    return ALLOWED_NUMBER_OF_TARGETS;
-  }
-
 
 }

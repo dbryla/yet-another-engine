@@ -5,12 +5,15 @@ import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
 import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
 
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.telegram.Communicate;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -24,22 +27,24 @@ public class Session {
   private final String playerName;
   private final List<Communicate> communicates;
   @Getter
-  private final Integer originalMessageId;
+  @Setter
+  private Subject subject;
   @Getter
-  private final List<Integer> abilityScores;
+  private List<Integer> abilityScores;
   @Getter
   @Setter
-  private boolean readyToPlay;
-  @Getter
-  @Setter
-  private boolean spellCasting;
+  private boolean spellCasting = false;
 
-  public Session(String playerName, Integer originalMessageId,
-      List<Communicate> communicates, List<Integer> abilityScores) {
+  public Session(String playerName, List<Communicate> communicates, List<Integer> abilityScores) {
     this.playerName = playerName;
-    this.originalMessageId = originalMessageId;
     this.communicates = communicates;
     this.abilityScores = abilityScores;
+  }
+
+  public Session(String playerName, Subject subject) {
+    this.playerName = playerName;
+    this.subject = subject;
+    this.communicates = List.of();
   }
 
   public void update(String key, String value) {
@@ -54,7 +59,6 @@ public class Session {
       return;
     }
     data.put(key, value);
-
   }
 
   public Optional<Communicate> getNextBuildingCommunicate() {
@@ -81,6 +85,9 @@ public class Session {
   }
 
   public void clearTargets() {
-    ((List) data.get(TARGET)).clear();
+    List list = (List) data.get(TARGET);
+    if (list != null) {
+      list.clear();
+    }
   }
 }

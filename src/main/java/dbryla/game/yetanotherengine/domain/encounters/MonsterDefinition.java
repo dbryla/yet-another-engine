@@ -1,9 +1,9 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
-import dbryla.game.yetanotherengine.domain.Abilities;
+import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subjects.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

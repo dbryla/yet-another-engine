@@ -1,10 +1,10 @@
 package dbryla.game.yetanotherengine.domain.events;
 
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 
 public interface EventHub {
 
-  void send(Event event, Long gameId);
+  void send(Long gameId, Event event);
 
-  void nextMove(Subject subject, Long gameId);
+  void notifySubjectAboutNextMove(Long gameId, Subject subject);
 }

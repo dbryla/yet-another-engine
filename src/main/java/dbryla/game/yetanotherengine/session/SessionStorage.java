@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.session;
 
-import dbryla.game.yetanotherengine.domain.Game;
+import dbryla.game.yetanotherengine.domain.game.Game;
 
 public interface SessionStorage {
 

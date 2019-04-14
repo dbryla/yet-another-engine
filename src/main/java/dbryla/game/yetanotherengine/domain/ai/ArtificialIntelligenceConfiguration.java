@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.ai;
 
-import dbryla.game.yetanotherengine.domain.subjects.Monster;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -10,7 +10,8 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class ArtificialIntelligenceConfiguration {
 
-  private final Monster subject;
+  private final Subject subject;
+  private final Long gameId;
   private String acquiredTarget;
 
 }

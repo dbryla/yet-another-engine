@@ -1,8 +1,10 @@
 package dbryla.game.yetanotherengine.session;
 
-import dbryla.game.yetanotherengine.domain.Game;
+import dbryla.game.yetanotherengine.domain.game.Game;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -33,6 +35,10 @@ public class InMemorySessionStorage implements SessionStorage {
 
   @Override
   public void clear(Long gameId) {
-    games.remove(gameId);
+    games.computeIfPresent(gameId, (id, game) -> {
+          game.cleanup();
+          return null;
+        }
+    );
   }
 }

@@ -9,10 +9,12 @@ import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
-import dbryla.game.yetanotherengine.domain.spells.Effect;
-import dbryla.game.yetanotherengine.domain.subjects.ActiveEffect;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import java.util.Optional;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
+
+import java.util.Set;
+
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,48 +32,47 @@ class EffectConsumerTest {
   @Test
   void shouldReturnEmptyOptionalIfNoEffectIsActive() {
     Subject subject = mock(Subject.class);
-    when(subject.getActiveEffect()).thenReturn(Optional.empty());
+    when(subject.getActiveEffects()).thenReturn(Set.of());
 
-    Optional<OperationResult> changes = effectConsumer.apply(subject);
+    OperationResult operationResult = effectConsumer.apply(subject);
 
-    assertThat(changes).isEmpty();
+    assertThat(operationResult.getChangedSubjects()).isEmpty();
   }
 
 
   @Test
   void shouldReturnEmptyOptionalIfEffectIsStillActive() {
     Subject subject = mock(Subject.class);
-    when(subject.getActiveEffect()).thenReturn(Optional.of(new ActiveEffect(Effect.BLIND, 2)));
+    when(subject.getActiveEffects()).thenReturn(Set.of(new ActiveEffect(Effect.BLIND, 2)));
 
-    Optional<OperationResult> changes = effectConsumer.apply(subject);
+    OperationResult operationResult = effectConsumer.apply(subject);
 
-    assertThat(changes).isEmpty();
+    assertThat(operationResult.getChangedSubjects()).isEmpty();
   }
 
   @Test
   void shouldReturnSubjectIfEffectExpires() {
     Subject subject = mock(Subject.class);
     ActiveEffect activeEffect = Effect.BLIND.activate();
-    when(subject.getActiveEffect()).thenReturn(Optional.of(activeEffect));
-    when(subject.effectExpired()).thenReturn(subject);
-    when(eventsFactory.effectExpiredEvent(any())).thenReturn(new Event(""));
+    when(subject.getActiveEffects()).thenReturn(Set.of(activeEffect));
+    when(subject.effectExpired(eq(Effect.BLIND))).thenReturn(subject);
+    when(eventsFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
-    Optional<OperationResult> changes = effectConsumer.apply(subject);
+    OperationResult operationResult = effectConsumer.apply(subject);
 
-    assertThat(changes).isPresent();
-    assertThat(changes.get().getChangedSubjects()).contains(subject);
+    assertThat(operationResult.getChangedSubjects()).contains(subject);
   }
 
   @Test
   void shouldSendEventIfEffectExpires() {
     Subject subject = mock(Subject.class);
     ActiveEffect activeEffect = Effect.BLIND.activate();
-    when(subject.getActiveEffect()).thenReturn(Optional.of(activeEffect));
-    when(subject.effectExpired()).thenReturn(subject);
-    when(eventsFactory.effectExpiredEvent(any())).thenReturn(new Event(""));
+    when(subject.getActiveEffects()).thenReturn(Set.of(activeEffect));
+    when(subject.effectExpired(eq(Effect.BLIND))).thenReturn(subject);
+    when(eventsFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
-    effectConsumer.apply(subject);
+    OperationResult operationResult = effectConsumer.apply(subject);
 
-    verify(eventsFactory).effectExpiredEvent(eq(subject));
+    verify(eventsFactory).effectExpiredEvent(eq(subject), eq(Effect.BLIND));
   }
 }

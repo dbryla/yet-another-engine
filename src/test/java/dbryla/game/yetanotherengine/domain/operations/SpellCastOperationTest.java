@@ -10,13 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.domain.Instrument;
+import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
-import dbryla.game.yetanotherengine.domain.spells.Effect;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subjects.Subject;
-import dbryla.game.yetanotherengine.domain.subjects.classes.Wizard;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,21 +44,24 @@ class SpellCastOperationTest {
   private EventsFactory eventsFactory;
 
   @Mock
-  private Wizard source;
+  private Subject source;
 
   @Mock
   private Subject target;
 
+  @Mock
+  private DiceRollService diceRollService;
+
   @Test
   void shouldInvokeDmgSpell() throws UnsupportedGameOperationException {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
-    Subject changedTarget = mock(Subject.class);
-    when(target.of(anyInt())).thenReturn(changedTarget);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
+    when(fightHelper.dealDamage(eq(target), anyInt())).thenReturn(target);
 
     OperationResult operationResult = spellCastOperation.invoke(source, instrument, target);
 
-    assertThat(operationResult.getChangedSubjects()).contains(changedTarget);
+    assertThat(operationResult.getChangedSubjects()).contains(target);
   }
 
   @Test
@@ -67,6 +69,7 @@ class SpellCastOperationTest {
     Instrument instrument = new Instrument(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
     when(target.of(Effect.BLIND)).thenReturn(changedTarget);
+    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
 
     OperationResult operationResult = spellCastOperation.invoke(source, instrument, target);
 
@@ -83,9 +86,8 @@ class SpellCastOperationTest {
   @Test
   void shouldGetHitRollIfSpellIsTypeOfAttack() throws UnsupportedGameOperationException {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
-    Subject changedTarget = mock(Subject.class);
-    when(target.of(anyInt())).thenReturn(changedTarget);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
 
     spellCastOperation.invoke(source, instrument, target);
 
@@ -97,6 +99,7 @@ class SpellCastOperationTest {
     Instrument instrument = new Instrument(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
     when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
+    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
 
     spellCastOperation.invoke(source, instrument, target);
 
@@ -106,9 +109,8 @@ class SpellCastOperationTest {
   @Test
   void shouldInvokeEffectConsumer() throws UnsupportedGameOperationException {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
-    Subject changedTarget = mock(Subject.class);
-    when(target.of(anyInt())).thenReturn(changedTarget);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
 
     spellCastOperation.invoke(source, instrument, target);
 
@@ -120,6 +122,7 @@ class SpellCastOperationTest {
     Instrument instrument = new Instrument(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
     when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
+    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
 
     spellCastOperation.invoke(source, instrument, target);
 
@@ -130,6 +133,7 @@ class SpellCastOperationTest {
   void shouldCreateEventOnUnsuccessfulSpellCast() throws UnsupportedGameOperationException {
     Instrument instrument = new Instrument(Spell.FIRE_BOLT);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
+    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
 
     spellCastOperation.invoke(source, instrument, target);
 

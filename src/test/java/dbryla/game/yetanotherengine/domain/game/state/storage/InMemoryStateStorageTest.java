@@ -44,7 +44,7 @@ class InMemoryStateStorageTest {
 
   @Test
   void shouldRemoveAllDataForGame() {
-    inMemoryStateStorage.removeAll(gameId);
+    inMemoryStateStorage.deleteAll(gameId);
 
     assertThat(inMemoryStateStorage.findAll(gameId)).doesNotContain(subject);
   }

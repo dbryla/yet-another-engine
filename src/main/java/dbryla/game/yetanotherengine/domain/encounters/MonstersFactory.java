@@ -1,15 +1,19 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
-import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
+import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Race.HUMANOID;
 
+import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
+import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component
@@ -17,6 +21,8 @@ public class MonstersFactory {
 
   private final MonstersBook monstersBook;
   private final DiceRollService diceRollService;
+  private final Random random;
+  private final MonstersNames monstersNames;
 
   public List<Subject> createEncounter(int playersNumber) {
     MonsterDefinition monsterDefinition = getMonster(playersNumber);
@@ -32,23 +38,56 @@ public class MonstersFactory {
 
   private List<Subject> createMonsters(MonsterDefinition monsterDefinition, int monstersNumber) {
     List<Subject> monsters = new LinkedList<>();
-    for (int i = 0; i < monstersNumber; ++i) {
-      monsters.add(Subject.builder()
-          .name(monstersNumber == 1 ? monsterDefinition.getDefaultName() : getMonsterName(monsterDefinition, i))
-          .affiliation(ENEMIES)
-          .healthPoints(getMonsterHealthPoints(monsterDefinition))
-          .abilities(monsterDefinition.getAbilities())
-          .armor(monsterDefinition.getArmor())
-          .weapon(monsterDefinition.getWeapon())
-          .shield(monsterDefinition.getShield())
-          .spells(monsterDefinition.getSpells())
-          .build());
+    Race monsterRace = monsterDefinition.getMonsterRace();
+    if (HUMANOID.equals(monsterRace)) {
+      for (int i = 0; i < monstersNumber; ++i) {
+        monsters.add(buildHumanoidMonster(monsterDefinition, monstersNumber));
+      }
+    } else {
+      for (int i = 0; i < monstersNumber; ++i) {
+        monsters.add(buildMonster(monsterDefinition, getMonsterName(monsterDefinition, i, monstersNumber), monsterRace));
+      }
     }
     return monsters;
   }
 
-  private String getMonsterName(MonsterDefinition monsterDefinition, int i) {
-    return monsterDefinition.getAdjectives().get(i) + " " + monsterDefinition.getDefaultName();
+  private Subject buildHumanoidMonster(MonsterDefinition monsterDefinition, int monstersNumber) {
+    List<Race> possibleRaces = Arrays.stream(Race.values()).filter(Race::isPlayable).collect(Collectors.toList());
+    Race race = getRandomElement(possibleRaces);
+    if (monstersNumber == 1) {
+      return buildMonster(monsterDefinition, monsterDefinition.getDefaultName(), race);
+    }
+    return buildMonster(monsterDefinition, getHumanoidName(monsterDefinition, race), race);
+  }
+
+  private String getHumanoidName(MonsterDefinition monsterDefinition, Race race) {
+    return getRandomElement(monstersNames.getModifiers(HUMANOID)) + " " + race + " " + monsterDefinition.getDefaultName();
+  }
+
+  private <T> T getRandomElement(List<T> elements) {
+    return elements.get(random.nextInt(elements.size()));
+  }
+
+  private Subject buildMonster(MonsterDefinition monsterDefinition, String monsterName, Race race) {
+    return Subject.builder()
+        .name(monsterName)
+        .affiliation(ENEMIES)
+        .healthPoints(getMonsterHealthPoints(monsterDefinition))
+        .abilities(monsterDefinition.getAbilities())
+        .armor(monsterDefinition.getArmor())
+        .weapon(monsterDefinition.getWeapon())
+        .shield(monsterDefinition.getShield())
+        .spells(monsterDefinition.getSpells())
+        .race(race)
+        .build();
+  }
+
+
+  private String getMonsterName(MonsterDefinition monsterDefinition, int i, int monstersNumber) {
+    if (monstersNumber == 1) {
+      return monsterDefinition.getDefaultName();
+    }
+    return monstersNames.getModifiers(monsterDefinition.getMonsterRace()).get(i) + " " + monsterDefinition.getDefaultName();
   }
 
   private MonsterDefinition getMonster(int playersNumber) {
@@ -68,7 +107,7 @@ public class MonstersFactory {
     if (challengeRating == 0.25) {
       return playersNumber / 2;
     }
-    if (challengeRating == 0.5) {
+    if (challengeRating == 0.5 || challengeRating == 1) {
       return playersNumber / 4;
     }
     return 0;

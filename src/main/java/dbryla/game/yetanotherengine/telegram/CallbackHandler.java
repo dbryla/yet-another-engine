@@ -1,27 +1,26 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
+
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.operations.Instrument;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subject.SubjectMapper;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectMapper;
 import dbryla.game.yetanotherengine.session.Session;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import java.util.Optional;
-
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
 
 @Component
 @Slf4j
@@ -126,8 +125,7 @@ public class CallbackHandler {
       Game game = sessionFactory.getGameOrCreate(chatId);
       game.createCharacter(subject);
       telegramClient.sendTextMessage(chatId, session.getPlayerName() + ": Your character has been created.\n" + subject);
-      characterRepository.findByName(session.getPlayerName())
-          .ifPresent(character -> characterRepository.deleteById(character.getId()));
+      characterRepository.findByName(session.getPlayerName()).ifPresent(characterRepository::delete);
       characterRepository.save(subjectMapper.toCharacter(subject));
     }
   }

@@ -1,15 +1,15 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
-import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.Abilities;
+import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import lombok.Getter;
-import org.springframework.stereotype.Component;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MonstersBook {
@@ -26,7 +26,7 @@ public class MonstersBook {
           .hitDice(8)
           .numberOfHitDices(2)
           .type("Cultist")
-          .adjectives(List.of("Elf", "Human", "Dwarf"))
+          .monsterRace(Race.HUMANOID)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(13, 12, 12, 10, 11, 10))
@@ -38,7 +38,7 @@ public class MonstersBook {
           .hitDice(8)
           .numberOfHitDices(2)
           .type("Guard")
-          .adjectives(List.of("Elf", "Human", "Dwarf"))
+          .monsterRace(Race.HUMANOID)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(13, 12, 12, 10, 11, 10))
@@ -49,7 +49,7 @@ public class MonstersBook {
           .hitDice(8)
           .numberOfHitDices(2)
           .type("Guard")
-          .adjectives(List.of("Elf", "Human", "Dwarf"))
+          .monsterRace(Race.HUMANOID)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 10, 10, 10, 14, 11))
@@ -60,7 +60,7 @@ public class MonstersBook {
           .type("Acolyte")
           .spells(List.of(Spell.SACRED_FLAME, Spell.BLESS, Spell.HEALING_WORD))
           .weapon(Weapon.CLUB)
-          .adjectives(List.of("Elf", "Human", "Dwarf"))
+          .monsterRace(Race.HUMANOID)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(8, 14, 10, 10, 8, 8))
@@ -72,7 +72,7 @@ public class MonstersBook {
           .weapon(Weapon.SCIMITAR)
           .armor(Armor.LEATHER)
           .shield(Armor.SHIELD)
-          .adjectives(List.of("One-eye", "Bearded", "Stinky"))
+          .monsterRace(Race.GOBLINOID)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(8, 14, 10, 10, 8, 8))
@@ -83,7 +83,7 @@ public class MonstersBook {
           .type("Goblin")
           .weapon(Weapon.SHORTBOW)
           .armor(Armor.LEATHER)
-          .adjectives(List.of("One-eye", "Bearded", "Stinky"))
+          .monsterRace(Race.GOBLINOID)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 14, 10, 10, 8, 10))
@@ -95,6 +95,7 @@ public class MonstersBook {
           .weapon(Weapon.SCIMITAR)
           .armor(Armor.CHAIN_SHIRT)
           .shield(Armor.SHIELD)
+          .monsterRace(Race.GOBLINOID)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(14, 15, 10, 3, 14, 7))
@@ -104,7 +105,7 @@ public class MonstersBook {
           .numberOfHitDices(3)
           .type("Panther")
           .weapon(Weapon.BITE)
-          .adjectives(List.of("One-eye", "Black"))
+          .monsterRace(Race.BEAST)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 14, 15, 6, 8, 5))
@@ -115,7 +116,7 @@ public class MonstersBook {
           .type("Skeleton")
           .weapon(Weapon.SHORTSWORD)
           .armor(Armor.SCRAPS)
-          .adjectives(List.of("Dusty", "Sturdy", "Brittle"))
+          .monsterRace(Race.UNDEAD)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 14, 15, 6, 8, 5))
@@ -126,7 +127,7 @@ public class MonstersBook {
           .type("Skeleton")
           .weapon(Weapon.SHORTBOW)
           .armor(Armor.SCRAPS)
-          .adjectives(List.of("Dusty", "Sturdy", "Brittle"))
+          .monsterRace(Race.UNDEAD)
           .build());
     }
   };

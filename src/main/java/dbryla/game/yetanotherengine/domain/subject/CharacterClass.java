@@ -21,10 +21,15 @@ public enum CharacterClass {
       Set.of()),
   CLERIC(8, true,
       Arrays.stream(Weapon.values()).filter(Weapon::isSimpleType).collect(Collectors.toSet()),
-      Arrays.stream(Armor.values()).filter(Armor::isLightOrMedium).collect(Collectors.toSet()));
+      Arrays.stream(Armor.values()).filter(Armor::isLightOrMediumOrShield).collect(Collectors.toSet()));
 
   private final int defaultHealthPoints;
   private final boolean spellCaster;
   private final Set<Weapon> weaponProficiencies;
   private final Set<Armor> armorProficiencies;
+
+  @Override
+  public String toString() {
+    return super.toString().toLowerCase();
+  }
 }

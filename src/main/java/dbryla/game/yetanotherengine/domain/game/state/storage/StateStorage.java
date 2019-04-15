@@ -12,5 +12,5 @@ public interface StateStorage {
 
   List<Subject> findAll(Long gameId);
 
-  void removeAll(Long gameId);
+  void deleteAll(Long gameId);
 }

@@ -29,6 +29,7 @@ public class GameOptions {
 
   public Set<Armor> getAvailableArmors(CharacterClass characterClass, Race race) {
     Set<Armor> armors = new HashSet<>(characterClass.getArmorProficiencies());
+    armors.remove(Armor.SHIELD);
     armors.addAll(
         Arrays.stream(Armor.values())
             .filter(armor -> race.getArmorProficiencies().contains(armor.getType()))
@@ -36,4 +37,7 @@ public class GameOptions {
     return armors;
   }
 
+  public Set<Race> getAvailableRaces() {
+    return Arrays.stream(Race.values()).filter(Race::isPlayable).collect(Collectors.toSet());
+  }
 }

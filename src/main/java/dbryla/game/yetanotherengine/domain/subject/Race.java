@@ -1,23 +1,29 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
-import dbryla.game.yetanotherengine.domain.effects.Effect;
-import dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import java.util.List;
-import java.util.Set;
-
 import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
 import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType.LIGHT;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType.MEDIUM;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.*;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.BATTLEAXE;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.CROSSBOW;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.HAMMER;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.HANDAXE;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.LONGBOW;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.LONGSWORD;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.RAPIER;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.SHORTBOW;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.SHORTSWORD;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.WARHAMMER;
+
+import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.List;
+import java.util.Set;
+import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public enum Race {
   HILL_DWARF(
       List.of(0, 0, 2, 0, 1, 0),
@@ -70,7 +76,11 @@ public enum Race {
   TIEFLING(
       List.of(0, 0, 0, 1, 0, 2),
       Set.of(), Set.of(),
-      0, null, Set.of());
+      0, null, Set.of()),
+  HUMANOID,
+  GOBLINOID,
+  BEAST,
+  UNDEAD;
 
   private final List<Integer> abilitiesModifiers;
   private final Set<Weapon> weaponProficiencies;
@@ -78,6 +88,29 @@ public enum Race {
   private final int additionalHealthPoints;
   private final CharacterClass cantripForClass;
   private final Set<Effect> classEffects;
+  private final boolean playable;
+
+  Race(List<Integer> abilitiesModifiers, Set<Weapon> weaponProficiencies,
+      Set<ArmorType> armorProficiencies, int additionalHealthPoints, CharacterClass cantripForClass,
+      Set<Effect> classEffects) {
+    this.abilitiesModifiers = abilitiesModifiers;
+    this.weaponProficiencies = weaponProficiencies;
+    this.armorProficiencies = armorProficiencies;
+    this.additionalHealthPoints = additionalHealthPoints;
+    this.cantripForClass = cantripForClass;
+    this.classEffects = classEffects;
+    this.playable = true;
+  }
+
+  Race() {
+    this.abilitiesModifiers = List.of(0, 0, 0, 0, 0, 0);
+    this.weaponProficiencies = Set.of();
+    this.armorProficiencies = Set.of();
+    this.additionalHealthPoints = 0;
+    this.cantripForClass = null;
+    this.classEffects = Set.of();
+    this.playable = false;
+  }
 
   @Override
   public String toString() {

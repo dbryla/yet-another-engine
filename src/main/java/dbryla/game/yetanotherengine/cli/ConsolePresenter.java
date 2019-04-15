@@ -147,4 +147,15 @@ public class ConsolePresenter {
     return abilityScores;
   }
 
+  public List<Race> showAvailableRaces() {
+    List<Race> races = new LinkedList<>();
+    StringBuilder communicate = new StringBuilder("Choose your race:");
+    int i = 0;
+    for (Race race: gameOptions.getAvailableRaces()) {
+      communicate.append(String.format(CHOICE_FORMAT, i++, race));
+      races.add(race);
+    }
+    System.out.println(communicate.toString());
+    return races;
+  }
 }

@@ -30,7 +30,7 @@ public class InMemoryStateStorage implements StateStorage {
   }
 
   @Override
-  public void removeAll(Long gameId) {
+  public void deleteAll(Long gameId) {
     storage.remove(gameId);
   }
 }

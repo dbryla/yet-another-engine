@@ -1,18 +1,21 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
+
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
-import dbryla.game.yetanotherengine.domain.subject.*;
+import dbryla.game.yetanotherengine.domain.subject.Abilities;
+import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectMapper;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Optional;
-
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
 
 @Component
 @Profile("cli")
@@ -40,6 +43,7 @@ class ConsoleCharacterBuilder {
     CharacterClass characterClass = chooseClass();
     Race race = chooseRace();
     Subject subject = buildSubject(playerName, characterClass, race);
+    characterRepository.findByName(playerName).ifPresent(characterRepository::delete);
     characterRepository.save(subjectMapper.toCharacter(subject));
     return subject;
   }
@@ -51,8 +55,9 @@ class ConsoleCharacterBuilder {
   }
 
   private Race chooseRace() {
-    // presenter.showAvailableRaces(); fixme
-    return null;
+    List<Race> availableRaces = presenter.showAvailableRaces();
+    int playerChoice = inputProvider.cmdLineToOption();
+    return availableRaces.get(playerChoice);
   }
 
   private Subject buildSubject(String playerName, CharacterClass characterClass, Race race) {
@@ -60,7 +65,7 @@ class ConsoleCharacterBuilder {
     int playerChoice = inputProvider.cmdLineToOption();
     Abilities abilities = getAbilities(playerChoice);
     Weapon weapon = getWeapon(characterClass, race);
-    Armor shield = getShield(weapon);
+    Armor shield = getShield(characterClass, weapon);
     Armor armor = getArmor(characterClass, race);
     return subjectMapper.createNewSubject(playerName, race, characterClass, PLAYERS, abilities, weapon, armor, shield, null);
   }
@@ -82,8 +87,8 @@ class ConsoleCharacterBuilder {
     return availableWeapons.get(playerChoice);
   }
 
-  private Armor getShield(Weapon weapon) {
-    if (!weapon.isEligibleForShield()) {
+  private Armor getShield(CharacterClass characterClass, Weapon weapon) {
+    if (!weapon.isEligibleForShield() || !characterClass.getArmorProficiencies().contains(Armor.SHIELD) ) {
       return null;
     }
     List<Armor> shield = presenter.showAvailableShield();

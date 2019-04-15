@@ -107,7 +107,7 @@ public class Game {
   }
 
   public void cleanup() {
-    stateStorage.removeAll(id);
+    stateStorage.deleteAll(id);
   }
 
   public boolean isEnded() {

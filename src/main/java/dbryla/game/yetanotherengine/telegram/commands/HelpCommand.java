@@ -14,9 +14,18 @@ public class HelpCommand {
 
   public void execute(Update update) {
     Long chatId = update.getMessage().getChatId();
-    telegramClient.sendTextMessage(chatId, "This is real RPG!\nSupported commands:\n/start - Start game\n/create - Create character"
-        + "\n/character - Display existing character\n/join - Join to game\n/fight - Fight random encounter"
-        + "\n/attack - Attack with your weapon\n/spell - Cast a spell\n/status - Show status of fight\n/reset - Reset game"
-        + "\n/help - This manual");
+    telegramClient.sendTextMessage(chatId, "This is real RPG!\n" +
+        "Supported commands:\n" +
+        "/start - Start game\n" +
+        "/create - Create character\n" +
+        "/character - Display existing character\n" +
+        "/join - Join to game\n" +
+        "/position - Display characters positions\n" +
+        "/fight - Fight random encounter\n" +
+        "/attack - Attack with your weapon\n" +
+        "/spell - Cast a spell\n" +
+        "/status - Show status of fight\n" +
+        "/reset - Reset game\n" +
+        "/help - This manual");
   }
 }

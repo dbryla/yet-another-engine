@@ -13,7 +13,7 @@ import dbryla.game.yetanotherengine.domain.operations.Instrument;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.SubjectMapper;
+import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class CallbackHandler {
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
   private final FightFactory fightFactory;
-  private final SubjectMapper subjectMapper;
+  private final SubjectFactory subjectFactory;
   private final CharacterRepository characterRepository;
 
   public void execute(Update update) {
@@ -120,13 +120,13 @@ public class CallbackHandler {
 
   private void createCharacterIfNeeded(Long chatId, Session session) {
     if (session.getSubject() == null) {
-      Subject subject = subjectMapper.fromSession(session);
+      Subject subject = subjectFactory.fromSession(session);
       session.setSubject(subject);
       Game game = sessionFactory.getGameOrCreate(chatId);
       game.createCharacter(subject);
       telegramClient.sendTextMessage(chatId, session.getPlayerName() + ": Your character has been created.\n" + subject);
       characterRepository.findByName(session.getPlayerName()).ifPresent(characterRepository::delete);
-      characterRepository.save(subjectMapper.toCharacter(subject));
+      characterRepository.save(subjectFactory.toCharacter(subject));
     }
   }
 

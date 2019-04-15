@@ -1,24 +1,28 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
-import static dbryla.game.yetanotherengine.domain.subject.Race.HUMANOID;
-
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
+
+import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Race.HUMANOID;
 
 @AllArgsConstructor
 @Component
+@Slf4j
 public class MonstersFactory {
 
+  private static final int DIFFICULTY_FACTOR = 2;
   private final MonstersBook monstersBook;
   private final DiceRollService diceRollService;
   private final Random random;
@@ -61,7 +65,7 @@ public class MonstersFactory {
   }
 
   private String getHumanoidName(MonsterDefinition monsterDefinition, Race race) {
-    return getRandomElement(monstersNames.getModifiers(HUMANOID)) + " " + race + " " + monsterDefinition.getDefaultName();
+    return getRandomElement(monstersNames.getModifiers(HUMANOID)) + " " + race.getDisplayName() + " " + monsterDefinition.getDefaultName();
   }
 
   private <T> T getRandomElement(List<T> elements) {
@@ -78,10 +82,10 @@ public class MonstersFactory {
         .weapon(monsterDefinition.getWeapon())
         .shield(monsterDefinition.getShield())
         .spells(monsterDefinition.getSpells())
+        .position(monsterDefinition.getPreferredPosition())
         .race(race)
         .build();
   }
-
 
   private String getMonsterName(MonsterDefinition monsterDefinition, int i, int monstersNumber) {
     if (monstersNumber == 1) {
@@ -96,19 +100,23 @@ public class MonstersFactory {
     while (monstersNumber == 0) {
       monsterDefinition = monstersBook.getRandomMonster(1);
       monstersNumber = getMonstersNumber(playersNumber, monsterDefinition.getChallengeRating());
+      log.trace("{} - Suggesting {} monsters.", monsterDefinition, monstersNumber);
     }
     return monsterDefinition;
   }
 
   private int getMonstersNumber(int playersNumber, double challengeRating) {
     if (challengeRating == 0.125) {
-      return playersNumber;
+      return DIFFICULTY_FACTOR * playersNumber;
     }
     if (challengeRating == 0.25) {
-      return playersNumber / 2;
+      return DIFFICULTY_FACTOR * playersNumber / 2;
     }
-    if (challengeRating == 0.5 || challengeRating == 1) {
-      return playersNumber / 4;
+    if (challengeRating == 0.5) {
+      return DIFFICULTY_FACTOR * playersNumber / 4;
+    }
+    if (challengeRating == 1) {
+      return DIFFICULTY_FACTOR * playersNumber / 4;
     }
     return 0;
   }

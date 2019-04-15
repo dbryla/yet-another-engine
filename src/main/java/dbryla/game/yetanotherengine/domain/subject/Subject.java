@@ -1,59 +1,45 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
-import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
 public class Subject {
 
-  private final SubjectIdentifier id;
+  private final SubjectProperties subjectProperties;
   @Getter
-  private final Race race;
+  private final int currentHealthPoints;
   @Getter
-  private final CharacterClass characterClass;
-  @Getter
-  private final int maxHealthPoints;
-  @Getter
-  private int currentHealthPoints;
-  @Getter
-  private final Equipment equipment;
-  @Getter
-  private final Abilities abilities;
-  @Getter
-  private final List<Spell> spells;
+  private final Position position;
   @Getter
   private final Set<ActiveEffect> activeEffects;
 
   /**
    * Used to create new subject object with given properties.
    */
-  public Subject(String name, Race race, CharacterClass characterClass, String affiliation, Abilities abilities, Weapon weapon,
-                 Armor armor, Armor shield, List<Spell> spells, int maxHealthPoints) {
-    this(new SubjectIdentifier(name, affiliation), race, characterClass, maxHealthPoints, new Equipment(weapon, shield, armor),
-        abilities, spells);
-  }
-
-  private Subject(SubjectIdentifier id, Race race, CharacterClass characterClass, int maxHealthPoints,
-                  Equipment equipment, Abilities abilities, List<Spell> spells) {
-    this(id, race, characterClass, maxHealthPoints, maxHealthPoints, equipment, abilities, spells, Set.of());
+  public Subject(SubjectProperties subjectProperties, Position position) {
+    this.subjectProperties = subjectProperties;
+    this.currentHealthPoints = subjectProperties.getMaxHealthPoints();
+    this.position = position;
+    this.activeEffects = new HashSet<>();
   }
 
   public int getInitiativeModifier() {
-    return abilities.getDexterityModifier();
+    return subjectProperties.getAbilities().getDexterityModifier();
   }
 
   public String getName() {
-    return id.getName();
+    return subjectProperties.getId().getName();
   }
 
   public boolean isTerminated() {
@@ -64,72 +50,65 @@ public class Subject {
     if (currentHealthPoints <= 0) {
       return State.TERMINATED;
     }
-    if (currentHealthPoints == maxHealthPoints) {
+    if (currentHealthPoints == subjectProperties.getMaxHealthPoints()) {
       return State.NORMAL;
     }
-    if (currentHealthPoints > Math.ceil(0.75 * maxHealthPoints)) {
+    if (currentHealthPoints > Math.ceil(0.75 * subjectProperties.getMaxHealthPoints())) {
       return State.LIGHTLY_WOUNDED;
     }
-    if (currentHealthPoints > Math.ceil(0.50 * maxHealthPoints)) {
+    if (currentHealthPoints > Math.ceil(0.50 * subjectProperties.getMaxHealthPoints())) {
       return State.WOUNDED;
     }
-    if (currentHealthPoints <= Math.ceil(0.10 * maxHealthPoints) && currentHealthPoints < 10) {
+    if (currentHealthPoints <= Math.ceil(0.10 * subjectProperties.getMaxHealthPoints()) && currentHealthPoints < 10) {
       return State.DEATHS_DOOR;
     }
     return State.HEAVILY_WOUNDED;
   }
 
   public int getArmorClass() {
-    Integer modifier = abilities.getDexterityModifier();
-    if (equipment.getArmor().isPresent()) {
-      modifier = equipment.getArmor()
-          .get()
-          .getMaxDexterityBonus()
-          .map(maxDexBonus -> Math.min(maxDexBonus, abilities.getDexterityModifier()))
-          .orElse(abilities.getDexterityModifier());
-    }
-    return equipment.getArmorClass() + modifier;
+    return subjectProperties.getArmorClass();
   }
 
   public String getAffiliation() {
-    return id.getAffiliation();
+    return subjectProperties.getId().getAffiliation();
   }
 
   public SubjectIdentifier toIdentifier() {
-    return id;
+    return subjectProperties.getId();
   }
 
   public boolean isSpellCaster() {
-    return !spells.isEmpty() || characterClass.isSpellCaster();
+    return subjectProperties.isSpellCaster();
   }
 
   public Subject of(int healthPoints) {
-    this.currentHealthPoints = healthPoints;
-    return this;
+    return new Subject(this.subjectProperties, healthPoints, this.position, this.activeEffects);
   }
 
   public Subject of(Effect effect) {
-    this.getActiveEffects().add(effect.activate());
-    return this;
+    Set<ActiveEffect> activeEffects = new HashSet<>(this.getActiveEffects());
+    activeEffects.add(effect.activate());
+    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects);
   }
 
   public Subject effectExpired(Effect effect) {
-    this.getActiveEffects().removeIf(activeEffect -> activeEffect.getEffect().equals(effect));
-    return this;
+    Set<ActiveEffect> activeEffects = new HashSet<>(this.getActiveEffects());
+    activeEffects.removeIf(activeEffect -> activeEffect.getEffect().equals(effect));
+    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects);
   }
 
   @Override
   public String toString() {
-    StringBuilder stringBuilder = new StringBuilder(race + " " + characterClass + "\n"
-        + " HP:" + currentHealthPoints + "/" + maxHealthPoints + " AC:" + getArmorClass() + "\n"
-        + abilities + "\n"
+    StringBuilder stringBuilder = new StringBuilder(subjectProperties.getRace() + " " + subjectProperties.getCharacterClass() + "\n"
+        + "HP:" + currentHealthPoints + "/" + subjectProperties.getMaxHealthPoints() + " AC:" + getArmorClass() + "\n"
+        + subjectProperties.getAbilities() + "\n"
         + "Equipment:\n"
-        + "- " + equipment.getWeapon() + "\n");
-    equipment.getArmor().map(Armor::toString).ifPresent(armor -> stringBuilder.append("- ").append(armor).append("\n"));
-    equipment.getShield().map(Armor::toString).ifPresent(shield -> stringBuilder.append("- ").append(shield).append("\n"));
-    if (spells != null) {
+        + "- " + subjectProperties.getEquipment().getWeapon() + "\n");
+    subjectProperties.getEquipment().getArmor().map(Armor::toString).ifPresent(armor -> stringBuilder.append("- ").append(armor).append("\n"));
+    subjectProperties.getEquipment().getShield().map(Armor::toString).ifPresent(shield -> stringBuilder.append("- ").append(shield).append("\n"));
+    if (subjectProperties.getSpells() != null && !subjectProperties.getSpells().isEmpty()) {
       stringBuilder.append("Additional spells:\n");
-      spells.forEach(spell -> stringBuilder.append("- ").append(spell).append("\n"));
+      subjectProperties.getSpells().forEach(spell -> stringBuilder.append("- ").append(spell).append("\n"));
     }
     return stringBuilder.toString();
   }
@@ -139,103 +118,31 @@ public class Subject {
    *
    * @return builder for subject object
    */
-  public static Builder builder() {
-    return new Builder();
+  public static SubjectBuilder builder() {
+    return new SubjectBuilder();
   }
 
-  public static class Builder {
+  public List<Spell> getSpells() {
+    return subjectProperties.getSpells();
+  }
 
-    private String name;
-    private String affiliation;
-    private CharacterClass characterClass;
-    private Race race;
-    private Abilities abilities;
-    private Weapon weapon;
-    private Armor shield;
-    private Armor armor;
-    private List<Spell> spells;
-    private int healthPoints;
+  public Abilities getAbilities() {
+    return subjectProperties.getAbilities();
+  }
 
-    public Builder name(String name) {
-      this.name = name;
-      return this;
-    }
+  int getMaxHealthPoints() {
+    return subjectProperties.getMaxHealthPoints();
+  }
 
-    public Builder affiliation(String affiliation) {
-      this.affiliation = affiliation;
-      return this;
-    }
+  public Equipment getEquipment() {
+    return subjectProperties.getEquipment();
+  }
 
-    public Builder characterClass(CharacterClass characterClass) {
-      this.characterClass = characterClass;
-      return this;
-    }
+  public CharacterClass getCharacterClass() {
+    return subjectProperties.getCharacterClass();
+  }
 
-    public Builder race(Race race) {
-      this.race = race;
-      return this;
-    }
-
-    public Builder weapon(Weapon weapon) {
-      this.weapon = weapon;
-      return this;
-    }
-
-    public Builder shield(Armor shield) {
-      this.shield = shield;
-      return this;
-    }
-
-    public Builder armor(Armor armor) {
-      this.armor = armor;
-      return this;
-    }
-
-    public Builder abilities(Abilities abilities) {
-      this.abilities = abilities;
-      return this;
-    }
-
-    public Builder spells(List<Spell> spells) {
-      this.spells = spells;
-      return this;
-    }
-
-    /**
-     * Replaces default class health points
-     */
-    public Builder healthPoints(int healthPoints) {
-      this.healthPoints = healthPoints;
-      return this;
-    }
-
-    public Subject build() throws IncorrectAttributesException {
-      if (name == null || affiliation == null) {
-        throw new IncorrectAttributesException("Both name and affiliation attributes must be provided to builder.");
-      }
-      SubjectIdentifier id = new SubjectIdentifier(name, affiliation);
-      Equipment equipment = new Equipment(weapon, shield, armor);
-      healthPoints = getHealthPoints();
-      if (race != null) {
-        abilities = abilities.of(race.getAbilitiesModifiers());
-        healthPoints += race.getAdditionalHealthPoints();
-        CharacterClass cantripForClass = race.getCantripForClass();
-        if (cantripForClass != null) {
-          if (spells == null) {
-            spells = new LinkedList<>();
-          }
-          Spell.of(cantripForClass, 0)
-              .ifPresent(spells::add);
-        }
-      }
-      return new Subject(id, race, characterClass, healthPoints, equipment, abilities, spells);
-    }
-
-    private int getHealthPoints() {
-      if (healthPoints != 0) {
-        return healthPoints;
-      }
-      return characterClass.getDefaultHealthPoints() + abilities.getConstitutionModifier();
-    }
+  public Race getRace() {
+    return subjectProperties.getRace();
   }
 }

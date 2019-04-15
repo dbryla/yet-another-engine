@@ -5,6 +5,7 @@ import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
 
 import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
+import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachine;
@@ -12,6 +13,7 @@ import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,12 +32,9 @@ public class Game {
   private final EventHub eventHub;
 
   private StateMachine stateMachine;
-  @Getter
-  private int playersNumber;
 
   public void createCharacter(Subject subject) {
     stateStorage.save(id, subject);
-    playersNumber++;
   }
 
   public void createEnemies(List<Subject> subjects) {
@@ -112,5 +111,15 @@ public class Game {
 
   public boolean isEnded() {
     return stateMachine.isInTerminalState();
+  }
+
+  public int getPlayersNumber() {
+    return (int) stateStorage.findAll(id).stream().filter(subject -> PLAYERS.equals(subject.getAffiliation())).count();
+  }
+
+  public Map<Position, List<String>> getSubjectsPositionsMap() {
+    return stateStorage.findAll(id)
+        .stream()
+        .collect(Collectors.groupingBy(Subject::getPosition, Collectors.mapping(Subject::getName, Collectors.toList())));
   }
 }

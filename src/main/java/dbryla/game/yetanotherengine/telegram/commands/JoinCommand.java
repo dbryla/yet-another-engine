@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.telegram.commands;
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.domain.subject.SubjectMapper;
+import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.Communicate;
@@ -25,7 +25,7 @@ public class JoinCommand {
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
   private final CharacterRepository characterRepository;
-  private final SubjectMapper subjectMapper;
+  private final SubjectFactory subjectFactory;
 
   public void execute(Update update) {
     Message message = update.getMessage();
@@ -50,7 +50,7 @@ public class JoinCommand {
   }
 
   private void createNewSession(Message message, String playerName, String sessionId, PlayerCharacter character) {
-    Subject subject = subjectMapper.fromCharacter(character);
+    Subject subject = subjectFactory.fromCharacter(character);
     sessionFactory.createSession(sessionId, playerName, subject);
     Game game = sessionFactory.getGameOrCreate(message.getChatId());
     game.createCharacter(subject);

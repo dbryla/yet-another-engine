@@ -16,8 +16,8 @@ public enum Armor {
   private final int armorClass;
   private final ArmorType type;
 
-  public boolean isLightOrMediumOrShield() {
-    return ArmorType.LIGHT.equals(type) || ArmorType.MEDIUM.equals(type) || ArmorType.SHIELD.equals(type);
+  public boolean isNotHeavyArmor() {
+    return !ArmorType.HEAVY.equals(type) && !ArmorType.MONSTER.equals(type);
   }
 
   public Optional<Integer> getMaxDexterityBonus() {
@@ -32,7 +32,7 @@ public enum Armor {
   }
 
   public boolean isPlayable() {
-    return ArmorType.LIGHT.equals(type) || ArmorType.MEDIUM.equals(type) || ArmorType.HEAVY.equals(type) || ArmorType.SHIELD.equals(type);
+    return !ArmorType.MONSTER.equals(type);
   }
 
   @Override

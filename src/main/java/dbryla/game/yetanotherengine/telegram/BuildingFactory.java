@@ -25,6 +25,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 public class BuildingFactory {
 
   public static final String CLASS = "Choose a class:";
+  public static final String RACE = "Choose a race:";
   public static final String ABILITIES = "Assign scores to your abilities: Str, Dex, Con, Int, Wis, Cha";
   public static final String WEAPON = "Choose your weapon:";
   public static final String ARMOR = "Choose your armor:";
@@ -37,6 +38,16 @@ public class BuildingFactory {
     classes.forEach(characterClass -> keyboardButtons.add(
         new InlineKeyboardButton(characterClass.toString()).setCallbackData(characterClass.name())));
     return new Communicate(CLASS, List.of(keyboardButtons));
+  }
+
+  public Communicate chooseRaceCommunicate() {
+    ArrayList<Race> races = new ArrayList<>(gameOptions.getAvailableRaces());
+    AtomicInteger counter = new AtomicInteger();
+    Collection<List<InlineKeyboardButton>> values = races.stream()
+        .map(race -> new InlineKeyboardButton(race.toString()).setCallbackData(race.name()))
+        .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 3))
+        .values();
+    return new Communicate(RACE, new ArrayList<>(values));
   }
 
   public Communicate assignAbilitiesCommunicate(List<Integer> scores) {
@@ -78,6 +89,5 @@ public class BuildingFactory {
         .collect(Collectors.toList());
     return Optional.of(new Communicate(ARMOR, List.of(keyboardButtons)));
   }
-
 
 }

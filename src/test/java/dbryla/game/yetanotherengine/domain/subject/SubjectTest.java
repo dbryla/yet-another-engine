@@ -32,6 +32,6 @@ class SubjectTest {
         .abilities(new Abilities(10, 10, 10, 11, 10, 10))
         .build();
 
-    assertThat(subject.getMaxHealthPoints()).isEqualTo(CLERIC.getDefaultHealthPoints() + 1);
+    assertThat(subject.getMaxHealthPoints()).isEqualTo(CLERIC.getDefaultHealthPoints() + 2);
   }
 }

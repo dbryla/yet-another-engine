@@ -1,22 +1,35 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
+import dbryla.game.yetanotherengine.domain.battleground.Position;
+import dbryla.game.yetanotherengine.domain.game.GameOptions;
+import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SubjectMapperTest {
+@ExtendWith(MockitoExtension.class)
+class SubjectFactoryTest {
 
-  private final SubjectMapper subjectMapper = new SubjectMapper();
+  @Mock
+  private GameOptions gameOptions;
+
+  @InjectMocks
+  private SubjectFactory subjectFactory;
 
   @Test
   void shouldCreateSubjectFromPlayerCharacter() {
     PlayerCharacter playerCharacter = PlayerCharacter.builder()
         .name("player")
         .affiliation("blue")
-        .characterClass(CharacterClass.WIZARD)
+        .characterClass(CharacterClass.FIGHTER)
         .race(Race.HIGH_ELF)
         .maxHealthPoints(10)
         .weapon(Weapon.SHORTSWORD)
@@ -24,7 +37,7 @@ class SubjectMapperTest {
         .abilities(new Abilities(10, 10, 10, 10, 10, 10))
         .build();
 
-    Subject subject = subjectMapper.fromCharacter(playerCharacter);
+    Subject subject = subjectFactory.fromCharacter(playerCharacter);
 
     assertThat(subject.getName()).isEqualTo(playerCharacter.getName());
     assertThat(subject.getAffiliation()).isEqualTo(playerCharacter.getAffiliation());
@@ -39,18 +52,22 @@ class SubjectMapperTest {
   @Test
   void shouldCreatePlayerCharacterFromSubject() {
     Subject subject = new Subject(
-        "player",
-        Race.HIGH_ELF,
-        CharacterClass.WIZARD,
-        "blue",
-        new Abilities(10, 10, 10, 10, 10, 10),
-        Weapon.SHORTSWORD,
-        Armor.LEATHER,
-        null,
-        null,
-        10);
+        new SubjectProperties(
+            new SubjectIdentifier(
+                "player",
+                "blue"),
+            Race.HIGH_ELF,
+            CharacterClass.FIGHTER,
+            new Equipment(
+                Weapon.SHORTSWORD,
+                null,
+                Armor.LEATHER),
+            new Abilities(10, 10, 10, 10, 10, 10),
+            null,
+            10),
+        Position.PLAYERS_FRONT);
 
-    PlayerCharacter playerCharacter = subjectMapper.toCharacter(subject);
+    PlayerCharacter playerCharacter = subjectFactory.toCharacter(subject);
 
     assertThat(subject.getName()).isEqualTo(playerCharacter.getName());
     assertThat(subject.getAffiliation()).isEqualTo(playerCharacter.getAffiliation());
@@ -72,14 +89,13 @@ class SubjectMapperTest {
     Weapon weapon = Weapon.SHORTSWORD;
     Armor armor = Armor.LEATHER;
 
-    Subject subject = subjectMapper.createNewSubject(name,
+    Subject subject = subjectFactory.createNewSubject(name,
         race,
         characterClass,
         affiliation,
         abilities,
         weapon,
         armor,
-        null,
         null);
 
     assertThat(subject.getName()).isEqualTo(name);

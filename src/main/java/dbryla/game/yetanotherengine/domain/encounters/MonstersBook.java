@@ -1,10 +1,13 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
+import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -27,6 +30,7 @@ public class MonstersBook {
           .numberOfHitDices(2)
           .type("Cultist")
           .monsterRace(Race.HUMANOID)
+          .preferredPosition(Position.ENEMIES_FRONT)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(13, 12, 12, 10, 11, 10))
@@ -39,6 +43,7 @@ public class MonstersBook {
           .numberOfHitDices(2)
           .type("Guard")
           .monsterRace(Race.HUMANOID)
+          .preferredPosition(Position.ENEMIES_FRONT)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(13, 12, 12, 10, 11, 10))
@@ -50,6 +55,7 @@ public class MonstersBook {
           .numberOfHitDices(2)
           .type("Guard")
           .monsterRace(Race.HUMANOID)
+          .preferredPosition(Position.ENEMIES_BACK)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 10, 10, 10, 14, 11))
@@ -58,9 +64,10 @@ public class MonstersBook {
           .hitDice(8)
           .numberOfHitDices(2)
           .type("Acolyte")
-          .spells(List.of(Spell.SACRED_FLAME, Spell.BLESS, Spell.HEALING_WORD))
+          .spells(new ArrayList<>(List.of(Spell.SACRED_FLAME, Spell.BLESS, Spell.HEALING_WORD)))
           .weapon(Weapon.CLUB)
           .monsterRace(Race.HUMANOID)
+          .preferredPosition(Position.ENEMIES_BACK)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(8, 14, 10, 10, 8, 8))
@@ -73,6 +80,7 @@ public class MonstersBook {
           .armor(Armor.LEATHER)
           .shield(Armor.SHIELD)
           .monsterRace(Race.GOBLINOID)
+          .preferredPosition(Position.ENEMIES_FRONT)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(8, 14, 10, 10, 8, 8))
@@ -84,6 +92,7 @@ public class MonstersBook {
           .weapon(Weapon.SHORTBOW)
           .armor(Armor.LEATHER)
           .monsterRace(Race.GOBLINOID)
+          .preferredPosition(Position.ENEMIES_BACK)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 14, 10, 10, 8, 10))
@@ -96,6 +105,7 @@ public class MonstersBook {
           .armor(Armor.CHAIN_SHIRT)
           .shield(Armor.SHIELD)
           .monsterRace(Race.GOBLINOID)
+          .preferredPosition(Position.ENEMIES_FRONT)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(14, 15, 10, 3, 14, 7))
@@ -106,6 +116,7 @@ public class MonstersBook {
           .type("Panther")
           .weapon(Weapon.BITE)
           .monsterRace(Race.BEAST)
+          .preferredPosition(Position.ENEMIES_FRONT)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 14, 15, 6, 8, 5))
@@ -117,6 +128,7 @@ public class MonstersBook {
           .weapon(Weapon.SHORTSWORD)
           .armor(Armor.SCRAPS)
           .monsterRace(Race.UNDEAD)
+          .preferredPosition(Position.ENEMIES_FRONT)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 14, 15, 6, 8, 5))
@@ -128,6 +140,7 @@ public class MonstersBook {
           .weapon(Weapon.SHORTBOW)
           .armor(Armor.SCRAPS)
           .monsterRace(Race.UNDEAD)
+          .preferredPosition(Position.ENEMIES_BACK)
           .build());
     }
   };

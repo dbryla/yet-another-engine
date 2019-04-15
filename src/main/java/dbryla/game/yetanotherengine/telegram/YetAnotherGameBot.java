@@ -28,6 +28,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private static final String RESET_COMMAND = "/reset";
   private static final String CREATE_COMMAND = "/create";
   private static final String CHARACTER_COMMAND = "/character";
+  private static final String POSITION_COMMAND = "/position";
 
   private final TelegramConfig telegramConfig;
   private final CallbackHandler callbackHandler;
@@ -41,6 +42,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private final ResetCommand resetCommand;
   private final CreateCommand createCommand;
   private final CharacterCommand characterCommand;
+  private final PositionCommand positionCommand;
 
 
   @Override
@@ -92,6 +94,9 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
     }
     if (commandText.startsWith(CHARACTER_COMMAND)) {
       characterCommand.execute(update);
+    }
+    if (commandText.startsWith(POSITION_COMMAND)) {
+      positionCommand.execute(update);
     }
   }
 

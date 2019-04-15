@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
 import dbryla.game.yetanotherengine.db.CharacterRepository;
-import dbryla.game.yetanotherengine.domain.subject.SubjectMapper;
+import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
@@ -21,7 +21,7 @@ import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId
 public class CharacterCommand {
   private final SessionFactory sessionFactory;
   private final CharacterRepository characterRepository;
-  private final SubjectMapper subjectMapper;
+  private final SubjectFactory subjectFactory;
   private final TelegramClient telegramClient;
 
   public void execute(Update update) {
@@ -32,7 +32,7 @@ public class CharacterCommand {
     Session existingSession = sessionFactory.getSession(sessionId);
     if (existingSession == null) {
       characterRepository.findByName(playerName)
-          .map(subjectMapper::fromCharacter)
+          .map(subjectFactory::fromCharacter)
           .map(subject -> sessionFactory.createSession(sessionId, playerName, subject))
           .ifPresentOrElse(
               session -> telegramClient.sendTextMessage(chatId, playerName + ": Your character.\n" + session.getSubject()),

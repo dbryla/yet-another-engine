@@ -1,7 +1,9 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
 import dbryla.game.yetanotherengine.domain.subject.Race;
+
 import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,11 +13,12 @@ public class MonstersNames {
     switch (race) {
       case HUMANOID:
         return List
-            .of("Loony", "Clumsy", "Calm", "Arrogant", "Skinny", "Muscular", "Fat", "One-eyed", "Elderly", "Young", "Attractive", "Brawny", "Ugly");
+            .of("Loony", "Clumsy", "Calm", "Arrogant", "Skinny", "Muscular",
+                "Fat", "One-eyed", "Elderly", "Young", "Attractive", "Brawny", "Ugly");
       case GOBLINOID:
-        return List.of("One-eyed", "Fat", "Stinky");
+        return List.of("One-Eyed", "Fat", "Stinky");
       case BEAST:
-        return List.of("One-eyed", "Black");
+        return List.of("One-Eyed", "Black");
       case UNDEAD:
         return List.of("Dusty", "Sturdy", "Brittle");
     }

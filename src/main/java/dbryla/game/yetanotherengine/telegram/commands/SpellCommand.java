@@ -28,7 +28,7 @@ public class SpellCommand {
     Session session = sessionFactory.getSession(getSessionId(update.getMessage(), update.getMessage().getFrom()));
     String playerName = session.getPlayerName();
     if (game.isStarted() && !game.isEnded() && isNextUser(playerName, game)) {
-      Communicate communicate = fightFactory.spellCommunicate(session.getSubject().getCharacterClass());
+      Communicate communicate = fightFactory.spellCommunicate(session.getSubject());
       session.setSpellCasting(true);
       telegramClient.sendReplyKeyboard(communicate, chatId, update.getMessage().getMessageId());
     }

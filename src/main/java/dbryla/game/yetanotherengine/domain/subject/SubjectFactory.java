@@ -1,29 +1,34 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
-import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
 import static dbryla.game.yetanotherengine.telegram.BuildingFactory.*;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ARMOR;
 
 @Component
-public class SubjectMapper {
+@AllArgsConstructor
+public class SubjectFactory {
 
   public Subject fromCharacter(PlayerCharacter character) {
-    return new Subject(character.getName(), character.getRace(), character.getCharacterClass(), character.getAffiliation(),
-        character.getAbilities(), character.getWeapon(), character.getArmor(), character.getShield(), character.getSpells(),
-        character.getMaxHealthPoints());
+    SubjectIdentifier id = new SubjectIdentifier(character.getName(), character.getAffiliation());
+    Equipment equipment = new Equipment(character.getWeapon(), character.getShield(), character.getArmor());
+    CharacterClass characterClass = character.getCharacterClass();
+    return new Subject(new SubjectProperties(id, character.getRace(), characterClass,
+        equipment, character.getAbilities(), character.getSpells(), character.getMaxHealthPoints()), characterClass.getPreferredPosition());
   }
 
   public Subject fromSession(Session session) {
     CharacterClass characterClass = CharacterClass.valueOf((String) session.getData().get(CLASS));
+    Race race = Race.valueOf((String) session.getData().get(RACE));
     List<String> abilitiesScores = (List<String>) session.getData().get(ABILITIES);
     Abilities abilities = new Abilities(
         Integer.valueOf(abilitiesScores.get(0)),
@@ -34,9 +39,8 @@ public class SubjectMapper {
         Integer.valueOf(abilitiesScores.get(5)));
     Weapon weapon = Weapon.valueOf((String) session.getData().get(WEAPON));
     Armor armor = getArmor(session);
-    Race race = null;
-    List<Spell> spells = null;
-    return createNewSubject(session.getPlayerName(), race, characterClass, PLAYERS, abilities, weapon, armor, getShield(weapon), spells);
+    return createNewSubject(session.getPlayerName(), race, characterClass, PLAYERS,
+        abilities, weapon, armor, getShield(characterClass, weapon));
   }
 
   private Armor getArmor(Session session) {
@@ -47,12 +51,13 @@ public class SubjectMapper {
     return null;
   }
 
-  private Armor getShield(Weapon weapon) {
-    return weapon.isEligibleForShield() ? Armor.SHIELD : null;
+  private Armor getShield(CharacterClass characterClass, Weapon weapon) {
+    return characterClass.getArmorProficiencies().contains(Armor.SHIELD)
+        && weapon.isEligibleForShield() ? Armor.SHIELD : null;
   }
 
   public Subject createNewSubject(String playerName, Race race, CharacterClass characterClass, String affiliation,
-                                  Abilities abilities, Weapon weapon, Armor armor, Armor shield, List<Spell> spells) {
+                                  Abilities abilities, Weapon weapon, Armor armor, Armor shield) {
     return Subject.builder()
         .name(playerName)
         .race(race)
@@ -62,7 +67,7 @@ public class SubjectMapper {
         .weapon(weapon)
         .armor(armor)
         .shield(shield)
-        .spells(spells)
+        .position(characterClass.getPreferredPosition())
         .build();
   }
 

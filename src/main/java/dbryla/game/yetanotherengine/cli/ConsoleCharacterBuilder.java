@@ -8,7 +8,7 @@ import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.SubjectMapper;
+import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import java.util.List;
@@ -26,7 +26,7 @@ class ConsoleCharacterBuilder {
   private final ConsoleInputProvider inputProvider;
   private final ConsoleAbilitiesProvider consoleAbilitiesProvider;
   private final CharacterRepository characterRepository;
-  private final SubjectMapper subjectMapper;
+  private final SubjectFactory subjectFactory;
 
   Subject createPlayer() {
     System.out.println("Would you like to create new character (0) or load existing one (1) ?");
@@ -36,7 +36,7 @@ class ConsoleCharacterBuilder {
     if (playerChoice == 1) {
       Optional<PlayerCharacter> character = characterRepository.findByName(playerName);
       if (character.isPresent()) {
-        return subjectMapper.fromCharacter(character.get());
+        return subjectFactory.fromCharacter(character.get());
       }
       System.out.println("Character doesn't exist in database, falling back to character creation.");
     }
@@ -44,7 +44,7 @@ class ConsoleCharacterBuilder {
     Race race = chooseRace();
     Subject subject = buildSubject(playerName, characterClass, race);
     characterRepository.findByName(playerName).ifPresent(characterRepository::delete);
-    characterRepository.save(subjectMapper.toCharacter(subject));
+    characterRepository.save(subjectFactory.toCharacter(subject));
     return subject;
   }
 
@@ -67,7 +67,7 @@ class ConsoleCharacterBuilder {
     Weapon weapon = getWeapon(characterClass, race);
     Armor shield = getShield(characterClass, weapon);
     Armor armor = getArmor(characterClass, race);
-    return subjectMapper.createNewSubject(playerName, race, characterClass, PLAYERS, abilities, weapon, armor, shield, null);
+    return subjectFactory.createNewSubject(playerName, race, characterClass, PLAYERS, abilities, weapon, armor, shield);
   }
 
   private Abilities getAbilities(int playerChoice) {

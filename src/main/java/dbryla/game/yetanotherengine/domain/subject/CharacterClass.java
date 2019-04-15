@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
+import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
@@ -13,18 +14,19 @@ import java.util.stream.Collectors;
 @Getter
 public enum CharacterClass {
 
-  FIGHTER(10, false,
+  FIGHTER(10, false, Position.PLAYERS_FRONT,
       Arrays.stream(Weapon.values()).filter(Weapon::isPlayable).collect(Collectors.toSet()),
       Arrays.stream(Armor.values()).filter(Armor::isPlayable).collect(Collectors.toSet())),
-  WIZARD(6, true,
+  WIZARD(6, true, Position.PLAYERS_BACK,
       Set.of(Weapon.DAGGER, Weapon.QUARTERSTAFF),
       Set.of()),
-  CLERIC(8, true,
+  CLERIC(8, true, Position.PLAYERS_FRONT,
       Arrays.stream(Weapon.values()).filter(Weapon::isSimpleType).collect(Collectors.toSet()),
-      Arrays.stream(Armor.values()).filter(Armor::isLightOrMediumOrShield).collect(Collectors.toSet()));
+      Arrays.stream(Armor.values()).filter(Armor::isNotHeavyArmor).collect(Collectors.toSet()));
 
   private final int defaultHealthPoints;
   private final boolean spellCaster;
+  private final Position preferredPosition;
   private final Set<Weapon> weaponProficiencies;
   private final Set<Armor> armorProficiencies;
 
@@ -32,4 +34,5 @@ public enum CharacterClass {
   public String toString() {
     return super.toString().toLowerCase();
   }
+
 }

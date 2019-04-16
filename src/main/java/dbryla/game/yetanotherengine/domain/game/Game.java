@@ -122,4 +122,8 @@ public class Game {
         .stream()
         .collect(Collectors.groupingBy(Subject::getPosition, Collectors.mapping(Subject::getName, Collectors.toList())));
   }
+
+  public void moveSubject(String playerName, Position newPosition) {
+    stateStorage.findByIdAndName(id, playerName).ifPresent(subject -> stateStorage.save(id, subject.of(newPosition)));
+  }
 }

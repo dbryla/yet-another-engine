@@ -1,9 +1,12 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
-import org.junit.jupiter.api.Test;
-
+import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import dbryla.game.yetanotherengine.domain.battleground.Position;
+import org.junit.jupiter.api.Test;
 
 class SubjectTest {
 
@@ -33,5 +36,14 @@ class SubjectTest {
         .build();
 
     assertThat(subject.getMaxHealthPoints()).isEqualTo(CLERIC.getDefaultHealthPoints() + 2);
+  }
+
+  @Test
+  void shouldMoveTargetToNewPosition() {
+    Subject subject = new Subject(mock(SubjectProperties.class), Position.PLAYERS_FRONT);
+
+    Subject movedSubject = subject.of(PLAYERS_BACK);
+
+    assertThat(movedSubject.getPosition()).isEqualTo(PLAYERS_BACK);
   }
 }

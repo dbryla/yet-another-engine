@@ -97,6 +97,10 @@ public class Subject {
     return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects);
   }
 
+  public Subject of(Position newPosition) {
+    return new Subject(this.subjectProperties, this.currentHealthPoints, newPosition, this.activeEffects);
+  }
+
   @Override
   public String toString() {
     StringBuilder stringBuilder = new StringBuilder(subjectProperties.getRace() + " " + subjectProperties.getCharacterClass() + "\n"

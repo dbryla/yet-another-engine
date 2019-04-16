@@ -1,6 +1,19 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import dbryla.game.yetanotherengine.telegram.commands.*;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
+
+import dbryla.game.yetanotherengine.telegram.commands.AttackCommand;
+import dbryla.game.yetanotherengine.telegram.commands.CharacterCommand;
+import dbryla.game.yetanotherengine.telegram.commands.CreateCommand;
+import dbryla.game.yetanotherengine.telegram.commands.FightCommand;
+import dbryla.game.yetanotherengine.telegram.commands.HelpCommand;
+import dbryla.game.yetanotherengine.telegram.commands.JoinCommand;
+import dbryla.game.yetanotherengine.telegram.commands.MoveCommand;
+import dbryla.game.yetanotherengine.telegram.commands.PositionCommand;
+import dbryla.game.yetanotherengine.telegram.commands.ResetCommand;
+import dbryla.game.yetanotherengine.telegram.commands.SpellCommand;
+import dbryla.game.yetanotherengine.telegram.commands.StartCommand;
+import dbryla.game.yetanotherengine.telegram.commands.StatusCommand;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -8,8 +21,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
 
 @Primary
 @Component
@@ -29,6 +40,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private static final String CREATE_COMMAND = "/create";
   private static final String CHARACTER_COMMAND = "/character";
   private static final String POSITION_COMMAND = "/position";
+  private static final String MOVE_COMMAND = "/move";
 
   private final TelegramConfig telegramConfig;
   private final CallbackHandler callbackHandler;
@@ -43,6 +55,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private final CreateCommand createCommand;
   private final CharacterCommand characterCommand;
   private final PositionCommand positionCommand;
+  private final MoveCommand moveCommand;
 
 
   @Override
@@ -97,6 +110,9 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
     }
     if (commandText.startsWith(POSITION_COMMAND)) {
       positionCommand.execute(update);
+    }
+    if (commandText.startsWith(MOVE_COMMAND)) {
+      moveCommand.execute(update);
     }
   }
 

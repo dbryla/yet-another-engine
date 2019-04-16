@@ -46,6 +46,7 @@ class MoveCommandTest extends CommandTestSetup {
     when(subject.getPosition()).thenReturn(Position.PLAYERS_BACK);
     Game game = mock(Game.class);
     when(game.isStarted()).thenReturn(false);
+    when(game.getSubject(any())).thenReturn(subject);
     when(sessionFactory.getSession(any())).thenReturn(new Session("player", subject));
     when(sessionFactory.getGame(eq(chatId))).thenReturn(game);
 
@@ -67,6 +68,7 @@ class MoveCommandTest extends CommandTestSetup {
     when(subject.getPosition()).thenReturn(Position.PLAYERS_BACK);
     Game game = mock(Game.class);
     when(game.isStarted()).thenReturn(false);
+    when(game.getSubject(any())).thenReturn(subject);
     when(sessionFactory.getSession(any())).thenReturn(new Session("player", subject));
     when(sessionFactory.getGame(eq(chatId))).thenReturn(game);
 
@@ -77,10 +79,12 @@ class MoveCommandTest extends CommandTestSetup {
   }
 
   @Test
-  void shouldNotUpdateSessionWhenFightHasStarted() {
+  void shouldNotUpdateSessionWhenFightHasNotStarted() {
     long chatId = 1L;
+    User user = mock(User.class);
     when(message.getChatId()).thenReturn(chatId);
     when(message.getText()).thenReturn("/move front");
+    when(message.getFrom()).thenReturn(user);
     Game game = mock(Game.class);
     when(game.isStarted()).thenReturn(true);
     when(sessionFactory.getGame(eq(chatId))).thenReturn(game);

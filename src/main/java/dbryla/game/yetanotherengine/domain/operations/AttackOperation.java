@@ -12,21 +12,20 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
-@Component("attackOperation")
+@Component
 public class AttackOperation {
 
   private final FightHelper fightHelper;
-  private final EffectConsumer effectConsumer;
   private final EventsFactory eventsFactory;
   private final DiceRollService diceRollService;
 
-  public OperationResult invoke(Subject source, Instrument instrument, Subject... targets) throws UnsupportedGameOperationException {
-    verifyParams(source, instrument, targets);
+  public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
+    verifyParams(source, actionData, targets);
     Set<Subject> changes = new HashSet<>();
     Set<Event> events = new HashSet<>();
     Subject target = targets[0];
     HitRoll hitRoll = fightHelper.getHitRoll(source, target);
-    Weapon weapon = instrument.getWeapon();
+    Weapon weapon = actionData.getWeapon();
     hitRoll.addModifier(getModifier(weapon, source.getAbilities()));
     HitResult hitResult = HitResult.of(hitRoll, target);
     if (!hitResult.isTargetHit()) {
@@ -38,11 +37,10 @@ public class AttackOperation {
       changes.add(changedTarget);
       events.add(eventsFactory.successAttackEvent(source, changedTarget, weapon, hitResult));
     }
-    OperationResult operationResult = effectConsumer.apply(source);
-    return operationResult.addAll(changes, events);
+    return new OperationResult(changes, events);
   }
 
-  private void verifyParams(Subject source, Instrument instrument, Subject[] targets) throws UnsupportedAttackException {
+  private void verifyParams(Subject source, ActionData actionData, Subject[] targets) throws UnsupportedAttackException {
     if (source == null) {
       throw new UnsupportedAttackException("Can't invoke operation on null source");
     }
@@ -52,7 +50,7 @@ public class AttackOperation {
     if (source.getEquipment() == null || source.getEquipment().getWeapon() == null) {
       throw new UnsupportedAttackException("Can't attack without weapon.");
     }
-    if (!source.getEquipment().getWeapon().equals(instrument.getWeapon())) {
+    if (!source.getEquipment().getWeapon().equals(actionData.getWeapon())) {
       throw new UnsupportedAttackException("Can't attack with different weapon than equipped one.");
     }
   }

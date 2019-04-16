@@ -2,11 +2,12 @@ package dbryla.game.yetanotherengine.cli;
 
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNLIMITED_TARGETS;
 
-import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.encounters.MonstersFactory;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameFactory;
-import dbryla.game.yetanotherengine.domain.operations.Instrument;
+import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
+import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 
@@ -94,8 +95,8 @@ public class Cli implements CommandLineRunner {
     return Optional.empty();
   }
 
-  private boolean isFriendlyAction(Instrument instrument) {
-    return instrument.getSpell() != null && instrument.getSpell().isPositiveSpell();
+  private boolean isFriendlyAction(ActionData actionData) {
+    return actionData.getSpell() != null && actionData.getSpell().isPositiveSpell();
   }
 
   private List<String> pickTargets(int numberOfTargets, boolean friendlyTarget) {
@@ -122,15 +123,22 @@ public class Cli implements CommandLineRunner {
     List<OperationType> availableOperations = presenter.showAvailableOperations(subject.getCharacterClass());
     int option = inputProvider.cmdLineToOption();
     OperationType operation = availableOperations.get(option);
-    Instrument instrument = getSpell(subject, operation)
-        .map(Instrument::new)
-        .orElse(new Instrument(subject.getEquipment().getWeapon()));
-    int numberOfTargets = instrument.getAllowedNumberOfTargets();
-    boolean friendlyAction = isFriendlyAction(instrument);
+    ActionData actionData = getSpell(subject, operation)
+        .map(ActionData::new)
+        .orElse(new ActionData(subject.getEquipment().getWeapon()));
+    int numberOfTargets = getAllowedNumberOfTargets(actionData);
+    boolean friendlyAction = isFriendlyAction(actionData);
     if (numberOfTargets == UNLIMITED_TARGETS) {
-      game.executeAction(new Action(subject.getName(), game.getAllAliveSubjectNames(friendlyAction), operation, instrument));
+      game.execute(SubjectTurn.of(new Action(subject.getName(), game.getAllAliveSubjectNames(friendlyAction), operation, actionData)));
     } else {
-      game.executeAction(new Action(subject.getName(), pickTargets(numberOfTargets, friendlyAction), operation, instrument));
+      game.execute(SubjectTurn.of(new Action(subject.getName(), pickTargets(numberOfTargets, friendlyAction), operation, actionData)));
     }
+  }
+
+  private int getAllowedNumberOfTargets(ActionData actionData) {
+    if (actionData.getSpell() == null) {
+      return 1;
+    }
+    return actionData.getSpell().getMaximumNumberOfTargets();
   }
 }

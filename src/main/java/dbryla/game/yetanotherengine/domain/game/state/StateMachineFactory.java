@@ -6,6 +6,8 @@ import dbryla.game.yetanotherengine.domain.game.state.storage.InMemoryStepTracke
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.operations.AttackOperation;
+import dbryla.game.yetanotherengine.domain.operations.EffectConsumer;
+import dbryla.game.yetanotherengine.domain.operations.MoveOperation;
 import dbryla.game.yetanotherengine.domain.operations.SpellCastOperation;
 
 import java.util.Comparator;
@@ -26,7 +28,9 @@ public class StateMachineFactory {
   private final EventHub eventHub;
   private final AttackOperation attackOperation;
   private final SpellCastOperation spellCastOperation;
+  private final MoveOperation moveOperation;
   private final DiceRollService diceRollService;
+  private final EffectConsumer effectConsumer;
 
   public StateMachine createInMemoryStateMachine(Long gameId) {
     Map<Subject, Integer> initiatives = stateStorage.findAll(gameId).stream()
@@ -38,7 +42,8 @@ public class StateMachineFactory {
     Map<String, Long> affiliationMap = stateStorage.findAll(gameId).stream()
         .collect(Collectors.groupingBy(Subject::getAffiliation, Collectors.counting()));
     StepTracker stepTracker = new InMemoryStepTracker(subjectsForAction, affiliationMap);
-    return new DefaultStateMachine(gameId, stepTracker, stateStorage, eventHub, attackOperation, spellCastOperation);
+    return new DefaultStateMachine(gameId, stepTracker, stateStorage, eventHub, attackOperation,
+        spellCastOperation, moveOperation, effectConsumer);
   }
 
 }

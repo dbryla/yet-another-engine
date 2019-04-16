@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,7 +21,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AttackOperationTest {
 
-  private final static Instrument TEST_INSTRUMENT = new Instrument(Weapon.SHORTBOW);
+  private final static ActionData TEST_ACTION_DATA = new ActionData(Weapon.SHORTBOW);
   private static final Abilities DEFAULT_ABILITIES = new Abilities(10, 10, 10, 10, 10, 10);
   private static final HitRoll failedHitRoll = new HitRoll(1, 0);
   private static final HitRoll successHitRoll = new HitRoll(20, 0);
@@ -32,9 +31,6 @@ class AttackOperationTest {
 
   @Mock
   private FightHelper fightHelper;
-
-  @Mock
-  private EffectConsumer effectConsumer;
 
   @Mock
   private EventsFactory eventsFactory;
@@ -51,40 +47,38 @@ class AttackOperationTest {
     when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_INSTRUMENT.getWeapon()));
+    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
     when(fightHelper.dealDamage(eq(target), anyInt())).thenReturn(target);
-    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
 
-    OperationResult operationResult = operation.invoke(source, TEST_INSTRUMENT, target);
+    OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
 
     assertThat(operationResult.getChangedSubjects()).extracting("name").containsExactly(target.getName());
   }
 
   @Test
   void shouldThrowExceptionWhileTryingToAttackMoreThanOneTarget() {
-    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(mock(Subject.class), TEST_INSTRUMENT, mock(Subject.class), mock(Subject.class)));
+    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(mock(Subject.class), TEST_ACTION_DATA, mock(Subject.class), mock(Subject.class)));
   }
 
   @Test
   void shouldThrowExceptionWhileTryingToAttackNoTarget() {
-    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(mock(Subject.class), TEST_INSTRUMENT));
+    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(mock(Subject.class), TEST_ACTION_DATA));
   }
 
   @Test
   void shouldThrowExceptionWhileTryingToInvokeOperationOnNull() {
-    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(null, TEST_INSTRUMENT));
+    assertThrows(UnsupportedAttackException.class, () -> operation.invoke(null, TEST_ACTION_DATA));
   }
 
   @Test
   void shouldNotReturnChangesIfTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Subject source = mock(Subject.class);
     when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_INSTRUMENT.getWeapon()));
+    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
-    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
 
-    OperationResult operationResult = operation.invoke(source, TEST_INSTRUMENT, target);
+    OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
 
     assertThat(operationResult.getChangedSubjects()).isEmpty();
   }
@@ -97,10 +91,9 @@ class AttackOperationTest {
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.getAttackDamage(anyInt(), any())).thenReturn(attackDamage);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_INSTRUMENT.getWeapon()));
-    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
+    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
 
-    OperationResult operationResult = operation.invoke(source, TEST_INSTRUMENT, target);
+    OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
 
     assertThat(operationResult.getChangedSubjects().size()).isEqualTo(1);
     verify(fightHelper).dealDamage(target, attackDamage);
@@ -115,10 +108,9 @@ class AttackOperationTest {
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.getAttackDamage(anyInt(), any())).thenReturn(attackDamage);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_INSTRUMENT.getWeapon()));
-    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
+    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
 
-    operation.invoke(source, TEST_INSTRUMENT, target);
+    operation.invoke(source, TEST_ACTION_DATA, target);
 
     verify(eventsFactory).successAttackEvent(any(), any(), any(), any());
   }
@@ -129,10 +121,9 @@ class AttackOperationTest {
     when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_INSTRUMENT.getWeapon()));
-    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
+    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
 
-    operation.invoke(source, TEST_INSTRUMENT, target);
+    operation.invoke(source, TEST_ACTION_DATA, target);
 
     verify(eventsFactory).successAttackEvent(any(), any(), any(), any());
   }
@@ -144,10 +135,9 @@ class AttackOperationTest {
         .thenReturn(DEFAULT_ABILITIES);
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_INSTRUMENT.getWeapon()));
-    when(effectConsumer.apply(eq(source))).thenReturn(new OperationResult());
+    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
 
-    operation.invoke(source, TEST_INSTRUMENT, target);
+    operation.invoke(source, TEST_ACTION_DATA, target);
 
     verify(eventsFactory).failEvent(any(), any(), any(), any());
   }

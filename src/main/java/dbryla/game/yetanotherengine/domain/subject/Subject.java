@@ -134,7 +134,7 @@ public class Subject {
     return subjectProperties.getAbilities();
   }
 
-  int getMaxHealthPoints() {
+  public int getMaxHealthPoints() {
     return subjectProperties.getMaxHealthPoints();
   }
 

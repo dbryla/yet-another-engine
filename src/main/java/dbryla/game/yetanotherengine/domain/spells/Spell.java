@@ -86,7 +86,7 @@ public enum Spell {
     return Arrays.stream(Spell.values()).filter(spell -> owner.equals(spell.owner) && spellLevel == spell.spellLevel).findFirst();
   }
 
-  public int rollAttackDamage(DiceRollService diceRollService) {
+  public int roll(DiceRollService diceRollService) {
     return IntStream.range(0, numberOfHitDice).map(i -> diceRollService.of(hitDice)).sum();
   }
 

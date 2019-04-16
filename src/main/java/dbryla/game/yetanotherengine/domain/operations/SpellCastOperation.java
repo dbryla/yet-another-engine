@@ -18,16 +18,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
-@Component("spellCastOperation")
+@Component
 public class SpellCastOperation {
 
   private final FightHelper fightHelper;
-  private final EffectConsumer effectConsumer;
   private final EventsFactory eventsFactory;
   private final DiceRollService diceRollService;
 
-  public OperationResult invoke(Subject source, Instrument instrument, Subject... targets) throws UnsupportedGameOperationException {
-    Spell spell = instrument.getSpell();
+  public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
+    Spell spell = actionData.getSpell();
     verifyTargetsNumber(targets, spell);
     OperationResult operationResult = new OperationResult();
     if (DAMAGE.equals(spell.getSpellType())) {
@@ -41,14 +40,14 @@ public class SpellCastOperation {
       }
     }
     if (HEAL.equals(spell.getSpellType())) {
-      int healRoll = spell.rollAttackDamage(diceRollService);
+      int healRoll = spell.roll(diceRollService);
       healRoll += getModifier(source, spell);
       for (Subject target : targets) {
         OperationResult op = heal(source, target, healRoll);
         operationResult.addAll(op.getChangedSubjects(), op.getEmittedEvents());
       }
     }
-    return effectConsumer.apply(source).addAll(operationResult.getChangedSubjects(), operationResult.getEmittedEvents());
+    return operationResult;
   }
 
   private void verifyTargetsNumber(Subject[] targets, Spell spell) throws UnsupportedSpellCastException {
@@ -66,7 +65,7 @@ public class SpellCastOperation {
       return handleSpellAttack(source, spell, targets);
     }
 
-    int attackDamage = spell.rollAttackDamage(diceRollService);
+    int attackDamage = spell.roll(diceRollService);
     attackDamage += getModifier(source, spell);
     if (SpellSaveType.CONSTITUTION_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets,
@@ -101,7 +100,7 @@ public class SpellCastOperation {
     if (!hitResult.isTargetHit()) {
       return new OperationResult().add(eventsFactory.failEvent(source, target, spell.toString(), hitResult));
     } else {
-      int attackDamage = fightHelper.getAttackDamage(spell.rollAttackDamage(diceRollService), hitResult);
+      int attackDamage = fightHelper.getAttackDamage(spell.roll(diceRollService), hitResult);
       attackDamage += getModifier(source, spell);
       return dealDamage(source, target, attackDamage, spell, hitResult);
     }
@@ -142,7 +141,7 @@ public class SpellCastOperation {
   }
 
   private OperationResult heal(Subject source, Subject target, int healRoll) {
-    Subject changedTarget = target.of(target.getCurrentHealthPoints() + healRoll);
+    Subject changedTarget = target.of(Math.min(target.getCurrentHealthPoints() + healRoll, target.getMaxHealthPoints()));
     Event event = eventsFactory.successHealEvent(source, changedTarget);
     return new OperationResult(changedTarget, event);
   }

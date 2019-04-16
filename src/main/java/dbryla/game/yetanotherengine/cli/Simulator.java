@@ -1,16 +1,18 @@
 package dbryla.game.yetanotherengine.cli;
 
-import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
+import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.operations.Instrument;
+import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -39,6 +41,8 @@ class Simulator {
         .weapon(Weapon.CLUB)
         .abilities(defaultAbilities)
         .characterClass(CharacterClass.CLERIC)
+        .armor(Armor.CHAIN_SHIRT)
+        .shield(Armor.SHIELD)
         .build());
     stateStorage.save(gameId, Subject.builder()
         .name(player2)
@@ -54,7 +58,7 @@ class Simulator {
         .name(enemy)
         .affiliation(greenTeam)
         .race(Race.HALF_ORC)
-        .healthPoints(25)
+        .healthPoints(20)
         .abilities(defaultAbilities)
         .weapon(Weapon.GREATSWORD)
         .build();
@@ -67,10 +71,10 @@ class Simulator {
       stateMachine.getNextSubject().ifPresent(subject -> {
             switch (subject.getName()) {
               case player1:
-                stateMachine.execute(new Action(player1, enemy, OperationType.ATTACK, new Instrument(Weapon.CLUB)));
+                stateMachine.execute(SubjectTurn.of(new Action(player1, enemy, OperationType.ATTACK, new ActionData(Weapon.CLUB))));
                 break;
               case player2:
-                stateMachine.execute(new Action(player2, enemy, OperationType.ATTACK, new Instrument(Weapon.LONGBOW)));
+                stateMachine.execute(SubjectTurn.of(new Action(player2, enemy, OperationType.ATTACK, new ActionData(Weapon.LONGBOW))));
                 break;
               case enemy:
                 stateMachine.execute(artificialIntelligence.action(enemy));

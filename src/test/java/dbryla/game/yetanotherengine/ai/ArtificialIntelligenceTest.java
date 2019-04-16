@@ -7,10 +7,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
+import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
@@ -57,9 +58,10 @@ class ArtificialIntelligenceTest {
     when(monster.getEquipment()).thenReturn(new Equipment(Weapon.SHORTSWORD));
     artificialIntelligence.initSubject(GAME_ID, monster);
 
-    Action action = artificialIntelligence.action(SUBJECT_NAME);
+    SubjectTurn subjectTurn = artificialIntelligence.action(SUBJECT_NAME);
 
-    assertThat(action.getTargetNames()).contains(TARGET_NAME);
+    assertThat(subjectTurn.getActions()).isNotEmpty();
+    assertThat(subjectTurn.getActions().get(0).getTargetNames()).contains(TARGET_NAME);
   }
 
   private void givenStateStorageWithSingleTarget(Subject subject, Subject target) {
@@ -80,9 +82,10 @@ class ArtificialIntelligenceTest {
     artificialIntelligence.initSubject(GAME_ID, monster);
     artificialIntelligence.action(SUBJECT_NAME);
 
-    Action action = artificialIntelligence.action(SUBJECT_NAME);
+    SubjectTurn subjectTurn = artificialIntelligence.action(SUBJECT_NAME);
 
-    assertThat(action.getTargetNames()).contains(TARGET_NAME);
+    assertThat(subjectTurn.getActions()).isNotEmpty();
+    assertThat(subjectTurn.getActions().get(0).getTargetNames()).contains(TARGET_NAME);
   }
 
   @Test

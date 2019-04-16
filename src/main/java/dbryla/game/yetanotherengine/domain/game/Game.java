@@ -3,7 +3,6 @@ package dbryla.game.yetanotherengine.domain.game;
 import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
 import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
 
-import dbryla.game.yetanotherengine.domain.Action;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.events.Event;
@@ -92,8 +91,8 @@ public class Game {
     }
   }
 
-  public void executeAction(Action action) {
-    stateMachine.execute(action);
+  public void execute(SubjectTurn subjectTurn) {
+    stateMachine.execute(subjectTurn);
     gameLoop();
   }
 
@@ -117,10 +116,10 @@ public class Game {
     return (int) stateStorage.findAll(id).stream().filter(subject -> PLAYERS.equals(subject.getAffiliation())).count();
   }
 
-  public Map<Position, List<String>> getSubjectsPositionsMap() {
+  public Map<Position, List<Subject>> getSubjectsPositionsMap() {
     return stateStorage.findAll(id)
         .stream()
-        .collect(Collectors.groupingBy(Subject::getPosition, Collectors.mapping(Subject::getName, Collectors.toList())));
+        .collect(Collectors.groupingBy(Subject::getPosition));
   }
 
   public void moveSubject(String playerName, Position newPosition) {

@@ -27,7 +27,7 @@ public class PositionCommand {
     game.getSubjectsPositionsMap().forEach(
         (position, subjects) -> {
           stringBuilder.append(position.toString()).append(": ");
-          subjects.forEach(subject -> stringBuilder.append(subject).append(","));
+          subjects.forEach(subject -> stringBuilder.append(subject.getName()).append(","));
           stringBuilder.append("\n");
         }
     );

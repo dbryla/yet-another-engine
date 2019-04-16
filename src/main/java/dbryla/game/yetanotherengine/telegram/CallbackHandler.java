@@ -7,15 +7,18 @@ import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacter
 import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
 
 import dbryla.game.yetanotherengine.db.CharacterRepository;
-import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.domain.operations.Instrument;
+import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
+import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
+
 import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -85,8 +88,8 @@ public class CallbackHandler {
         }
       } else {
         telegramClient.deleteMessage(chatId, messageId);
-        game.executeAction(
-            new Action(playerName, callbackData, OperationType.ATTACK, new Instrument(session.getSubject().getEquipment().getWeapon())));
+        game.execute(SubjectTurn.of(
+            new Action(playerName, callbackData, OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapon()))));
         session.clearTargets();
       }
     } else {
@@ -107,14 +110,14 @@ public class CallbackHandler {
         return;
       }
     }
-    game.executeAction(
-        new Action(playerName, game.getAllAliveSubjectNames(spell.isPositiveSpell()), OperationType.SPELL_CAST, new Instrument(spell)));
+    game.execute(SubjectTurn.of(
+        new Action(playerName, game.getAllAliveSubjectNames(spell.isPositiveSpell()), OperationType.SPELL_CAST, new ActionData(spell))));
     session.clearTargets();
   }
 
   private void spellCastOnManyTargets(Session session, String playerName, Integer messageId, Long chatId, Game game, Spell spell) {
     telegramClient.deleteMessage(chatId, messageId);
-    game.executeAction(new Action(playerName, session.getTargets(), OperationType.SPELL_CAST, new Instrument(spell)));
+    game.execute(SubjectTurn.of(new Action(playerName, session.getTargets(), OperationType.SPELL_CAST, new ActionData(spell))));
     session.clearTargets();
   }
 

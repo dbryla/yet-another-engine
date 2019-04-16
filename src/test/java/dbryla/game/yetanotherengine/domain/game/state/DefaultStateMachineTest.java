@@ -9,14 +9,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
+import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.*;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,37 +48,44 @@ class DefaultStateMachineTest {
   @Mock
   private EventHub eventHub;
 
+  @Mock
+  private MoveOperation moveOperation;
+
+  @Mock
+  private EffectConsumer effectConsumer;
+
   private static final Long GAME_ID = 123L;
   private static final String SUBJECT_1_NAME = "subject1";
   private static final String SUBJECT_2_NAME = "subject2";
-  private final static Instrument TEST_INSTRUMENT = new Instrument(Weapon.SHORTSWORD);
+  private final static ActionData TEST_ACTION_DATA = new ActionData(Weapon.SHORTSWORD);
   private StateMachine stateMachine;
 
   @BeforeEach
   void setUp() {
-    stateMachine = new DefaultStateMachine(GAME_ID, stepTracker, stateStorage, eventHub, attackOperation, spellCastOperation);
+    stateMachine = new DefaultStateMachine(GAME_ID, stepTracker, stateStorage, eventHub,
+        attackOperation, spellCastOperation, moveOperation, effectConsumer);
   }
 
   @Test
   void shouldExecuteActionOnNextSubject() throws UnsupportedGameOperationException {
     Subject subject = givenSubjectOne();
-    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_INSTRUMENT);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
 
-    stateMachine.execute(action);
+    stateMachine.execute(SubjectTurn.of(action));
 
-    verify(attackOperation).invoke(eq(subject), eq(TEST_INSTRUMENT));
+    verify(attackOperation).invoke(eq(subject), eq(TEST_ACTION_DATA));
   }
 
   @Test
   void shouldThrowExceptionWhenExecutingActionFromDifferentThanNextSubject() {
     Subject subject = givenSubjectOne();
-    Action action = new Action(SUBJECT_2_NAME, "", null, TEST_INSTRUMENT);
+    Action action = new Action(SUBJECT_2_NAME, "", null, TEST_ACTION_DATA);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
 
-    assertThrows(IncorrectStateException.class, () -> stateMachine.execute(action));
+    assertThrows(IncorrectStateException.class, () -> stateMachine.execute(SubjectTurn.of(action)));
   }
 
   private Subject givenSubjectOne() {
@@ -89,12 +98,12 @@ class DefaultStateMachineTest {
   void shouldRemoveSubjectIfWasTerminated() throws UnsupportedGameOperationException {
     Subject subject = givenSubjectOne();
     when(subject.isTerminated()).thenReturn(true);
-    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_INSTRUMENT);
-    when(attackOperation.invoke(eq(subject), eq(TEST_INSTRUMENT))).thenReturn(new OperationResult(Set.of(subject), Set.of()));
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
+    when(attackOperation.invoke(eq(subject), eq(TEST_ACTION_DATA))).thenReturn(new OperationResult(Set.of(subject), Set.of()));
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
 
-    stateMachine.execute(action);
+    stateMachine.execute(SubjectTurn.of(action));
 
     verify(stepTracker).removeSubject(any());
   }
@@ -103,12 +112,12 @@ class DefaultStateMachineTest {
   void shouldMoveCursorToNextSubjectAfterExecutionOfAction() {
     Subject subject1 = givenSubjectOne();
     Subject subject2 = mock(Subject.class);
-    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_INSTRUMENT);
+    Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject1));
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_2_NAME))).thenReturn(Optional.of(subject2));
 
-    stateMachine.execute(action);
+    stateMachine.execute(SubjectTurn.of(action));
 
     verify(stepTracker).moveToNextSubject();
   }
@@ -121,20 +130,20 @@ class DefaultStateMachineTest {
     String target2Name = "target_name2";
     Subject target2 = mock(Subject.class);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
-    Action action = new Action(SUBJECT_1_NAME, List.of(target1Name, target2Name), OperationType.ATTACK, TEST_INSTRUMENT);
+    Action action = new Action(SUBJECT_1_NAME, List.of(target1Name, target2Name), OperationType.ATTACK, TEST_ACTION_DATA);
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(target1Name))).thenReturn(Optional.of(target1));
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(target2Name))).thenReturn(Optional.of(target2));
 
 
-    stateMachine.execute(action);
+    stateMachine.execute(SubjectTurn.of(action));
 
-    verify(attackOperation).invoke(eq(subject), eq(TEST_INSTRUMENT), eq(target1), eq(target2));
+    verify(attackOperation).invoke(eq(subject), eq(TEST_ACTION_DATA), eq(target1), eq(target2));
   }
 
   @Test
   void shouldNotReturnNextSubjectWhenThereIsNoAction() {
-        assertThat(stateMachine.getNextSubject()).isNotPresent();
+    assertThat(stateMachine.getNextSubject()).isNotPresent();
   }
 
   @Test

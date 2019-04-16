@@ -17,7 +17,7 @@ public class EffectConsumer {
 
   private final EventsFactory eventsFactory;
 
-  OperationResult apply(Subject source) {
+  public OperationResult apply(Subject source) {
     OperationResult operationResult = new OperationResult();
     source.getActiveEffects().forEach(
         activeEffect -> {

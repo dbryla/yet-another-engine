@@ -1,8 +1,9 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
-import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.domain.operations.Instrument;
+import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
+import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
@@ -34,9 +35,9 @@ public class AttackCommand {
       fightFactory.targetCommunicate(game)
           .ifPresentOrElse(
               communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, update.getMessage().getMessageId()),
-              () -> game.executeAction(
-                  new Action(playerName, game.getAllAliveEnemyNames().get(0),
-                      OperationType.ATTACK, new Instrument(session.getSubject().getEquipment().getWeapon()))));
+              () -> game.execute(
+                  SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
+                      OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapon())))));
     }
   }
 }

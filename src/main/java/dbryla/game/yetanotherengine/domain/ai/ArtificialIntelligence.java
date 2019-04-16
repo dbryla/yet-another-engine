@@ -2,9 +2,10 @@ package dbryla.game.yetanotherengine.domain.ai;
 
 import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
 
-import dbryla.game.yetanotherengine.domain.Action;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
-import dbryla.game.yetanotherengine.domain.operations.Instrument;
+import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
+import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
@@ -35,7 +36,7 @@ public class ArtificialIntelligence {
     subjects.put(subject.getName(), new ArtificialIntelligenceConfiguration(subject, gameId));
   }
 
-  public Action action(String subjectName) {
+  public SubjectTurn action(String subjectName) {
     verifySubjectIsInitialized(subjectName);
 
     ArtificialIntelligenceConfiguration ai = subjects.get(subjectName);
@@ -47,21 +48,23 @@ public class ArtificialIntelligence {
       if (spells.contains(Spell.HEALING_WORD)) {
         for (Subject ally : allies) {
           if (ally.getSubjectState().needsHealing()) {
-            return new Action(ai.getSubject().getName(), ally.getName(), OperationType.SPELL_CAST, new Instrument(Spell.HEALING_WORD));
+            return SubjectTurn.of(new Action(ai.getSubject().getName(), ally.getName(),
+                OperationType.SPELL_CAST, new ActionData(Spell.HEALING_WORD)));
           }
         }
       }
       if (spells.contains(Spell.BLESS) && allies.size() > 1
           && stateStorage.findByIdAndName(ai.getGameId(), subjectName).get().getActiveEffects().isEmpty()) {
-        return new Action(ai.getSubject().getName(), allies.stream().map(Subject::getName).collect(Collectors.toList()),
-            OperationType.SPELL_CAST, new Instrument(Spell.BLESS));
+        return SubjectTurn.of(new Action(ai.getSubject().getName(), allies.stream().map(Subject::getName).collect(Collectors.toList()),
+            OperationType.SPELL_CAST, new ActionData(Spell.BLESS)));
       }
       if (spells.contains(Spell.SACRED_FLAME)) {
-        return new Action(ai.getSubject().getName(), ai.getAcquiredTarget(), OperationType.SPELL_CAST, new Instrument(Spell.SACRED_FLAME));
+        return SubjectTurn.of(new Action(ai.getSubject().getName(), ai.getAcquiredTarget(),
+            OperationType.SPELL_CAST, new ActionData(Spell.SACRED_FLAME)));
       }
     }
-    return new Action(ai.getSubject().getName(), ai.getAcquiredTarget(), OperationType.ATTACK,
-        new Instrument(ai.getSubject().getEquipment().getWeapon()));
+    return SubjectTurn.of(new Action(ai.getSubject().getName(), ai.getAcquiredTarget(), OperationType.ATTACK,
+        new ActionData(ai.getSubject().getEquipment().getWeapon())));
   }
 
   private void verifySubjectIsInitialized(String subjectName) {

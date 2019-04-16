@@ -23,6 +23,7 @@ public class EventsFactory {
   private static final String SUCCESS_SPELL_HIT_FORMAT = "%s casts %s and hits %s.";
   private static final String SAVE_THROW_FORMAT = "%s casts %s, but fails to harm %s.";
   private static final String HEAL_FORMAT = "%s heals %s.";
+  private static final String MOVEMENT_FORMAT = "%s moves to %s.";
 
   public Event successAttackEvent(Subject attacker, Subject target, Weapon weapon, HitResult hitResult) {
     return new Event(
@@ -87,5 +88,9 @@ public class EventsFactory {
 
   public Event failEventBySavingThrow(Subject source, Spell spell, Subject target) {
     return new Event(String.format(SAVE_THROW_FORMAT, source.getName(), spell.toString(), target.getName()));
+  }
+
+  public Event movementEvent(Subject source) {
+    return new Event(String.format(MOVEMENT_FORMAT, source.getName(), source.getPosition()));
   }
 }

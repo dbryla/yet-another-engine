@@ -9,6 +9,8 @@ import dbryla.game.yetanotherengine.domain.operations.*;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 
 import java.util.HashSet;
@@ -42,7 +44,7 @@ public class DefaultStateMachine implements StateMachine {
   public void execute(SubjectTurn subjectTurn) {
     getNextSubject().ifPresent(subject -> {
       verifySource(subjectTurn, subject);
-      Set<Event> events = new HashSet<>();
+      List<Event> events = new LinkedList<>();
       subjectTurn.getActions().forEach(action -> events.addAll(invokeOperation(action, subject)));
       stepTracker.moveToNextSubject();
       events.addAll(apply(effectConsumer.apply(subject)));
@@ -50,7 +52,7 @@ public class DefaultStateMachine implements StateMachine {
     });
   }
 
-  private Set<Event> invokeOperation(Action action, Subject subject) {
+  private List<Event> invokeOperation(Action action, Subject subject) {
     try {
       if (ATTACK.equals(action.getOperationType())) {
         return apply(attackOperation.invoke(subject, action.getActionData(), getTargets(action)));
@@ -82,9 +84,9 @@ public class DefaultStateMachine implements StateMachine {
         .toArray(Subject[]::new);
   }
 
-  private Set<Event> apply(OperationResult operationResult) {
+  private List<Event> apply(OperationResult operationResult) {
     if (operationResult == null) {
-      return Set.of();
+      return List.of();
     }
     operationResult.getChangedSubjects().forEach(subject -> {
       stateStorage.save(gameId, subject);

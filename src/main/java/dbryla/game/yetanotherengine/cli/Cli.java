@@ -125,7 +125,7 @@ public class Cli implements CommandLineRunner {
     OperationType operation = availableOperations.get(option);
     ActionData actionData = getSpell(subject, operation)
         .map(ActionData::new)
-        .orElse(new ActionData(subject.getEquipment().getWeapon()));
+        .orElse(new ActionData(subject.getEquipment().getWeapons().get(0))); // fixme choose weapon from player
     int numberOfTargets = getAllowedNumberOfTargets(actionData);
     boolean friendlyAction = isFriendlyAction(actionData);
     if (numberOfTargets == UNLIMITED_TARGETS) {

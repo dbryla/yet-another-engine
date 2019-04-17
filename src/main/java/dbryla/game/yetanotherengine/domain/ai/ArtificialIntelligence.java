@@ -64,7 +64,7 @@ public class ArtificialIntelligence {
       }
     }
     return SubjectTurn.of(new Action(ai.getSubject().getName(), ai.getAcquiredTarget(), OperationType.ATTACK,
-        new ActionData(ai.getSubject().getEquipment().getWeapon())));
+        new ActionData(ai.getSubject().getEquipment().getWeapons().get(0))));
   }
 
   private void verifySubjectIsInitialized(String subjectName) {

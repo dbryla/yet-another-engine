@@ -65,6 +65,6 @@ public class DiceRollService {
       case 20:
         return k20();
     }
-    throw new IllegalArgumentException("Unsupported hit dice " + hitDice);
+    return 1;
   }
 }

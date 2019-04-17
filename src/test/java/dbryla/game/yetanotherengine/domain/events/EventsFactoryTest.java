@@ -53,9 +53,9 @@ class EventsFactoryTest {
     Subject target = mock(Subject.class);
     when(target.getName()).thenReturn("target");
 
-    Event event = eventsFactory.failEvent(attacker, target, "weapon", HitResult.MISS);
+    Event event = eventsFactory.failEvent(attacker, target, "weapons", HitResult.MISS);
 
-    assertThat(event.toString()).isEqualTo("attacker misses attack on target with weapon.");
+    assertThat(event.toString()).isEqualTo("attacker misses attack on target with weapons.");
   }
 
   @Test
@@ -66,5 +66,16 @@ class EventsFactoryTest {
     Event event = eventsFactory.effectExpiredEvent(attacker, Effect.BLIND);
 
     assertThat(event.toString()).isEqualTo("attacker is no longer blinded.");
+  }
+
+  @Test
+  void shouldReturnEquipsWeaponEvent() {
+    Subject attacker = mock(Subject.class);
+    when(attacker.getName()).thenReturn("attacker");
+    when(attacker.getEquippedWeapon()).thenReturn(Weapon.SHORTSWORD);
+
+    Event event = eventsFactory.equipWeaponEvent(attacker);
+
+    assertThat(event.toString()).isEqualTo("attacker equips shortsword.");
   }
 }

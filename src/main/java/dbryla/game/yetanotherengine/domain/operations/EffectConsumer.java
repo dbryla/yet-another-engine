@@ -24,9 +24,9 @@ public class EffectConsumer {
           if (activeEffect.getDurationInTurns() > 0) {
             activeEffect.decreaseDuration();
             if (activeEffect.getDurationInTurns() == 0) {
-              operationResult.addAll(
-                  Set.of(source.effectExpired(activeEffect.getEffect())),
-                  Set.of(eventsFactory.effectExpiredEvent(source, activeEffect.getEffect())));
+              operationResult.add(
+                  source.effectExpired(activeEffect.getEffect()),
+                  eventsFactory.effectExpiredEvent(source, activeEffect.getEffect()));
             }
           }
         }

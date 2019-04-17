@@ -1,11 +1,11 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
-
-import java.util.HashSet;
-import java.util.Set;
-
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,25 +13,24 @@ import lombok.Getter;
 @Getter
 public class OperationResult {
 
-  private final Set<Subject> changedSubjects;
-  private final Set<Event> emittedEvents;
+  private final List<Subject> changedSubjects;
+  private final List<Event> emittedEvents;
 
   public OperationResult() {
-    this.changedSubjects = new HashSet<>();
-    this.emittedEvents = new HashSet<>();
+    this.changedSubjects = new LinkedList<>();
+    this.emittedEvents = new LinkedList<>();
   }
 
-  public OperationResult(Subject changedTarget, Event event) {
-    this.changedSubjects = new HashSet<>();
-    this.changedSubjects.add(changedTarget);
-    this.emittedEvents = new HashSet<>();
+  public OperationResult(Subject changedSubject, Event event) {
+    this.changedSubjects = new LinkedList<>();
+    this.changedSubjects.add(changedSubject);
+    this.emittedEvents = new LinkedList<>();
     this.emittedEvents.add(event);
   }
 
-  public OperationResult addAll(Set<Subject> changedSubjects, Set<Event> emittedEvents) {
+  public void addAll(List<Subject> changedSubjects, List<Event> emittedEvents) {
     this.changedSubjects.addAll(changedSubjects);
     this.emittedEvents.addAll(emittedEvents);
-    return this;
   }
 
   public OperationResult add(Event event) {
@@ -39,4 +38,8 @@ public class OperationResult {
     return this;
   }
 
+  public void add(Subject changedSubject, Event event) {
+    this.changedSubjects.add(changedSubject);
+    this.emittedEvents.add(event);
+  }
 }

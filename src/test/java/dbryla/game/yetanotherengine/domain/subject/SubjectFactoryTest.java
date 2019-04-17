@@ -9,6 +9,7 @@ import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,7 +29,7 @@ class SubjectFactoryTest {
         .characterClass(FIGHTER)
         .race(Race.HIGH_ELF)
         .maxHealthPoints(10)
-        .weapon(Weapon.SHORTSWORD)
+        .weapons(List.of(Weapon.SHORTSWORD))
         .armor(Armor.LEATHER)
         .abilities(new Abilities(10, 10, 10, 10, 10, 10))
         .build();
@@ -40,7 +41,7 @@ class SubjectFactoryTest {
     assertThat(subject.getCharacterClass()).isEqualTo(playerCharacter.getCharacterClass());
     assertThat(subject.getRace()).isEqualTo(playerCharacter.getRace());
     assertThat(subject.getMaxHealthPoints()).isEqualTo(playerCharacter.getMaxHealthPoints());
-    assertThat(subject.getEquipment().getWeapon()).isEqualTo(playerCharacter.getWeapon());
+    assertThat(subject.getEquipment().getWeapons()).isEqualTo(playerCharacter.getWeapons());
     assertThat(subject.getEquipment().getArmor().get()).isEqualTo(playerCharacter.getArmor());
     assertThat(subject.getAbilities()).isEqualTo(playerCharacter.getAbilities());
   }
@@ -53,7 +54,7 @@ class SubjectFactoryTest {
         .characterClass(FIGHTER)
         .race(Race.HIGH_ELF)
         .maxHealthPoints(10)
-        .weapon(Weapon.SHORTSWORD)
+        .weapons(List.of(Weapon.SHORTSWORD))
         .armor(Armor.LEATHER)
         .abilities(new Abilities(10, 10, 10, 10, 10, 10))
         .build();
@@ -73,7 +74,7 @@ class SubjectFactoryTest {
             Race.HIGH_ELF,
             FIGHTER,
             new Equipment(
-                Weapon.SHORTSWORD,
+                List.of(Weapon.SHORTSWORD),
                 null,
                 Armor.LEATHER),
             new Abilities(10, 10, 10, 10, 10, 10),
@@ -88,7 +89,7 @@ class SubjectFactoryTest {
     assertThat(subject.getCharacterClass()).isEqualTo(playerCharacter.getCharacterClass());
     assertThat(subject.getRace()).isEqualTo(playerCharacter.getRace());
     assertThat(subject.getMaxHealthPoints()).isEqualTo(playerCharacter.getMaxHealthPoints());
-    assertThat(subject.getEquipment().getWeapon()).isEqualTo(playerCharacter.getWeapon());
+    assertThat(subject.getEquipment().getWeapons()).isEqualTo(playerCharacter.getWeapons());
     assertThat(subject.getEquipment().getArmor().get()).isEqualTo(playerCharacter.getArmor());
     assertThat(subject.getAbilities()).isEqualTo(playerCharacter.getAbilities());
   }
@@ -117,7 +118,7 @@ class SubjectFactoryTest {
     assertThat(subject.getCharacterClass()).isEqualTo(characterClass);
     assertThat(subject.getRace()).isEqualTo(race);
     assertThat(subject.getMaxHealthPoints()).isEqualTo(characterClass.getDefaultHealthPoints());
-    assertThat(subject.getEquipment().getWeapon()).isEqualTo(weapon);
+    assertThat(subject.getEquipment().getWeapons().get(0)).isEqualTo(weapon);
     assertThat(subject.getEquipment().getArmor().get()).isEqualTo(armor);
     assertThat(subject.getAbilities()).isEqualTo(abilities.of(race.getAbilitiesModifiers()));
   }

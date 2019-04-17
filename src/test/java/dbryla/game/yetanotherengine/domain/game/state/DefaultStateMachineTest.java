@@ -99,7 +99,7 @@ class DefaultStateMachineTest {
     Subject subject = givenSubjectOne();
     when(subject.isTerminated()).thenReturn(true);
     Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
-    when(attackOperation.invoke(eq(subject), eq(TEST_ACTION_DATA))).thenReturn(new OperationResult(Set.of(subject), Set.of()));
+    when(attackOperation.invoke(eq(subject), eq(TEST_ACTION_DATA))).thenReturn(new OperationResult(List.of(subject), List.of()));
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
 

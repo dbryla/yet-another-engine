@@ -5,7 +5,6 @@ import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,16 +42,21 @@ class AttackOperationTest {
 
   @Test
   void shouldReturnAttackedSubject() throws UnsupportedGameOperationException {
-    Subject source = mock(Subject.class);
-    when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
+    Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
     when(fightHelper.dealDamage(eq(target), anyInt())).thenReturn(target);
 
     OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
 
     assertThat(operationResult.getChangedSubjects()).extracting("name").containsExactly(target.getName());
+  }
+
+  private Subject givenSourceWithEquippedWeapon() {
+    Subject source = mock(Subject.class);
+    when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
+    when(source.getEquippedWeapon()).thenReturn(TEST_ACTION_DATA.getWeapon());
+    return source;
   }
 
   @Test
@@ -72,9 +76,7 @@ class AttackOperationTest {
 
   @Test
   void shouldNotReturnChangesIfTargetWasNotAttacked() throws UnsupportedGameOperationException {
-    Subject source = mock(Subject.class);
-    when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
+    Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
 
@@ -85,13 +87,11 @@ class AttackOperationTest {
 
   @Test
   void shouldChangeHealthPointsOfAttackedSubject() throws UnsupportedGameOperationException {
-    Subject source = mock(Subject.class);
-    when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
+    Subject source = givenSourceWithEquippedWeapon();
     int attackDamage = 5;
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.getAttackDamage(anyInt(), any())).thenReturn(attackDamage);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
 
     OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
 
@@ -101,14 +101,11 @@ class AttackOperationTest {
 
   @Test
   void shouldCreateSuccessAttackEventWhenTargetWasTerminated() throws UnsupportedGameOperationException {
-    Subject source = mock(Subject.class);
-    when(source.getAbilities())
-        .thenReturn(DEFAULT_ABILITIES);
+    Subject source = givenSourceWithEquippedWeapon();
     int attackDamage = 10;
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.getAttackDamage(anyInt(), any())).thenReturn(attackDamage);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 
@@ -117,11 +114,9 @@ class AttackOperationTest {
 
   @Test
   void shouldCreateSuccessAttackEventWhenTargetWasAttacked() throws UnsupportedGameOperationException {
-    Subject source = mock(Subject.class);
-    when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
+    Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 
@@ -130,15 +125,38 @@ class AttackOperationTest {
 
   @Test
   void shouldCreateFailAttackEventWhenTargetWasNotAttacked() throws UnsupportedGameOperationException {
-    Subject source = mock(Subject.class);
-    when(source.getAbilities())
-        .thenReturn(DEFAULT_ABILITIES);
+    Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
-    when(source.getEquipment()).thenReturn(new Equipment(TEST_ACTION_DATA.getWeapon()));
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 
     verify(eventsFactory).failEvent(any(), any(), any(), any());
+  }
+
+  @Test
+  void shouldNotChangeSourceIfAttacksWithEquippedWeapon() throws UnsupportedGameOperationException {
+    Subject source = givenSourceWithEquippedWeapon();
+    Subject target = mock(Subject.class);
+    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+
+    operation.invoke(source, TEST_ACTION_DATA, target);
+
+    verify(source, times(0)).of(eq(TEST_ACTION_DATA.getWeapon()));
+    verify(eventsFactory, times(0)).equipWeaponEvent(any());
+  }
+
+  @Test
+  void shouldChangeSourceEquippedWeaponIfAttacksWithDifferentOne() throws UnsupportedGameOperationException {
+    Subject source = mock(Subject.class);
+    when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
+    when(source.getEquippedWeapon()).thenReturn(Weapon.FISTS);
+    Subject target = mock(Subject.class);
+    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+
+    operation.invoke(source, TEST_ACTION_DATA, target);
+
+    verify(source).of(eq(TEST_ACTION_DATA.getWeapon()));
+    verify(eventsFactory).equipWeaponEvent(any());
   }
 }

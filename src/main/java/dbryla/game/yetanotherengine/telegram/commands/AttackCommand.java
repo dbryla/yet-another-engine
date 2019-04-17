@@ -37,7 +37,8 @@ public class AttackCommand {
               communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, update.getMessage().getMessageId()),
               () -> game.execute(
                   SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
-                      OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapon())))));
+                      OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapons().get(0))))));
+      // fixme choose weapon from player
     }
   }
 }

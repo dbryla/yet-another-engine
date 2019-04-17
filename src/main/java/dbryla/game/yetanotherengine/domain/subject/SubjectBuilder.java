@@ -6,23 +6,25 @@ import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class SubjectBuilder {
+
   private String name;
   private String affiliation;
   private CharacterClass characterClass;
   private Race race;
   private Abilities abilities;
-  private Weapon weapon;
+  private List<Weapon> weapons = new LinkedList<>();
   private Armor shield;
   private Armor armor;
   private List<Spell> spells;
   private int healthPoints;
   private Position position;
+  private Weapon equippedWeapon = Weapon.FISTS;
 
   public SubjectBuilder name(String name) {
     this.name = name;
@@ -45,7 +47,7 @@ public class SubjectBuilder {
   }
 
   public SubjectBuilder weapon(Weapon weapon) {
-    this.weapon = weapon;
+    this.weapons.add(weapon);
     return this;
   }
 
@@ -74,6 +76,11 @@ public class SubjectBuilder {
     return this;
   }
 
+  public SubjectBuilder equippedWeapon(Weapon equippedWeapon) {
+    this.equippedWeapon = equippedWeapon;
+    return this;
+  }
+
   /**
    * Replaces default class health points
    */
@@ -87,9 +94,7 @@ public class SubjectBuilder {
       throw new IncorrectAttributesException("Both name and affiliation attributes must be provided to builder.");
     }
     SubjectIdentifier id = new SubjectIdentifier(name, affiliation);
-    Equipment equipment = new Equipment(weapon, shield, armor);
-
-
+    Equipment equipment = new Equipment(weapons, shield, armor);
     abilities = abilities.of(race.getAbilitiesModifiers());
     healthPoints = getHealthPoints() + race.getAdditionalHealthPoints();
     CharacterClass cantripForClass = race.getCantripForClass();
@@ -100,7 +105,7 @@ public class SubjectBuilder {
       Spell.of(cantripForClass, 0).ifPresent(spells::add);
     }
     SubjectProperties subjectProperties = new SubjectProperties(id, race, characterClass, equipment, abilities, spells, healthPoints);
-    return new Subject(subjectProperties, healthPoints, position, new HashSet<>());
+    return new Subject(subjectProperties, healthPoints, position, new HashSet<>(), equippedWeapon);
   }
 
   private int getHealthPoints() {

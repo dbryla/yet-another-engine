@@ -1,7 +1,19 @@
 package dbryla.game.yetanotherengine.domain.subject.equipment;
 
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.*;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.*;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.BITE_NECK;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.CHOP_HEAD;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.CUT_THROAT;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.FINESSE;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.HEADSHOT;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.LIGHT;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.SMASH_HEAD;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.TWO_HANDED;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.MARTIAL_MELEE_WEAPON;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.MARTIAL_RANGED_WEAPON;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.MONSTER_MELEE_WEAPON;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.NON_PLAYABLE;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.SIMPLE_MELEE_WEAPON;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.SIMPLE_RANGED_WEAPON;
 
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import java.util.Set;
@@ -24,7 +36,8 @@ public enum Weapon {
   RAPIER(MARTIAL_MELEE_WEAPON, 1, 8, CUT_THROAT, FINESSE),
   LONGBOW(MARTIAL_RANGED_WEAPON, 1, 8, HEADSHOT, TWO_HANDED),
   CROSSBOW(MARTIAL_RANGED_WEAPON, 1, 6, HEADSHOT, LIGHT),
-  BITE(MONSTER_MELEE_WEAPON, 1, 6, BITE_NECK);
+  BITE(MONSTER_MELEE_WEAPON, 1, 6, BITE_NECK),
+  FISTS(NON_PLAYABLE, 1, 1, SMASH_HEAD);
 
   private final WeaponType type;
   private final int numberOfHitDice;
@@ -65,7 +78,7 @@ public enum Weapon {
   }
 
   public boolean isPlayable() {
-    return !MONSTER_MELEE_WEAPON.equals(type);
+    return !MONSTER_MELEE_WEAPON.equals(type) && !NON_PLAYABLE.equals(type);
   }
 
   @Override

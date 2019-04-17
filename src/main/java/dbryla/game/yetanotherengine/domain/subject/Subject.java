@@ -6,6 +6,7 @@ import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -23,15 +24,22 @@ public class Subject {
   private final Position position;
   @Getter
   private final Set<ActiveEffect> activeEffects;
+  @Getter
+  private final Weapon equippedWeapon;
 
   /**
    * Used to create new subject object with given properties.
    */
-  public Subject(SubjectProperties subjectProperties, Position position) {
+  public Subject(SubjectProperties subjectProperties, Position position, Weapon equippedWeapon) {
     this.subjectProperties = subjectProperties;
     this.currentHealthPoints = subjectProperties.getMaxHealthPoints();
     this.position = position;
     this.activeEffects = new HashSet<>();
+    this.equippedWeapon = equippedWeapon;
+  }
+
+  public Subject(SubjectProperties subjectProperties, Position position) {
+    this(subjectProperties, position, Weapon.FISTS);
   }
 
   public int getInitiativeModifier() {
@@ -66,7 +74,7 @@ public class Subject {
   }
 
   public int getArmorClass() {
-    return subjectProperties.getArmorClass();
+    return subjectProperties.getArmorClass(equippedWeapon);
   }
 
   public String getAffiliation() {
@@ -82,23 +90,27 @@ public class Subject {
   }
 
   public Subject of(int healthPoints) {
-    return new Subject(this.subjectProperties, healthPoints, this.position, this.activeEffects);
+    return new Subject(this.subjectProperties, healthPoints, this.position, this.activeEffects, this.equippedWeapon);
   }
 
   public Subject of(Effect effect) {
     Set<ActiveEffect> activeEffects = new HashSet<>(this.getActiveEffects());
     activeEffects.add(effect.activate());
-    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects);
+    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects, this.equippedWeapon);
   }
 
   public Subject effectExpired(Effect effect) {
     Set<ActiveEffect> activeEffects = new HashSet<>(this.getActiveEffects());
     activeEffects.removeIf(activeEffect -> activeEffect.getEffect().equals(effect));
-    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects);
+    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects, this.equippedWeapon);
   }
 
   public Subject of(Position newPosition) {
-    return new Subject(this.subjectProperties, this.currentHealthPoints, newPosition, this.activeEffects);
+    return new Subject(this.subjectProperties, this.currentHealthPoints, newPosition, this.activeEffects, this.equippedWeapon);
+  }
+
+  public Subject of(Weapon equippedWeapon) {
+    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, this.activeEffects, equippedWeapon);
   }
 
   @Override
@@ -106,8 +118,13 @@ public class Subject {
     StringBuilder stringBuilder = new StringBuilder(subjectProperties.getRace() + " " + subjectProperties.getCharacterClass() + "\n"
         + "HP:" + currentHealthPoints + "/" + subjectProperties.getMaxHealthPoints() + " AC:" + getArmorClass() + "\n"
         + subjectProperties.getAbilities() + "\n"
-        + "Equipment:\n"
-        + "- " + subjectProperties.getEquipment().getWeapon() + "\n");
+        + "Equipment:\n");
+    subjectProperties
+        .getEquipment()
+        .getWeapons()
+        .stream()
+        .map(Weapon::toString)
+        .forEach(weapon -> stringBuilder.append("- ").append(weapon).append("\n"));
     subjectProperties.getEquipment().getArmor().map(Armor::toString).ifPresent(armor -> stringBuilder.append("- ").append(armor).append("\n"));
     subjectProperties.getEquipment().getShield().map(Armor::toString).ifPresent(shield -> stringBuilder.append("- ").append(shield).append("\n"));
     if (subjectProperties.getSpells() != null && !subjectProperties.getSpells().isEmpty()) {

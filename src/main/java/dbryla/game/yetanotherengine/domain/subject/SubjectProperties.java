@@ -3,6 +3,7 @@ package dbryla.game.yetanotherengine.domain.subject;
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -25,7 +26,7 @@ class SubjectProperties {
   @Getter
   private final int maxHealthPoints;
 
-  int getArmorClass() {
+  int getArmorClass(Weapon equippedWeapon) {
     Integer modifier = abilities.getDexterityModifier();
     if (equipment.getArmor().isPresent()) {
       modifier = equipment.getArmor()
@@ -34,7 +35,7 @@ class SubjectProperties {
           .map(maxDexBonus -> Math.min(maxDexBonus, abilities.getDexterityModifier()))
           .orElse(abilities.getDexterityModifier());
     }
-    return equipment.getArmorClass() + modifier;
+    return equipment.getArmorClass(equippedWeapon) + modifier;
   }
 
   public boolean isSpellCaster() {

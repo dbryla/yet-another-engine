@@ -89,7 +89,8 @@ public class CallbackHandler {
       } else {
         telegramClient.deleteMessage(chatId, messageId);
         game.execute(SubjectTurn.of(
-            new Action(playerName, callbackData, OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapon()))));
+            new Action(playerName, callbackData, OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapons().get(0))))); //
+        // fixme choose weapon from player
         session.clearTargets();
       }
     } else {

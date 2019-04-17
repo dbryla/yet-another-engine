@@ -20,7 +20,7 @@ public class SubjectFactory {
 
   public Subject fromCharacter(PlayerCharacter character) {
     SubjectIdentifier id = new SubjectIdentifier(character.getName(), character.getAffiliation());
-    Equipment equipment = new Equipment(character.getWeapon(), character.getShield(), character.getArmor());
+    Equipment equipment = new Equipment(character.getWeapons(), character.getShield(), character.getArmor());
     CharacterClass characterClass = character.getCharacterClass();
     return new Subject(new SubjectProperties(id, character.getRace(), characterClass,
         equipment, character.getAbilities(), character.getSpells(), character.getMaxHealthPoints()), characterClass.getPreferredPosition());
@@ -81,7 +81,7 @@ public class SubjectFactory {
         .maxHealthPoints(subject.getMaxHealthPoints())
         .armor(subject.getEquipment().getArmor().orElse(null))
         .shield(subject.getEquipment().getShield().orElse(null))
-        .weapon(subject.getEquipment().getWeapon())
+        .weapons(subject.getEquipment().getWeapons())
         .spells(subject.getSpells())
         .build();
   }

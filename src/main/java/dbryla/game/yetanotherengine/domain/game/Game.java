@@ -1,7 +1,8 @@
 package dbryla.game.yetanotherengine.domain.game;
 
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
+import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
 import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
 
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
@@ -10,13 +11,15 @@ import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
-
+import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import dbryla.game.yetanotherengine.domain.subject.Subject;
+import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -125,4 +128,31 @@ public class Game {
   public void moveSubject(String playerName, Position newPosition) {
     stateStorage.findByIdAndName(id, playerName).ifPresent(subject -> stateStorage.save(id, subject.of(newPosition)));
   }
+
+  public List<String> getPossibleTargets(String playerName, Weapon weapon) {
+    return getPossibleTargets(playerName, weapon.getMinRange(), weapon.getMaxRange(), false);
+  }
+
+  public List<String> getPossibleTargets(String playerName, Spell spell) {
+    return getPossibleTargets(playerName, spell.getMinRange(), spell.getMaxRange(), spell.isPositiveSpell());
+  }
+
+  private List<String> getPossibleTargets(String playerName, int minRange, int maxRange, boolean allies) {
+    Subject player = getSubject(playerName);
+    String targetsAffiliation = allies ? player.getAffiliation() : getEnemy(player.getAffiliation());
+    int position = player.getPosition().getBattlegroundLocation();
+    Map<Position, List<Subject>> positionsMap = getSubjectsPositionsMap();
+    return IntStream.range(position + minRange, Math.min(ENEMIES_BACK.getBattlegroundLocation(), position + maxRange) + 1)
+        .mapToObj(battlegroundPosition -> positionsMap.getOrDefault(Position.valueOf(battlegroundPosition), List.of())
+            .stream()
+            .filter(subject -> targetsAffiliation.equals(subject.getAffiliation()))
+            .map(Subject::getName))
+        .flatMap(Function.identity())
+        .collect(Collectors.toList());
+  }
+
+  private String getEnemy(String affiliation) {
+    return PLAYERS.equals(affiliation) ? ENEMIES : PLAYERS;
+  }
+
 }

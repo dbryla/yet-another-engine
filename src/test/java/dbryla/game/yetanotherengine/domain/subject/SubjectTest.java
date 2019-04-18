@@ -5,6 +5,7 @@ import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import dbryla.game.yetanotherengine.domain.TestData;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ class SubjectTest {
         .name("subject")
         .affiliation("blue")
         .race(Race.HIGH_ELF)
-        .abilities(new Abilities(10, 10, 10, 11, 10, 10))
+        .abilities(TestData.ABILITIES)
         .healthPoints(1)
         .build();
 
@@ -32,7 +33,7 @@ class SubjectTest {
         .affiliation("blue")
         .race(Race.HILL_DWARF)
         .characterClass(CLERIC)
-        .abilities(new Abilities(10, 10, 10, 11, 10, 10))
+        .abilities(TestData.ABILITIES)
         .build();
 
     assertThat(subject.getMaxHealthPoints()).isEqualTo(CLERIC.getDefaultHealthPoints() + 2);

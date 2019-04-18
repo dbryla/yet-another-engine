@@ -13,6 +13,7 @@ import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import java.util.List;
 
 import dbryla.game.yetanotherengine.domain.subject.Subject;

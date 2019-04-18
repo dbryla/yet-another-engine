@@ -57,7 +57,7 @@ public class ConsolePresenter {
 
   public List<Weapon> showAvailableWeapons(CharacterClass characterClass, Race race) {
     List<Weapon> weapons = new LinkedList<>();
-    StringBuilder communicate = new StringBuilder("Choose your weapons:");
+    StringBuilder communicate = new StringBuilder("Choose your weapon:");
     int i = 0;
     for (Weapon weapon : gameOptions.getAvailableWeapons(characterClass, race)) {
       communicate.append(String.format(CHOICE_FORMAT, i++, weapon.toString()));

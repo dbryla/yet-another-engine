@@ -1,5 +1,9 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
+import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
+
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.dice.DisadvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
@@ -10,10 +14,6 @@ import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
 
 @Component
 @AllArgsConstructor
@@ -54,7 +54,6 @@ class FightHelper {
     }
     return hitRoll;
   }
-
 
   int getAttackDamage(int attackDamage, HitResult hitResult) {
     if (CRITICAL.equals(hitResult)) {

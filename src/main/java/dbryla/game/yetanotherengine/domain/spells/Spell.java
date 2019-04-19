@@ -4,7 +4,7 @@ import static dbryla.game.yetanotherengine.domain.battleground.Distance.CLOSE_RA
 import static dbryla.game.yetanotherengine.domain.battleground.Distance.ONE_HUNDRED_TWENTY_FEET;
 import static dbryla.game.yetanotherengine.domain.battleground.Distance.SIXTY_FEET;
 import static dbryla.game.yetanotherengine.domain.battleground.Distance.THIRTY_FEET;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNLIMITED_TARGETS;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.ARMOR_CLASS;
 import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.CONSTITUTION_SAVING_THROW;
 import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.DEXTERITY_HALF_SAVING_THROW;
@@ -32,8 +32,8 @@ public enum Spell {
   ACID_SPLASH(WIZARD, 0, DAMAGE, DEXTERITY_SAVING_THROW, false, 1, 6, 2, SIXTY_FEET),
   FIRE_BOLT(WIZARD, 0, false, 1, 10, 1, "$s burns $s to dust with fire bolt.", THIRTY_FEET, ONE_HUNDRED_TWENTY_FEET),
   POISON_SPRAY(WIZARD, 0, DAMAGE, CONSTITUTION_SAVING_THROW, false, 1, 12, 1, CLOSE_RANGE),
-  BURNING_HANDS(WIZARD, 1, DAMAGE, DEXTERITY_HALF_SAVING_THROW, false, 3, 6, UNLIMITED_TARGETS, CLOSE_RANGE),
-  COLOR_SPRAY(WIZARD, 1, EFFECT, Effect.BLIND, UNLIMITED_TARGETS, false, CLOSE_RANGE);
+  BURNING_HANDS(WIZARD, 1, DAMAGE, DEXTERITY_HALF_SAVING_THROW, false, 3, 6, ALL_TARGETS_WITHIN_RANGE, CLOSE_RANGE),
+  COLOR_SPRAY(WIZARD, 1, EFFECT, Effect.BLIND, ALL_TARGETS_WITHIN_RANGE, false, CLOSE_RANGE);
 
   private final CharacterClass owner;
   private final int spellLevel;
@@ -129,8 +129,8 @@ public enum Spell {
     return super.toString().toLowerCase().replace("_", " ");
   }
 
-  public boolean hasUnlimitedTargets() {
-    return maximumNumberOfTargets == SpellConstants.UNLIMITED_TARGETS;
+  public boolean isAreaOfEffectSpell() {
+    return maximumNumberOfTargets == SpellConstants.ALL_TARGETS_WITHIN_RANGE;
   }
 
 }

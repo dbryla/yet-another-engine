@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNLIMITED_TARGETS;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 
 import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.encounters.MonstersFactory;
@@ -128,8 +128,8 @@ public class Cli implements CommandLineRunner {
         .orElse(new ActionData(subject.getEquipment().getWeapons().get(0))); // fixme choose weapon from player
     int numberOfTargets = getAllowedNumberOfTargets(actionData);
     boolean friendlyAction = isFriendlyAction(actionData);
-    if (numberOfTargets == UNLIMITED_TARGETS) {
-      game.execute(SubjectTurn.of(new Action(subject.getName(), game.getAllAliveSubjectNames(friendlyAction), operation, actionData)));
+    if (numberOfTargets == ALL_TARGETS_WITHIN_RANGE) {
+      game.execute(SubjectTurn.of(new Action(subject.getName(), game.getPossibleTargets(subjectName, actionData.getSpell()), operation, actionData)));
     } else {
       game.execute(SubjectTurn.of(new Action(subject.getName(), pickTargets(numberOfTargets, friendlyAction), operation, actionData)));
     }

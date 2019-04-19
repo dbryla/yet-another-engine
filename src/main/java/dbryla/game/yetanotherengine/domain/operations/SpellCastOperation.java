@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.UNLIMITED_TARGETS;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 import static dbryla.game.yetanotherengine.domain.spells.SpellType.DAMAGE;
 import static dbryla.game.yetanotherengine.domain.spells.SpellType.EFFECT;
 import static dbryla.game.yetanotherengine.domain.spells.SpellType.HEAL;
@@ -57,7 +57,7 @@ public class SpellCastOperation {
   }
 
   private boolean unlimitedTargets(Spell spell) {
-    return spell.getMaximumNumberOfTargets() == UNLIMITED_TARGETS;
+    return spell.getMaximumNumberOfTargets() == ALL_TARGETS_WITHIN_RANGE;
   }
 
   private OperationResult tryToDealDamage(Subject source, Spell spell, Subject[] targets) {

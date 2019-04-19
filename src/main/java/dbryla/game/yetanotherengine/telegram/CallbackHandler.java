@@ -104,7 +104,7 @@ public class CallbackHandler {
     Spell spell = Spell.valueOf(chosenSpell);
     telegramClient.deleteMessage(chatId, messageId);
     boolean isPositiveSpell = spell.isPositiveSpell();
-    if (!spell.hasUnlimitedTargets() && game.getAllAliveSubjectNames(isPositiveSpell).size() > spell.getMaximumNumberOfTargets()) {
+    if (!spell.isAreaOfEffectSpell() && game.getAllAliveSubjectNames(isPositiveSpell).size() > spell.getMaximumNumberOfTargets()) {
       Optional<Communicate> communicate = fightFactory.targetCommunicate(game, isPositiveSpell);
       if (communicate.isPresent()) {
         telegramClient.sendReplyKeyboard(communicate.get(), chatId, originalMessageId);
@@ -112,7 +112,7 @@ public class CallbackHandler {
       }
     }
     game.execute(SubjectTurn.of(
-        new Action(playerName, game.getAllAliveSubjectNames(spell.isPositiveSpell()), OperationType.SPELL_CAST, new ActionData(spell))));
+        new Action(playerName, game.getPossibleTargets(playerName, spell), OperationType.SPELL_CAST, new ActionData(spell))));
     session.clearTargets();
   }
 

@@ -2,10 +2,8 @@ package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -41,5 +39,9 @@ public class OperationResult {
   public void add(Subject changedSubject, Event event) {
     this.changedSubjects.add(changedSubject);
     this.emittedEvents.add(event);
+  }
+
+  public void copyFrom(OperationResult operationResult) {
+    addAll(operationResult.getChangedSubjects(), operationResult.getEmittedEvents());
   }
 }

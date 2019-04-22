@@ -1,17 +1,22 @@
-package dbryla.game.yetanotherengine.domain.operations;
+package dbryla.game.yetanotherengine.domain.ai;
+
+import dbryla.game.yetanotherengine.domain.battleground.Position;
+import dbryla.game.yetanotherengine.domain.operations.ActionData;
+import dbryla.game.yetanotherengine.domain.operations.MoveOperation;
+import dbryla.game.yetanotherengine.domain.operations.OperationResult;
+import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_FRONT;
 import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
 
-import dbryla.game.yetanotherengine.domain.battleground.Position;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
-import java.util.Optional;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-
 @Component
 @AllArgsConstructor
-public class PositionService {
+public class PositionService { // fixme use with AI
 
   private final MoveOperation moveOperation;
 

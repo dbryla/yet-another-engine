@@ -5,9 +5,10 @@ import dbryla.game.yetanotherengine.domain.events.EventsFactory;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @AllArgsConstructor
 @Component
@@ -16,13 +17,11 @@ public class AttackOperation {
   private final FightHelper fightHelper;
   private final EventsFactory eventsFactory;
   private final DiceRollService diceRollService;
-  private final PositionService positionService;
 
   public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
     verifyParams(source, actionData, targets);
     Subject target = targets[0];
     OperationResult operationResult = equipWeapon(source, actionData).orElseGet(OperationResult::new);
-    positionService.adjustPosition(source, target, actionData.getWeapon().getMinRange(), actionData.getWeapon().getMaxRange()).ifPresent(operationResult::copyFrom);
     HitRoll hitRoll = fightHelper.getHitRoll(source, target);
     Weapon weapon = actionData.getWeapon();
     hitRoll.addModifier(getModifier(weapon, source.getAbilities()));

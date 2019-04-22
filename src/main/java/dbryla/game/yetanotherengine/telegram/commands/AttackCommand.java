@@ -5,6 +5,7 @@ import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
@@ -32,13 +33,15 @@ public class AttackCommand {
     String playerName = session.getPlayerName();
     if (game.isStarted() && !game.isEnded() && TelegramHelpers.isNextUser(playerName, game)) {
       session.setSpellCasting(false);
-      fightFactory.targetCommunicate(game)
+      Weapon weapon = session.getSubject().getEquipment().getWeapons().get(0); // fixme choose weapon from player
+      fightFactory.targetCommunicate(game, playerName, weapon)
           .ifPresentOrElse(
               communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, update.getMessage().getMessageId()),
-              () -> game.execute(
-                  SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
-                      OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapons().get(0))))));
-      // fixme choose weapon from player
+              () -> {
+                game.execute(
+                    SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
+                        OperationType.ATTACK, new ActionData(weapon))));
+              });
     }
   }
 }

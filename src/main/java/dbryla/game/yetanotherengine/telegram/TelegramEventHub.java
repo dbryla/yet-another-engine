@@ -2,7 +2,6 @@ package dbryla.game.yetanotherengine.telegram;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
-import dbryla.game.yetanotherengine.domain.game.GameOptions;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -27,10 +26,7 @@ public class TelegramEventHub implements EventHub {
   @Override
   public void notifySubjectAboutNextMove(Long gameId, Subject subject) {
     loggingEventHub.notifySubjectAboutNextMove(gameId, subject);
-    telegramClient.sendTextMessage(gameId, subject.getName() + " your move: /attack" + getSpellCommandIfApplicable(subject));
+    telegramClient.sendTextMessage(gameId,
+        subject.getName() + " your turn: /move /attack" + TelegramHelpers.getSpellCommandIfApplicable(subject));
   }
-
-  private String getSpellCommandIfApplicable(Subject subject) {
-    return subject.isSpellCaster() ? " or /spell" : "";
-}
 }

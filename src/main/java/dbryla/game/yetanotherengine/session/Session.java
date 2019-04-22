@@ -1,22 +1,17 @@
 package dbryla.game.yetanotherengine.session;
 
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
-
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.telegram.Communicate;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.*;
+
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
 
 @ToString
 public class Session {
@@ -34,6 +29,9 @@ public class Session {
   @Getter
   @Setter
   private boolean spellCasting = false;
+  @Getter
+  @Setter
+  private boolean isMoving = false;
 
   public Session(String playerName, List<Communicate> communicates, List<Integer> abilityScores) {
     this.playerName = playerName;
@@ -90,4 +88,5 @@ public class Session {
       list.clear();
     }
   }
+
 }

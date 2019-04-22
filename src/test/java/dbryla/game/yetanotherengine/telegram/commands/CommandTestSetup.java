@@ -1,7 +1,6 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
-import static org.mockito.Mockito.when;
-
+import dbryla.game.yetanotherengine.telegram.FightFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 public abstract class CommandTestSetup {
 
@@ -19,6 +20,9 @@ public abstract class CommandTestSetup {
 
   @Mock
   protected SessionFactory sessionFactory;
+
+  @Mock
+  protected FightFactory fightFactory;
 
   @Mock
   protected Update update;

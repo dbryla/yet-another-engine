@@ -1,12 +1,7 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
-
 import dbryla.game.yetanotherengine.db.CharacterRepository;
+import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
@@ -16,14 +11,18 @@ import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
-
-import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.util.List;
+import java.util.Optional;
+
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.*;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.*;
 
 @Component
 @Slf4j
@@ -54,7 +53,7 @@ public class CallbackHandler {
     session.getNextBuildingCommunicate()
         .ifPresentOrElse(
             communicate -> handleCharacterBuilding(communicate, messageText, messageId, chatId, getOriginalMessageId(update)),
-            () -> handleFightOrFinishCharacterCreation(session, playerName, callbackData,
+            () -> handleFightAndCharacterCreation(session, playerName, callbackData,
                 messageText, messageId, getOriginalMessageId(update), chatId));
   }
 
@@ -72,30 +71,61 @@ public class CallbackHandler {
     }
   }
 
-  private void handleFightOrFinishCharacterCreation(Session session, String playerName, String callbackData,
-                                                    String messageText, Integer messageId, Integer originalMessageId, Long chatId) {
+  private void handleFightAndCharacterCreation(Session session, String playerName, String callbackData, String messageText,
+                                               Integer messageId, Integer originalMessageId, Long chatId) {
     Game game = sessionFactory.getGame(chatId);
     if (messageText.startsWith(SPELL)) {
       handleSpellCallback(playerName, callbackData, messageId, originalMessageId, chatId, game, session);
     } else if (messageText.startsWith(TARGET)) {
       if (session.isSpellCasting()) {
-        Spell spell = Spell.valueOf((String) session.getData().get(SPELL));
-        if (session.areAllTargetsAcquired()) {
-          spellCastOnManyTargets(session, playerName, messageId, chatId, game, spell);
-        } else {
-          Optional<Communicate> communicate = fightFactory.targetCommunicate(game, spell.isPositiveSpell(), session.getTargets());
-          communicate.ifPresent(value -> telegramClient.sendEditKeyboard(value, chatId, messageId));
-        }
+        handleSpellTarget(session, playerName, messageId, chatId, game);
       } else {
-        telegramClient.deleteMessage(chatId, messageId);
-        game.execute(SubjectTurn.of(
-            new Action(playerName, callbackData, OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapons().get(0))))); //
-        // fixme choose weapon from player
-        session.clearTargets();
+        handleWeaponAttack(session, playerName, callbackData, messageId, chatId, game);
       }
     } else {
+      if (messageText.startsWith(MOVE)) {
+        if (!session.isMoving()) {
+          handleMoveCallback(session, callbackData, chatId, game);
+          if (game != null && isNextUser(playerName, game)) {
+            session.setMoving(true);
+            telegramClient.sendTextMessage(chatId,
+                playerName + " what do you want to do next: /move /attack" + getSpellCommandIfApplicable(session.getSubject()));
+          }
+        } else {
+          session.setMoving(false);
+          game.execute(
+              SubjectTurn.of(
+                  new Action(playerName, List.of(), OperationType.MOVE, new ActionData(Position.valueOf(Integer.valueOf(callbackData))))));
+        }
+      }
       telegramClient.deleteMessage(chatId, messageId);
       createCharacterIfNeeded(chatId, session);
+    }
+  }
+
+  private void handleMoveCallback(Session session, String callbackData, Long chatId, Game game) {
+    Position newPosition = Position.valueOf(Integer.valueOf(callbackData));
+    if (!newPosition.equals(session.getSubject().getPosition())) {
+      game.moveSubject(session.getPlayerName(), newPosition);
+      telegramClient.sendTextMessage(chatId, session.getPlayerName() + " moves to " + newPosition + ".");
+    }
+  }
+
+  private void handleWeaponAttack(Session session, String playerName, String callbackData, Integer messageId, Long chatId, Game game) {
+    telegramClient.deleteMessage(chatId, messageId);
+    game.execute(SubjectTurn.of(
+        new Action(playerName, callbackData, OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapons().get(0)))));
+    // fixme choose weapon from player
+    session.clearTargets();
+  }
+
+  private void handleSpellTarget(Session session, String playerName, Integer messageId, Long chatId, Game game) {
+    Spell spell = Spell.valueOf((String) session.getData().get(SPELL));
+    if (session.areAllTargetsAcquired()) {
+      spellCastOnManyTargets(session, playerName, messageId, chatId, game, spell);
+    } else {
+      Optional<Communicate> communicate = fightFactory.targetCommunicate(game, playerName, spell, session.getTargets());
+      communicate.ifPresent(value -> telegramClient.sendEditKeyboard(value, chatId, messageId));
     }
   }
 
@@ -105,7 +135,7 @@ public class CallbackHandler {
     telegramClient.deleteMessage(chatId, messageId);
     boolean isPositiveSpell = spell.isPositiveSpell();
     if (!spell.isAreaOfEffectSpell() && game.getAllAliveSubjectNames(isPositiveSpell).size() > spell.getMaximumNumberOfTargets()) {
-      Optional<Communicate> communicate = fightFactory.targetCommunicate(game, isPositiveSpell);
+      Optional<Communicate> communicate = fightFactory.targetCommunicate(game, playerName, spell);
       if (communicate.isPresent()) {
         telegramClient.sendReplyKeyboard(communicate.get(), chatId, originalMessageId);
         return;

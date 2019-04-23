@@ -1,13 +1,13 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
+import dbryla.game.yetanotherengine.domain.TestData;
+import dbryla.game.yetanotherengine.domain.battleground.Position;
+import org.junit.jupiter.api.Test;
+
 import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-
-import dbryla.game.yetanotherengine.domain.TestData;
-import dbryla.game.yetanotherengine.domain.battleground.Position;
-import org.junit.jupiter.api.Test;
 
 class SubjectTest {
 
@@ -15,7 +15,7 @@ class SubjectTest {
   void shouldAddSpellAndAdjustAbilitiesForSubjectBasedOnHighElfTraits() {
     Subject subject = Subject.builder()
         .name("subject")
-        .affiliation("blue")
+        .affiliation(Affiliation.PLAYERS)
         .race(Race.HIGH_ELF)
         .abilities(TestData.ABILITIES)
         .healthPoints(1)
@@ -30,7 +30,7 @@ class SubjectTest {
   void shouldAddExtraHealthPointsForSubjectBasedOnHillDwarfTraits() {
     Subject subject = Subject.builder()
         .name("subject")
-        .affiliation("blue")
+        .affiliation(Affiliation.PLAYERS)
         .race(Race.HILL_DWARF)
         .characterClass(CLERIC)
         .abilities(TestData.ABILITIES)

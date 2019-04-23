@@ -1,22 +1,19 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ARMOR;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.RACE;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.WEAPONS;
-
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.*;
 
 @Component
 @AllArgsConstructor
@@ -59,7 +56,7 @@ public class SubjectFactory {
     return characterClass.getArmorProficiencies().contains(Armor.SHIELD) ? Armor.SHIELD : null;
   }
 
-  public Subject createNewSubject(String playerName, Race race, CharacterClass characterClass, String affiliation,
+  public Subject createNewSubject(String playerName, Race race, CharacterClass characterClass, Affiliation affiliation,
       Abilities abilities, List<Weapon> weapons, Armor armor, Armor shield) {
     return Subject.builder()
         .name(playerName)

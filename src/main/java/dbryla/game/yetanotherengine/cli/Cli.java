@@ -1,28 +1,27 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
-
 import dbryla.game.yetanotherengine.domain.battleground.Position;
-import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.encounters.MonstersFactory;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameFactory;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.LinkedList;
-import java.util.List;
-
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 
 @Component
 @Profile("cli")
@@ -102,9 +101,9 @@ public class Cli implements CommandLineRunner {
       int numberOfTargets = getAllowedNumberOfTargets(actionData);
       if (numberOfTargets == ALL_TARGETS_WITHIN_RANGE) {
         game.execute(
-            SubjectTurn.of(new Action(subjectName, game.getPossibleTargets(subjectName, actionData.getSpell()), operation, actionData)));
+            SubjectTurn.of(new Action(subjectName, game.getPossibleTargets(subject, actionData.getSpell()), operation, actionData)));
       } else {
-        List<String> targets = pickTargets(subjectName, numberOfTargets, actionData);
+        List<String> targets = pickTargets(subject, numberOfTargets, actionData);
         game.execute(SubjectTurn.of(new Action(subjectName, targets, operation, actionData)));
       }
     } else {
@@ -118,9 +117,9 @@ public class Cli implements CommandLineRunner {
     }
   }
 
-  private List<String> pickTargets(String playerName, int numberOfTargets, ActionData actionData) {
+  private List<String> pickTargets(Subject subject, int numberOfTargets, ActionData actionData) {
     List<String> targets = new LinkedList<>();
-    List<String> aliveTargets = getAliveTargets(playerName, actionData);
+    List<String> aliveTargets = getAliveTargets(subject, actionData);
     if (aliveTargets.size() <= numberOfTargets) {
       return aliveTargets;
     }
@@ -130,12 +129,12 @@ public class Cli implements CommandLineRunner {
     return targets;
   }
 
-  private List<String> getAliveTargets(String playerName, ActionData actionData) {
+  private List<String> getAliveTargets(Subject subject, ActionData actionData) {
     if (actionData.getWeapon() != null) {
-      return game.getPossibleTargets(playerName, actionData.getWeapon());
+      return game.getPossibleTargets(subject, actionData.getWeapon());
     }
     if (actionData.getSpell() != null) {
-      return game.getPossibleTargets(playerName, actionData.getSpell());
+      return game.getPossibleTargets(subject, actionData.getSpell());
     }
     return List.of();
   }

@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.db;
 
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
+import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
@@ -18,7 +19,7 @@ public class PlayerCharacter {
 
   private String id;
   private String name;
-  private String affiliation;
+  private Affiliation affiliation;
   private CharacterClass characterClass;
   private Race race;
   private int maxHealthPoints;

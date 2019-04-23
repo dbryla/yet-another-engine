@@ -14,9 +14,6 @@ import java.util.stream.Collectors;
 @Component
 public class GameOptions {
 
-  public static final String PLAYERS = "player";
-  public static final String ENEMIES = "enemies";
-
   public Set<CharacterClass> getAvailableClasses() {
     return Set.of(CharacterClass.values());
   }

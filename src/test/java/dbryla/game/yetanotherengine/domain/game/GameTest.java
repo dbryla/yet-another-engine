@@ -1,27 +1,22 @@
 package dbryla.game.yetanotherengine.domain.game;
 
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
-
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.List;
-
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GameTest {

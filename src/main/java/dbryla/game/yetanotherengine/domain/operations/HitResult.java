@@ -47,10 +47,11 @@ public enum HitResult {
         && hitRoll.getActual() < 10 - negativeDexterityModifier(target) + target.getEquipment().getArmor().get().getArmorClass()) {
       return HitResult.ARMOR;
     }
-    if (target.getEquipment().getShield().isPresent() &&
-        hitRoll.getActual() < 10 - negativeDexterityModifier(target)
-            + target.getEquipment().getArmor().map(Armor::getArmorClass).orElse(0)
-            + target.getEquipment().getShield().get().getArmorClass()) {
+    if (target.getEquipment().getShield().isPresent()
+        && target.getEquippedWeapon().isEligibleForShield()
+        && hitRoll.getActual() < 10 - negativeDexterityModifier(target)
+        + target.getEquipment().getArmor().map(Armor::getArmorClass).orElse(0)
+        + target.getEquipment().getShield().get().getArmorClass()) {
       return HitResult.SHIELD;
     }
     return HitResult.DODGE;

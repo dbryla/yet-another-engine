@@ -1,20 +1,21 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
-import static dbryla.game.yetanotherengine.domain.subject.Race.HUMANOID;
-
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Race.HUMANOID;
 
 @AllArgsConstructor
 @Component
@@ -78,7 +79,8 @@ public class MonstersFactory {
         .healthPoints(getMonsterHealthPoints(monsterDefinition))
         .abilities(monsterDefinition.getAbilities())
         .armor(monsterDefinition.getArmor())
-        .weapon(monsterDefinition.getWeapon())
+        .weapons(monsterDefinition.getWeapons())
+        .equippedWeapon(monsterDefinition.getWeapons().get(0))
         .shield(monsterDefinition.getShield())
         .spells(monsterDefinition.getSpells())
         .position(monsterDefinition.getPreferredPosition())

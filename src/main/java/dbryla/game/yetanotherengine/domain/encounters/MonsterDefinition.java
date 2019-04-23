@@ -6,10 +6,7 @@ import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
@@ -24,7 +21,8 @@ public class MonsterDefinition {
   private final int numberOfHitDices;
   private final int hitDice;
   private final Abilities abilities;
-  private final Weapon weapon;
+  @Singular
+  private final List<Weapon> weapons;
   private final Armor armor;
   private final Armor shield;
   private final double challengeRating;

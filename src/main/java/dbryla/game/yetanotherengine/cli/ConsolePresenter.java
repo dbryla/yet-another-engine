@@ -11,14 +11,15 @@ import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component
@@ -30,7 +31,7 @@ public class ConsolePresenter {
   private final GameOptions gameOptions;
   private final AbilityScoresSupplier abilityScoresSupplier;
 
-  public void showStatus(Long gameId) {
+  void showStatus(Long gameId) {
     stateStorage.findAll(gameId).stream()
         .collect(Collectors.groupingBy(Subject::getAffiliation))
         .forEach((team, subjects) ->
@@ -42,7 +43,7 @@ public class ConsolePresenter {
     System.out.println();
   }
 
-  public List<CharacterClass> showAvailableClasses() {
+  List<CharacterClass> showAvailableClasses() {
     List<CharacterClass> classes = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your class:");
     int i = 0;
@@ -54,7 +55,7 @@ public class ConsolePresenter {
     return classes;
   }
 
-  public List<Weapon> showAvailableWeapons(CharacterClass characterClass, Race race) {
+  List<Weapon> showAvailableWeapons(CharacterClass characterClass, Race race) {
     List<Weapon> weapons = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your two weapons:");
     int i = 0;
@@ -68,16 +69,16 @@ public class ConsolePresenter {
     return weapons;
   }
 
-  public List<Spell> showAvailableSpells(Game game, Subject subject) {
+  List<Spell> showAvailableSpells(Game game, Subject subject) {
     List<Spell> spells = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your spell:");
     Set<Spell> spellsSet = Arrays.stream(Spell.values())
-        .filter(spell -> spell.forClass(subject.getCharacterClass()) && !game.getPossibleTargets(subject.getName(), spell).isEmpty())
+        .filter(spell -> spell.forClass(subject.getCharacterClass()) && !game.getPossibleTargets(subject, spell).isEmpty())
         .collect(Collectors.toSet());
     spellsSet.addAll(subject.getSpells());
     spellsSet = spellsSet
         .stream()
-        .filter(spell -> !game.getPossibleTargets(subject.getName(), spell).isEmpty())
+        .filter(spell -> !game.getPossibleTargets(subject, spell).isEmpty())
         .collect(Collectors.toSet());
     int i = 0;
     for (Spell spell : spellsSet) {
@@ -125,12 +126,12 @@ public class ConsolePresenter {
     return targets;
   }
 
-  public List<Armor> showAvailableShield() {
+  List<Armor> showAvailableShield() {
     System.out.println("Added shield to your equipment.");
     return List.of(Armor.SHIELD);
   }
 
-  public List<Armor> showAvailableArmors(CharacterClass characterClass, Race race) {
+  List<Armor> showAvailableArmors(CharacterClass characterClass, Race race) {
     List<Armor> armors = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your armor:");
     int i = 0;
@@ -144,7 +145,7 @@ public class ConsolePresenter {
     return armors;
   }
 
-  public List<Integer> showGeneratedAbilityScores() {
+  List<Integer> showGeneratedAbilityScores() {
     List<Integer> abilityScores = abilityScoresSupplier.get();
     System.out.println("Your ability scores: ");
     abilityScores.forEach(abilityScore -> System.out.print(abilityScore + " "));
@@ -153,7 +154,7 @@ public class ConsolePresenter {
     return abilityScores;
   }
 
-  public List<Race> showAvailableRaces() {
+  List<Race> showAvailableRaces() {
     List<Race> races = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your race:");
     int i = 0;
@@ -165,7 +166,7 @@ public class ConsolePresenter {
     return races;
   }
 
-  public void showAvailablePositions(Game game, Subject subject) {
+  void showAvailablePositions(Game game, Subject subject) {
     int battlegroundLocation = subject.getPosition().getBattlegroundLocation();
     StringBuilder communicate = new StringBuilder("Choose your position:");
     int backPosition = battlegroundLocation - 1;
@@ -173,13 +174,13 @@ public class ConsolePresenter {
       communicate.append(String.format(CHOICE_FORMAT, backPosition, "Back"));
     }
     int frontPosition = battlegroundLocation + 1;
-    if (frontPosition <= 4 && game.isThereNoEnemiesOnCurrentPosition(subject)) {
+    if (frontPosition <= 4 && !game.areEnemiesOnCurrentPosition(subject)) {
       communicate.append(String.format(CHOICE_FORMAT, frontPosition, "Front"));
     }
     System.out.println(communicate.toString());
   }
 
-  public List<Weapon> showAvailableWeapons(Game game, Subject subject) {
+  List<Weapon> showAvailableWeapons(Game game, Subject subject) {
     List<Weapon> weapons = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose weapon:");
     int i = 0;

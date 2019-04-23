@@ -1,9 +1,5 @@
 package dbryla.game.yetanotherengine.domain.game;
 
-import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
-
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.events.Event;
@@ -12,8 +8,12 @@ import dbryla.game.yetanotherengine.domain.game.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +21,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+
+import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
+import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 
 @RequiredArgsConstructor
 public class Game {
@@ -43,26 +46,15 @@ public class Game {
   public void createEnemies(List<Subject> subjects) {
     subjects.forEach(subject -> {
       stateStorage.save(id, subject);
-      artificialIntelligence.initSubject(id, subject);
+      artificialIntelligence.initSubject(this, subject);
     });
   }
 
-  public List<String> getAllAliveEnemyNames() {
+  public List<String> getAllAliveAllyNames(Subject source) {
     return stateStorage.findAll(id).stream()
-        .filter(subject -> subject.getAffiliation().equals(ENEMIES) && !subject.isTerminated())
+        .filter(subject -> source.getAffiliation().equals(subject.getAffiliation()) && !subject.isTerminated())
         .map(Subject::getName)
         .collect(Collectors.toUnmodifiableList());
-  }
-
-  public List<String> getAllAliveAllyNames() {
-    return stateStorage.findAll(id).stream()
-        .filter(subject -> subject.getAffiliation().equals(PLAYERS) && !subject.isTerminated())
-        .map(Subject::getName)
-        .collect(Collectors.toUnmodifiableList());
-  }
-
-  public List<String> getAllAliveSubjectNames(boolean allies) {
-    return allies ? getAllAliveAllyNames() : getAllAliveEnemyNames();
   }
 
   public List<Subject> getAllSubjects() {
@@ -79,6 +71,13 @@ public class Game {
       stateMachine = stateMachineFactory.createInMemoryStateMachine(id);
       gameLoop();
     }
+  }
+
+  public List<String> getAllAliveEnemyNames() {
+    return stateStorage.findAll(id).stream()
+        .filter(subject -> ENEMIES.equals(subject.getAffiliation()) && !subject.isTerminated())
+        .map(Subject::getName)
+        .collect(Collectors.toUnmodifiableList());
   }
 
   private void gameLoop() {
@@ -126,6 +125,7 @@ public class Game {
   public Map<Position, List<Subject>> getSubjectsPositionsMap() {
     return stateStorage.findAll(id)
         .stream()
+        .filter(subject -> !subject.isTerminated())
         .collect(Collectors.groupingBy(Subject::getPosition));
   }
 
@@ -133,50 +133,58 @@ public class Game {
     stateStorage.findByIdAndName(id, playerName).ifPresent(subject -> stateStorage.save(id, subject.of(newPosition)));
   }
 
-  public List<String> getPossibleTargets(String playerName, Weapon weapon) {
-    return getPossibleTargets(playerName, weapon.getMinRange(), weapon.getMaxRange(), false);
+  public List<String> getPossibleTargets(Subject subject, Weapon weapon) {
+    return getPossibleTargets(subject, weapon.getMinRange(), weapon.getMaxRange(), false);
   }
 
-  public List<String> getPossibleTargets(String playerName, Spell spell) {
-    return getPossibleTargets(playerName, spell.getMinRange(), spell.getMaxRange(), spell.isPositiveSpell());
+  public List<String> getPossibleTargets(Subject subject, Spell spell) {
+    return getPossibleTargets(subject, spell.getMinRange(), spell.getMaxRange(), spell.isPositiveSpell());
   }
 
-  private List<String> getPossibleTargets(String playerName, int minRange, int maxRange, boolean allies) {
-    Subject player = getSubject(playerName);
-    String targetsAffiliation = allies ? player.getAffiliation() : getEnemyAffiliation(player.getAffiliation());
-    int position = player.getPosition().getBattlegroundLocation();
+  private List<String> getPossibleTargets(Subject subject, int minRange, int maxRange, boolean allies) {
+    Affiliation targetsAffiliation = allies ? subject.getAffiliation() : getEnemyAffiliation(subject.getAffiliation());
+    int position = subject.getPosition().getBattlegroundLocation();
     Map<Position, List<Subject>> positionsMap = getSubjectsPositionsMap();
-    return IntStream.range(position + minRange, Math.min(ENEMIES_BACK.getBattlegroundLocation(), position + maxRange) + 1)
+    return getPositionsStream(subject, minRange, maxRange, position)
         .mapToObj(battlegroundPosition -> positionsMap.getOrDefault(Position.valueOf(battlegroundPosition), List.of())
             .stream()
-            .filter(subject -> targetsAffiliation.equals(subject.getAffiliation()) && !subject.isTerminated())
+            .filter(target -> targetsAffiliation.equals(target.getAffiliation()) && !target.isTerminated())
             .map(Subject::getName))
         .flatMap(Function.identity())
         .collect(Collectors.toList());
   }
 
-  private String getEnemyAffiliation(String affiliation) {
+  private IntStream getPositionsStream(Subject subject, int minRange, int maxRange, int position) {
+    if (PLAYERS.equals(subject.getAffiliation())) {
+      return IntStream.range(position + minRange, Math.min(ENEMIES_BACK.getBattlegroundLocation(), position + maxRange) + 1);
+    } else {
+      return IntStream.range(Math.max(PLAYERS_BACK.getBattlegroundLocation(), position - maxRange), position - minRange + 1);
+    }
+  }
+
+  private Affiliation getEnemyAffiliation(Affiliation affiliation) {
     return PLAYERS.equals(affiliation) ? ENEMIES : PLAYERS;
   }
 
-  public boolean isThereNoEnemiesOnCurrentPosition(Subject subject) {
+  public boolean areEnemiesOnCurrentPosition(Subject subject) {
     return getSubjectsPositionsMap()
         .getOrDefault(subject.getPosition(), List.of())
         .stream()
-        .noneMatch(anySubject -> anySubject.getAffiliation().equals(getEnemyAffiliation(subject.getAffiliation())));
+        .anyMatch(anySubject -> anySubject.getAffiliation().equals(getEnemyAffiliation(subject.getAffiliation())));
   }
 
   public List<Weapon> getAvailableWeaponsForAttack(Subject subject) {
     return subject.getEquipment()
         .getWeapons()
         .stream()
-        .filter(weapon -> !getPossibleTargets(subject.getName(), weapon).isEmpty())
+        .filter(weapon -> !getPossibleTargets(subject, weapon).isEmpty())
         .collect(Collectors.toList());
   }
 
   public List<Spell> getAvailableSpellsForCast(Subject subject) {
     return Arrays.stream(Spell.values())
-        .filter(spell -> spell.forClass(subject.getCharacterClass()) && !getPossibleTargets(subject.getName(), spell).isEmpty())
+        .filter(spell -> spell.forClass(subject.getCharacterClass()) && !getPossibleTargets(subject, spell).isEmpty())
         .collect(Collectors.toList());
   }
+
 }

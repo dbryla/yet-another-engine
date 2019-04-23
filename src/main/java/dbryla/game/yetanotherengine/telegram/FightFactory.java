@@ -4,15 +4,12 @@ import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Component
 public class FightFactory {
@@ -22,8 +19,9 @@ public class FightFactory {
   public static final String WEAPON = "Choose weapon to attack with";
   static final String MOVE = "Where do you want to move?";
 
-  public Optional<Communicate> targetCommunicate(Game game, String playerName, Weapon weapon) {
-    List<String> possibleTargets = game.getPossibleTargets(playerName, weapon);
+  Optional<Communicate> targetCommunicate(Game game, String playerName, Weapon weapon) {
+    Subject subject = game.getSubject(playerName);
+    List<String> possibleTargets = game.getPossibleTargets(subject, weapon);
     return targetCommunicate(possibleTargets, List.of());
   }
 
@@ -32,7 +30,8 @@ public class FightFactory {
   }
 
   Optional<Communicate> targetCommunicate(Game game, String playerName, Spell spell, List<String> ignore) {
-    List<String> possibleTargets = game.getPossibleTargets(playerName, spell);
+    Subject subject = game.getSubject(playerName);
+    List<String> possibleTargets = game.getPossibleTargets(subject, spell);
     return targetCommunicate(possibleTargets, ignore);
   }
 
@@ -55,7 +54,7 @@ public class FightFactory {
         .filter(spell -> spell.forClass(subject.getCharacterClass()))
         .collect(Collectors.toList());
     spells.addAll(subject.getSpells());
-    spells = spells.stream().filter(spell -> !game.getPossibleTargets(subject.getName(), spell).isEmpty()).collect(Collectors.toList());
+    spells = spells.stream().filter(spell -> !game.getPossibleTargets(subject, spell).isEmpty()).collect(Collectors.toList());
     Collection<List<InlineKeyboardButton>> values = spells.stream()
         .map(spell -> new InlineKeyboardButton(spell.toString()).setCallbackData(spell.name()))
         .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 3))
@@ -71,7 +70,7 @@ public class FightFactory {
       positions.add(new InlineKeyboardButton("Back").setCallbackData(String.valueOf(backPosition)));
     }
     int frontPosition = battlegroundLocation + 1;
-    if (frontPosition <= 4 && game.isThereNoEnemiesOnCurrentPosition(subject) && canMoveSoFar(game, frontPosition)) {
+    if (frontPosition <= 4 && !game.areEnemiesOnCurrentPosition(subject) && canMoveSoFar(game, frontPosition)) {
       positions.add(new InlineKeyboardButton("Front").setCallbackData(String.valueOf(frontPosition)));
     }
     ArrayList<List<InlineKeyboardButton>> values = new ArrayList<>();

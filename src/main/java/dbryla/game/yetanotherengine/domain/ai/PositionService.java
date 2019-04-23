@@ -1,10 +1,10 @@
 package dbryla.game.yetanotherengine.domain.ai;
 
 import dbryla.game.yetanotherengine.domain.battleground.Position;
+import dbryla.game.yetanotherengine.domain.game.Action;
+import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
-import dbryla.game.yetanotherengine.domain.operations.MoveOperation;
-import dbryla.game.yetanotherengine.domain.operations.OperationResult;
-import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
+import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -16,19 +16,14 @@ import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_
 
 @Component
 @AllArgsConstructor
-public class PositionService { // fixme use with AI
+class PositionService {
 
-  private final MoveOperation moveOperation;
-
-  public Optional<OperationResult> adjustPosition(Subject source, Subject target, int minRange, int maxRange)
-      throws UnsupportedGameOperationException {
+  Optional<Action> adjustPosition(Subject source, Subject target, Game game, int minRange, int maxRange) {
     int distanceToTarget = Math.abs(source.getPosition().getBattlegroundLocation() - target.getPosition().getBattlegroundLocation());
     if (!isTargetInRange(distanceToTarget, minRange, maxRange)) {
-      Optional<OperationResult> move = handleMissingDistanceToMinRange(source, minRange, distanceToTarget);
-      if (move.isPresent()) {
-        return move;
-      }
-      return handleMissingDistanceToMaxRange(source, maxRange, distanceToTarget);
+      return handleMissingDistanceToMinRange(source, minRange, distanceToTarget, game)
+          .or(() -> handleMissingDistanceToMaxRange(source, maxRange, distanceToTarget, game))
+          .map(actionData -> new Action(source.getName(), target.getName(), OperationType.MOVE, actionData));
     }
     return Optional.empty();
   }
@@ -37,41 +32,38 @@ public class PositionService { // fixme use with AI
     return distanceToTarget >= minRange && distanceToTarget <= maxRange;
   }
 
-  private Optional<OperationResult> handleMissingDistanceToMinRange(Subject source, int minRange, int distanceToTarget)
-      throws UnsupportedGameOperationException {
-    return moveIfPossible(source, minRange, distanceToTarget);
+  private Optional<ActionData> handleMissingDistanceToMinRange(Subject source, int minRange, int distanceToTarget, Game game) {
+    return actionData(source, minRange, distanceToTarget, game);
   }
 
-  private Optional<OperationResult> handleMissingDistanceToMaxRange(Subject source, int maxRange, int distanceToTarget)
-      throws UnsupportedGameOperationException {
-    return moveIfPossible(source, maxRange, distanceToTarget);
+  private Optional<ActionData> handleMissingDistanceToMaxRange(Subject source, int maxRange, int distanceToTarget, Game game) {
+    return actionData(source, maxRange, distanceToTarget, game);
   }
 
-  private Optional<OperationResult> moveIfPossible(Subject source, int range, int distanceToTarget) throws UnsupportedGameOperationException {
-    int missingDistanceToMinRange = distanceToTarget - range;
-    if (missingDistanceToMinRange == 0) {
+  private Optional<ActionData> actionData(Subject source, int range, int distanceToTarget, Game game) {
+    int missingDistanceToRange = distanceToTarget - range;
+    if (missingDistanceToRange == 0
+        || isTargetTooFarAway(missingDistanceToRange)
+        || isMoveOutsideOfBattleground(source, missingDistanceToRange)
+        || wouldNeedToPassEnemies(source, missingDistanceToRange, game)) {
       return Optional.empty();
     }
-    throwExceptionIfTargetIsTooFarAway(missingDistanceToMinRange);
-    throwExceptionWhenMovingOutsideOfBattleground(source, missingDistanceToMinRange);
-    return Optional.of(moveOperation
-        .invoke(source, new ActionData(Position.valueOf(source.getPosition().getBattlegroundLocation() + missingDistanceToMinRange))));
+    return Optional.of(new ActionData(Position.valueOf(source.getPosition().getBattlegroundLocation() + missingDistanceToRange)));
   }
 
-  private void throwExceptionIfTargetIsTooFarAway(int range) throws UnsupportedGameOperationException {
-    if (Math.abs(range) > 1) {
-      throw new UnsupportedGameOperationException("Target is too far away, can't move to perform operation on it.");
-    }
+  private boolean isTargetTooFarAway(int range) {
+    return Math.abs(range) > 1;
   }
 
-  private void throwExceptionWhenMovingOutsideOfBattleground(Subject source, int missingDistanceToRange) throws UnsupportedGameOperationException {
-    if (PLAYERS_BACK.equals(source.getPosition()) && missingDistanceToRange < 0) {
-      throw new UnsupportedGameOperationException("Can't move back to perform operation. Start of battleground.");
-    }
-    if (ENEMIES_FRONT.equals(source.getPosition()) && missingDistanceToRange > 0) {
-      throw new UnsupportedGameOperationException("Can't move further to perform operation. End of battleground.");
-    }
+  private boolean isMoveOutsideOfBattleground(Subject source, int missingDistanceToRange) {
+    return PLAYERS_BACK.equals(source.getPosition()) && missingDistanceToRange < 0
+        || ENEMIES_FRONT.equals(source.getPosition()) && missingDistanceToRange > 0;
   }
 
-
+  boolean wouldNeedToPassEnemies(Subject subject, int missingDistanceToRange, Game game) {
+    if (missingDistanceToRange * subject.getAffiliation().getDirection() < 0) {
+      return game.areEnemiesOnCurrentPosition(subject);
+    }
+    return false;
+  }
 }

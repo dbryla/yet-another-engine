@@ -1,13 +1,12 @@
 package dbryla.game.yetanotherengine.cli;
 
-import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
-import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
+import dbryla.game.yetanotherengine.domain.battleground.Position;
+import dbryla.game.yetanotherengine.domain.game.Game;
+import dbryla.game.yetanotherengine.domain.game.GameFactory;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.operations.ActionData;
-import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
@@ -18,6 +17,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
+
 @Component
 @AllArgsConstructor
 @Profile("cli")
@@ -27,60 +31,58 @@ class Simulator {
   private final ArtificialIntelligence artificialIntelligence;
   private final StateMachineFactory stateMachineFactory;
   private final ConsolePresenter presenter;
+  private final GameFactory gameFactory;
 
   void start() {
-    long gameId = 123L;
     final String player1 = "Clemens";
     final String player2 = "Maria";
-    final String blueTeam = "blue";
     Abilities defaultAbilities = new Abilities(10, 10, 10, 10, 10, 10);
-    stateStorage.save(gameId, Subject.builder()
+    Long gameId = 123L;
+    Game game = gameFactory.newGame(gameId);
+    Subject cleric = Subject.builder()
         .name(player1)
         .race(Race.HIGH_ELF)
-        .affiliation(blueTeam)
+        .affiliation(PLAYERS)
         .weapon(Weapon.CLUB)
         .abilities(defaultAbilities)
         .characterClass(CharacterClass.CLERIC)
+        .position(Position.PLAYERS_FRONT)
         .armor(Armor.CHAIN_SHIRT)
         .shield(Armor.SHIELD)
-        .build());
-    stateStorage.save(gameId, Subject.builder()
+        .equippedWeapon(Weapon.CLUB)
+        .build();
+    stateStorage.save(gameId, cleric);
+    artificialIntelligence.initSubject(game, cleric);
+    Subject fighter = Subject.builder()
         .name(player2)
-        .affiliation(blueTeam)
+        .affiliation(PLAYERS)
         .race(Race.HALF_ELF)
-        .weapon(Weapon.LONGBOW)
+        .weapons(List.of(Weapon.LONGBOW, Weapon.DAGGER))
+        .equippedWeapon(Weapon.LONGBOW)
         .characterClass(CharacterClass.FIGHTER)
+        .position(Position.PLAYERS_BACK)
         .abilities(defaultAbilities)
-        .build());
+        .build();
+    stateStorage.save(gameId, fighter);
+    artificialIntelligence.initSubject(game, fighter);
     final String enemy = "Borg";
-    String greenTeam = "green";
     Subject enemyFighter = Subject.builder()
         .name(enemy)
-        .affiliation(greenTeam)
+        .affiliation(ENEMIES)
         .race(Race.HALF_ORC)
-        .healthPoints(20)
+        .healthPoints(30)
         .abilities(defaultAbilities)
         .weapon(Weapon.GREATSWORD)
+        .equippedWeapon(Weapon.GREATSWORD)
+        .position(Position.ENEMIES_FRONT)
         .build();
     stateStorage.save(gameId, enemyFighter);
-    artificialIntelligence.initSubject(gameId, enemyFighter);
+    artificialIntelligence.initSubject(game, enemyFighter);
 
     StateMachine stateMachine = stateMachineFactory.createInMemoryStateMachine(gameId);
     presenter.showStatus(gameId);
     while (!stateMachine.isInTerminalState()) {
-      stateMachine.getNextSubject().ifPresent(subject -> {
-            switch (subject.getName()) {
-              case player1:
-                stateMachine.execute(SubjectTurn.of(new Action(player1, enemy, OperationType.ATTACK, new ActionData(Weapon.CLUB))));
-                break;
-              case player2:
-                stateMachine.execute(SubjectTurn.of(new Action(player2, enemy, OperationType.ATTACK, new ActionData(Weapon.LONGBOW))));
-                break;
-              case enemy:
-                stateMachine.execute(artificialIntelligence.action(enemy));
-            }
-          }
-      );
+      stateMachine.getNextSubject().ifPresent(subject -> stateMachine.execute(artificialIntelligence.action(subject.getName())));
     }
     presenter.showStatus(gameId);
   }

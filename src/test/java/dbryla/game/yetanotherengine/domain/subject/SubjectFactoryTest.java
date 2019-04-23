@@ -1,19 +1,20 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class SubjectFactoryTest {
@@ -25,7 +26,7 @@ class SubjectFactoryTest {
   void shouldCreateSubjectFromPlayerCharacter() {
     PlayerCharacter playerCharacter = PlayerCharacter.builder()
         .name("player")
-        .affiliation("blue")
+        .affiliation(Affiliation.PLAYERS)
         .characterClass(FIGHTER)
         .race(Race.HIGH_ELF)
         .maxHealthPoints(10)
@@ -50,7 +51,7 @@ class SubjectFactoryTest {
   void shouldCreateSubjectFromPlayerCharacterWithPreferredClassPosition() {
     PlayerCharacter playerCharacter = PlayerCharacter.builder()
         .name("player")
-        .affiliation("blue")
+        .affiliation(Affiliation.PLAYERS)
         .characterClass(FIGHTER)
         .race(Race.HIGH_ELF)
         .maxHealthPoints(10)
@@ -70,7 +71,7 @@ class SubjectFactoryTest {
         new SubjectProperties(
             new SubjectIdentifier(
                 "player",
-                "blue"),
+                Affiliation.PLAYERS),
             Race.HIGH_ELF,
             FIGHTER,
             new Equipment(
@@ -99,7 +100,7 @@ class SubjectFactoryTest {
     String name = "player";
     Race race = Race.HIGH_ELF;
     CharacterClass characterClass = CharacterClass.WIZARD;
-    String affiliation = "blue";
+    Affiliation affiliation = Affiliation.PLAYERS;
     Abilities abilities = new Abilities(10, 10, 10, 10, 10, 10);
     Weapon weapon = Weapon.SHORTSWORD;
     Armor armor = Armor.LEATHER;
@@ -128,7 +129,7 @@ class SubjectFactoryTest {
     String name = "player";
     Race race = Race.HIGH_ELF;
     CharacterClass characterClass = CharacterClass.WIZARD;
-    String affiliation = "blue";
+    Affiliation affiliation = Affiliation.PLAYERS;
     Abilities abilities = new Abilities(10, 10, 10, 10, 10, 10);
     Weapon weapon = Weapon.SHORTSWORD;
     Armor armor = Armor.LEATHER;

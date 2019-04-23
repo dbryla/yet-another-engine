@@ -1,28 +1,20 @@
 package dbryla.game.yetanotherengine.domain.spells;
 
-import static dbryla.game.yetanotherengine.domain.battleground.Distance.CLOSE_RANGE;
-import static dbryla.game.yetanotherengine.domain.battleground.Distance.ONE_HUNDRED_TWENTY_FEET;
-import static dbryla.game.yetanotherengine.domain.battleground.Distance.SIXTY_FEET;
-import static dbryla.game.yetanotherengine.domain.battleground.Distance.THIRTY_FEET;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
-import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.ARMOR_CLASS;
-import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.CONSTITUTION_SAVING_THROW;
-import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.DEXTERITY_HALF_SAVING_THROW;
-import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.DEXTERITY_SAVING_THROW;
-import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.IRRESISTIBLE;
-import static dbryla.game.yetanotherengine.domain.spells.SpellType.DAMAGE;
-import static dbryla.game.yetanotherengine.domain.spells.SpellType.EFFECT;
-import static dbryla.game.yetanotherengine.domain.spells.SpellType.HEAL;
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
-
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import lombok.Getter;
+
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.IntStream;
-import lombok.Getter;
+
+import static dbryla.game.yetanotherengine.domain.battleground.Distance.*;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
+import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.*;
+import static dbryla.game.yetanotherengine.domain.spells.SpellType.*;
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
 
 public enum Spell {
 
@@ -30,7 +22,7 @@ public enum Spell {
   BLESS(CLERIC, 0, EFFECT, Effect.BLESS, 3, true, THIRTY_FEET),
   HEALING_WORD(CLERIC, 1, HEAL, IRRESISTIBLE, true, 1, 4, 1, SIXTY_FEET),
   ACID_SPLASH(WIZARD, 0, DAMAGE, DEXTERITY_SAVING_THROW, false, 1, 6, 2, SIXTY_FEET),
-  FIRE_BOLT(WIZARD, 0, false, 1, 10, 1, "$s burns $s to dust with fire bolt.", THIRTY_FEET, ONE_HUNDRED_TWENTY_FEET),
+  FIRE_BOLT(WIZARD, 0, false, 1, 10, 1, "%s burns %s to dust with fire bolt.", THIRTY_FEET, ONE_HUNDRED_TWENTY_FEET),
   POISON_SPRAY(WIZARD, 0, DAMAGE, CONSTITUTION_SAVING_THROW, false, 1, 12, 1, CLOSE_RANGE),
   BURNING_HANDS(WIZARD, 1, DAMAGE, DEXTERITY_HALF_SAVING_THROW, false, 3, 6, ALL_TARGETS_WITHIN_RANGE, CLOSE_RANGE),
   COLOR_SPRAY(WIZARD, 1, EFFECT, Effect.BLIND, ALL_TARGETS_WITHIN_RANGE, false, CLOSE_RANGE);

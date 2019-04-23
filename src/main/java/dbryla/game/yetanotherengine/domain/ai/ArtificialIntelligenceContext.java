@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.ai;
 
-import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.game.Game;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -8,10 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class ArtificialIntelligenceConfiguration {
+public class ArtificialIntelligenceContext {
 
-  private final Subject subject;
-  private final Long gameId;
+  private final Game game;
   private String acquiredTarget;
 
 }

@@ -13,7 +13,7 @@ import java.util.List;
 public class SubjectBuilder {
 
   private String name;
-  private String affiliation;
+  private Affiliation affiliation;
   private CharacterClass characterClass;
   private Race race;
   private Abilities abilities;
@@ -30,7 +30,7 @@ public class SubjectBuilder {
     return this;
   }
 
-  public SubjectBuilder affiliation(String affiliation) {
+  public SubjectBuilder affiliation(Affiliation affiliation) {
     this.affiliation = affiliation;
     return this;
   }

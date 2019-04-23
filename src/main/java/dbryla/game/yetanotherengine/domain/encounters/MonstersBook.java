@@ -6,13 +6,13 @@ import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import lombok.Getter;
-import org.springframework.stereotype.Component;
 
 @Component
 public class MonstersBook {
@@ -36,7 +36,7 @@ public class MonstersBook {
           .abilities(new Abilities(13, 12, 12, 10, 11, 10))
           .armor(Armor.CHAIN_SHIRT)
           .shield(Armor.SHIELD)
-          .weapon(Weapon.SHORTSWORD)
+          .weapons(List.of(Weapon.SHORTBOW, Weapon.SHORTSWORD))
           .challengeRating(0.125)
           .defaultName("Guard")
           .hitDice(8)
@@ -44,18 +44,6 @@ public class MonstersBook {
           .type("Guard")
           .monsterRace(Race.HUMANOID)
           .preferredPosition(Position.ENEMIES_FRONT)
-          .build());
-      add(MonsterDefinition.builder()
-          .abilities(new Abilities(13, 12, 12, 10, 11, 10))
-          .armor(Armor.CHAIN_SHIRT)
-          .weapon(Weapon.SHORTBOW)
-          .challengeRating(0.125)
-          .defaultName("Guard Archer")
-          .hitDice(8)
-          .numberOfHitDices(2)
-          .type("Guard")
-          .monsterRace(Race.HUMANOID)
-          .preferredPosition(Position.ENEMIES_BACK)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 10, 10, 10, 14, 11))
@@ -76,23 +64,11 @@ public class MonstersBook {
           .hitDice(6)
           .numberOfHitDices(2)
           .type("Goblin")
-          .weapon(Weapon.SCIMITAR)
+          .weapons(List.of(Weapon.SHORTBOW, Weapon.SCIMITAR))
           .armor(Armor.LEATHER)
           .shield(Armor.SHIELD)
           .monsterRace(Race.GOBLINOID)
           .preferredPosition(Position.ENEMIES_FRONT)
-          .build());
-      add(MonsterDefinition.builder()
-          .abilities(new Abilities(8, 14, 10, 10, 8, 8))
-          .challengeRating(0.25)
-          .defaultName("Goblin Archer")
-          .hitDice(6)
-          .numberOfHitDices(2)
-          .type("Goblin")
-          .weapon(Weapon.SHORTBOW)
-          .armor(Armor.LEATHER)
-          .monsterRace(Race.GOBLINOID)
-          .preferredPosition(Position.ENEMIES_BACK)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 14, 10, 10, 8, 10))
@@ -125,22 +101,10 @@ public class MonstersBook {
           .hitDice(8)
           .numberOfHitDices(2)
           .type("Skeleton")
-          .weapon(Weapon.SHORTSWORD)
+          .weapons(List.of(Weapon.SHORTBOW, Weapon.SHORTSWORD))
           .armor(Armor.SCRAPS)
           .monsterRace(Race.UNDEAD)
           .preferredPosition(Position.ENEMIES_FRONT)
-          .build());
-      add(MonsterDefinition.builder()
-          .abilities(new Abilities(10, 14, 15, 6, 8, 5))
-          .challengeRating(0.25)
-          .defaultName("Skeleton Archer")
-          .hitDice(8)
-          .numberOfHitDices(2)
-          .type("Skeleton")
-          .weapon(Weapon.SHORTBOW)
-          .armor(Armor.SCRAPS)
-          .monsterRace(Race.UNDEAD)
-          .preferredPosition(Position.ENEMIES_BACK)
           .build());
     }
   };

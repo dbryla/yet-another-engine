@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
+import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -13,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 
 @Component
 @AllArgsConstructor
@@ -28,7 +29,7 @@ public class StatusCommand {
     Game game = sessionFactory.getGame(chatId);
     if (game != null) {
       StringBuilder sb = new StringBuilder("Fight status:\n");
-      Map<String, List<Subject>> subjects = game.getAllSubjects().stream().collect(Collectors.groupingBy(Subject::getAffiliation));
+      Map<Affiliation, List<Subject>> subjects = game.getAllSubjects().stream().collect(Collectors.groupingBy(Subject::getAffiliation));
       statusText(sb, subjects, PLAYERS, "Your team:\n");
       statusText(sb, subjects, ENEMIES, "\nEnemies:\n");
       telegramClient.sendTextMessage(chatId, sb.toString());
@@ -37,7 +38,7 @@ public class StatusCommand {
     }
   }
 
-  private void statusText(StringBuilder stringBuilder, Map<String, List<Subject>> subjects, String affiliation, String header) {
+  private void statusText(StringBuilder stringBuilder, Map<Affiliation, List<Subject>> subjects, Affiliation affiliation, String header) {
     if (subjects.containsKey(affiliation)) {
       stringBuilder.append(header);
       subjects.get(affiliation).forEach(subject -> stringBuilder.append(subject.getName()).append(subject.getSubjectState()).append(" "));

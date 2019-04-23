@@ -78,7 +78,7 @@ public class Subject {
     return subjectProperties.getArmorClass(equippedWeapon);
   }
 
-  public String getAffiliation() {
+  public Affiliation getAffiliation() {
     return subjectProperties.getId().getAffiliation();
   }
 

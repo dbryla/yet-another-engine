@@ -1,19 +1,17 @@
 package dbryla.game.yetanotherengine.domain.game.state.storage;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import org.junit.jupiter.api.Test;
+
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class InMemoryStepTrackerTest {
 
-  private static final SubjectIdentifier SUBJECT_1 = new SubjectIdentifier("subject1", "blue");
-  private static final SubjectIdentifier SUBJECT_2 = new SubjectIdentifier("subject2", "green");
+  private static final SubjectIdentifier SUBJECT_1 = new SubjectIdentifier("subject1", Affiliation.PLAYERS);
+  private static final SubjectIdentifier SUBJECT_2 = new SubjectIdentifier("subject2", Affiliation.ENEMIES);
 
   @Test
   void shouldHasNoActionsToTrackIfOnlySubjectsWithTheSameAffiliationLeft() {

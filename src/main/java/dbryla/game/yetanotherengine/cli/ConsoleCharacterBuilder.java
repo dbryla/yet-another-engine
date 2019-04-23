@@ -1,21 +1,18 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
-
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
-import dbryla.game.yetanotherengine.domain.subject.Abilities;
-import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
-import dbryla.game.yetanotherengine.domain.subject.Race;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
+import dbryla.game.yetanotherengine.domain.subject.*;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 
 @Component
 @Profile("cli")

@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,7 @@ public class StateMachineFactory {
         .sorted(Comparator.comparingInt(initiatives::get).reversed())
         .map(Subject::toIdentifier)
         .collect(Collectors.toList());
-    Map<String, Long> affiliationMap = stateStorage.findAll(gameId).stream()
+    Map<Affiliation, Long> affiliationMap = stateStorage.findAll(gameId).stream()
         .collect(Collectors.groupingBy(Subject::getAffiliation, Collectors.counting()));
     StepTracker stepTracker = new InMemoryStepTracker(subjectsForAction, affiliationMap);
     return new DefaultStateMachine(gameId, stepTracker, stateStorage, eventHub, attackOperation,

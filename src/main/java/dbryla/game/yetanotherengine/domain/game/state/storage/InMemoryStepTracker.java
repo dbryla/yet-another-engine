@@ -1,6 +1,8 @@
 package dbryla.game.yetanotherengine.domain.game.state.storage;
 
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.subject.Affiliation;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -8,10 +10,10 @@ import java.util.Optional;
 public class InMemoryStepTracker implements StepTracker {
 
   private final List<SubjectIdentifier> subjectsForAction;
-  private final Map<String, Long> affiliationMap;
+  private final Map<Affiliation, Long> affiliationMap;
   private int nextSubjectIndex = 0;
 
-  public InMemoryStepTracker(List<SubjectIdentifier> subjectsForAction, Map<String, Long> affiliationMap) {
+  public InMemoryStepTracker(List<SubjectIdentifier> subjectsForAction, Map<Affiliation, Long> affiliationMap) {
     this.subjectsForAction = subjectsForAction;
     this.affiliationMap = affiliationMap;
   }

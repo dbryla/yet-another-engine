@@ -31,6 +31,9 @@ public class AttackOperation {
     } else {
       int attackDamage = fightHelper.getAttackDamage(weapon.rollAttackDamage(diceRollService), hitResult)
           + getModifier(weapon, source.getAbilities());
+      if (attackDamage <= 0) {
+        attackDamage = 1;
+      }
       Subject changedTarget = fightHelper.dealDamage(target, attackDamage);
       operationResult.add(changedTarget, eventsFactory.successAttackEvent(source, changedTarget, weapon, hitResult));
     }

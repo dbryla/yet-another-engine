@@ -4,21 +4,22 @@ import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.PLAYERS;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 @Component
 public class FightFactory {
 
   public static final String TARGET = "Choose your target";
-  public static final String SPELL = "Choose your spell";
+  public static final String SPELL = "Choose spell to cast";
+  public static final String WEAPON = "Choose weapon to attack with";
   static final String MOVE = "Where do you want to move?";
 
   public Optional<Communicate> targetCommunicate(Game game, String playerName, Weapon weapon) {
@@ -48,11 +49,13 @@ public class FightFactory {
     return Optional.of(new Communicate(TARGET, new ArrayList<>(values)));
   }
 
-  public Communicate spellCommunicate(Subject subject) {
+  public Communicate spellCommunicate(Game game, Subject subject) {
     AtomicInteger counter = new AtomicInteger();
     List<Spell> spells = Arrays.stream(Spell.values())
-        .filter(spell -> spell.forClass(subject.getCharacterClass())).collect(Collectors.toList());
+        .filter(spell -> spell.forClass(subject.getCharacterClass()))
+        .collect(Collectors.toList());
     spells.addAll(subject.getSpells());
+    spells = spells.stream().filter(spell -> !game.getPossibleTargets(subject.getName(), spell).isEmpty()).collect(Collectors.toList());
     Collection<List<InlineKeyboardButton>> values = spells.stream()
         .map(spell -> new InlineKeyboardButton(spell.toString()).setCallbackData(spell.name()))
         .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 3))
@@ -60,7 +63,7 @@ public class FightFactory {
     return new Communicate(SPELL, new ArrayList<>(values));
   }
 
-  public Communicate moveCommunicate(Subject subject, Game game) {
+  public Communicate moveCommunicate(Game game, Subject subject) {
     int battlegroundLocation = subject.getPosition().getBattlegroundLocation();
     List<InlineKeyboardButton> positions = new ArrayList<>();
     int backPosition = battlegroundLocation - 1;
@@ -68,24 +71,26 @@ public class FightFactory {
       positions.add(new InlineKeyboardButton("Back").setCallbackData(String.valueOf(backPosition)));
     }
     int frontPosition = battlegroundLocation + 1;
-    if (frontPosition <= 4) {
-      if (thereIsNoEnemiesOnCurrentPosition(subject, game)) {
-        positions.add(new InlineKeyboardButton("Front").setCallbackData(String.valueOf(frontPosition)));
-      }
+    if (frontPosition <= 4 && game.isThereNoEnemiesOnCurrentPosition(subject) && canMoveSoFar(game, frontPosition)) {
+      positions.add(new InlineKeyboardButton("Front").setCallbackData(String.valueOf(frontPosition)));
     }
     ArrayList<List<InlineKeyboardButton>> values = new ArrayList<>();
     values.add(positions);
     return new Communicate(MOVE, values);
   }
 
-  private boolean thereIsNoEnemiesOnCurrentPosition(Subject subject, Game game) {
-    return game.getSubjectsPositionsMap()
-        .get(subject.getPosition())
-        .stream()
-        .noneMatch(anySubject -> anySubject.getAffiliation().equals(getEnemyAffiliation(subject.getAffiliation())));
+  public Communicate weaponCommunicate(Game game, String playerName) {
+    List<InlineKeyboardButton> weapons =
+        game.getAvailableWeaponsForAttack(game.getSubject(playerName))
+            .stream()
+            .map(weapon -> new InlineKeyboardButton(weapon.toString()).setCallbackData(weapon.name()))
+            .collect(Collectors.toList());
+    ArrayList<List<InlineKeyboardButton>> values = new ArrayList<>();
+    values.add(weapons);
+    return new Communicate(WEAPON, values);
   }
 
-  private String getEnemyAffiliation(String affiliation) {
-    return PLAYERS.equals(affiliation) ? ENEMIES : PLAYERS;
+  private boolean canMoveSoFar(Game game, int frontPosition) {
+    return game.isStarted() || frontPosition <= 1;
   }
 }

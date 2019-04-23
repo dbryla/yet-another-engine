@@ -32,7 +32,7 @@ public class MoveCommand {
     }
     Subject subject = game.getSubject(session.getPlayerName());
     telegramClient
-        .sendReplyKeyboard(fightFactory.moveCommunicate(subject, game), chatId, update.getMessage().getMessageId());
+        .sendReplyKeyboard(fightFactory.moveCommunicate(game, subject), chatId, update.getMessage().getMessageId());
   }
 
 }

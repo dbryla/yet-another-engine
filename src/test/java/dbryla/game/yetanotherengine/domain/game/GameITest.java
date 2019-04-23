@@ -47,7 +47,7 @@ class GameITest {
     String playerName = "player1";
     Weapon weapon = Weapon.SHORTSWORD;
     List<Subject> enemies = givenEnemies();
-    initializedGame(playerName, weapon, enemies, ENEMIES_FRONT);
+    initializedGame(playerName, List.of(weapon), enemies, ENEMIES_FRONT);
 
     List<String> possibleTargets = game.getPossibleTargets(playerName, weapon);
 
@@ -57,9 +57,9 @@ class GameITest {
         .toArray(String[]::new));
   }
 
-  private void initializedGame(String playerName, Weapon weapon, List<Subject> enemies, Position playerPosition) {
+  private void initializedGame(String playerName, List<Weapon> weapons, List<Subject> enemies, Position playerPosition) {
     Subject subject = subjectFactory.createNewSubject(playerName, Race.HUMAN, CharacterClass.FIGHTER, PLAYERS,
-        TestData.ABILITIES, weapon, null, null).of(playerPosition);
+        TestData.ABILITIES, weapons, null, null).of(playerPosition);
     game.createCharacter(subject);
     game.createEnemies(enemies);
   }
@@ -75,7 +75,7 @@ class GameITest {
     String playerName = "player1";
     Weapon weapon = Weapon.LONGBOW;
     List<Subject> enemies = givenEnemies();
-    initializedGame(playerName, weapon, enemies, PLAYERS_BACK);
+    initializedGame(playerName, List.of(weapon), enemies, PLAYERS_BACK);
 
     List<String> possibleTargets = game.getPossibleTargets(playerName, weapon);
 
@@ -87,7 +87,7 @@ class GameITest {
     String playerName = "player1";
     Weapon weapon = Weapon.LONGBOW;
     List<Subject> enemies = givenEnemies();
-    initializedGame(playerName, weapon, enemies, ENEMIES_FRONT);
+    initializedGame(playerName, List.of(weapon), enemies, ENEMIES_FRONT);
 
     List<String> possibleTargets = game.getPossibleTargets(playerName, weapon);
 

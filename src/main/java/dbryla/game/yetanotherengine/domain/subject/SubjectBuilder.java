@@ -9,7 +9,6 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class SubjectBuilder {
 
@@ -43,6 +42,11 @@ public class SubjectBuilder {
 
   public SubjectBuilder race(Race race) {
     this.race = race;
+    return this;
+  }
+
+  public SubjectBuilder weapons(List<Weapon> weapons) {
+    this.weapons = weapons;
     return this;
   }
 

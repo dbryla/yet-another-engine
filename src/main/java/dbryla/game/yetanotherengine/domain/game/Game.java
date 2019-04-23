@@ -14,6 +14,7 @@ import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -100,6 +101,9 @@ public class Game {
   }
 
   public Optional<String> getNextSubjectName() {
+    if (stateMachine == null) {
+      return Optional.empty();
+    }
     return stateMachine.getNextSubject().map(Subject::getName);
   }
 
@@ -139,20 +143,40 @@ public class Game {
 
   private List<String> getPossibleTargets(String playerName, int minRange, int maxRange, boolean allies) {
     Subject player = getSubject(playerName);
-    String targetsAffiliation = allies ? player.getAffiliation() : getEnemy(player.getAffiliation());
+    String targetsAffiliation = allies ? player.getAffiliation() : getEnemyAffiliation(player.getAffiliation());
     int position = player.getPosition().getBattlegroundLocation();
     Map<Position, List<Subject>> positionsMap = getSubjectsPositionsMap();
     return IntStream.range(position + minRange, Math.min(ENEMIES_BACK.getBattlegroundLocation(), position + maxRange) + 1)
         .mapToObj(battlegroundPosition -> positionsMap.getOrDefault(Position.valueOf(battlegroundPosition), List.of())
             .stream()
-            .filter(subject -> targetsAffiliation.equals(subject.getAffiliation()))
+            .filter(subject -> targetsAffiliation.equals(subject.getAffiliation()) && !subject.isTerminated())
             .map(Subject::getName))
         .flatMap(Function.identity())
         .collect(Collectors.toList());
   }
 
-  private String getEnemy(String affiliation) {
+  private String getEnemyAffiliation(String affiliation) {
     return PLAYERS.equals(affiliation) ? ENEMIES : PLAYERS;
   }
 
+  public boolean isThereNoEnemiesOnCurrentPosition(Subject subject) {
+    return getSubjectsPositionsMap()
+        .getOrDefault(subject.getPosition(), List.of())
+        .stream()
+        .noneMatch(anySubject -> anySubject.getAffiliation().equals(getEnemyAffiliation(subject.getAffiliation())));
+  }
+
+  public List<Weapon> getAvailableWeaponsForAttack(Subject subject) {
+    return subject.getEquipment()
+        .getWeapons()
+        .stream()
+        .filter(weapon -> !getPossibleTargets(subject.getName(), weapon).isEmpty())
+        .collect(Collectors.toList());
+  }
+
+  public List<Spell> getAvailableSpellsForCast(Subject subject) {
+    return Arrays.stream(Spell.values())
+        .filter(spell -> spell.forClass(subject.getCharacterClass()) && !getPossibleTargets(subject.getName(), spell).isEmpty())
+        .collect(Collectors.toList());
+  }
 }

@@ -1,28 +1,27 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
+import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Race.HUMANOID;
+
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static dbryla.game.yetanotherengine.domain.game.GameOptions.ENEMIES;
-import static dbryla.game.yetanotherengine.domain.subject.Race.HUMANOID;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component
 @Slf4j
 public class MonstersFactory {
 
-  private static final int DIFFICULTY_FACTOR = 2;
+  private static final int DIFFICULTY_FACTOR = 1;
   private final MonstersBook monstersBook;
   private final DiceRollService diceRollService;
   private final Random random;

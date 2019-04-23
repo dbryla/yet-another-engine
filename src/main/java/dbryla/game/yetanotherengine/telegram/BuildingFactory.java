@@ -27,7 +27,7 @@ public class BuildingFactory {
   public static final String CLASS = "Choose a class:";
   public static final String RACE = "Choose a race:";
   public static final String ABILITIES = "Assign scores to your abilities: Str, Dex, Con, Int, Wis, Cha";
-  public static final String WEAPON = "Choose your weapons:";
+  public static final String WEAPONS = "Choose your weapon:";
   public static final String ARMOR = "Choose your armor:";
 
   private final GameOptions gameOptions;
@@ -76,7 +76,7 @@ public class BuildingFactory {
         .map(weapon -> new InlineKeyboardButton(weapon.toString()).setCallbackData(weapon.name()))
         .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 4))
         .values();
-    return new Communicate(WEAPON, new ArrayList<>(values));
+    return new Communicate(WEAPONS, new ArrayList<>(values));
   }
 
   public Optional<Communicate> chooseArmorCommunicate(CharacterClass characterClass, Race race) {

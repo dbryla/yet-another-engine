@@ -1,12 +1,10 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
-import dbryla.game.yetanotherengine.domain.game.Action;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
+
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
-import dbryla.game.yetanotherengine.domain.operations.ActionData;
-import dbryla.game.yetanotherengine.domain.operations.OperationType;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.telegram.Communicate;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -16,12 +14,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
-
 @Component
 @AllArgsConstructor
 @Profile("tg")
 public class AttackCommand {
+
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
   private final FightFactory fightFactory;
@@ -33,15 +30,12 @@ public class AttackCommand {
     String playerName = session.getPlayerName();
     if (game.isStarted() && !game.isEnded() && TelegramHelpers.isNextUser(playerName, game)) {
       session.setSpellCasting(false);
-      Weapon weapon = session.getSubject().getEquipment().getWeapons().get(0); // fixme choose weapon from player
-      fightFactory.targetCommunicate(game, playerName, weapon)
-          .ifPresentOrElse(
-              communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, update.getMessage().getMessageId()),
-              () -> {
-                game.execute(
-                    SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
-                        OperationType.ATTACK, new ActionData(weapon))));
-              });
+      Communicate communicate = fightFactory.weaponCommunicate(game, playerName);
+      if (communicate.getKeyboardButtons().isEmpty() || communicate.getKeyboardButtons().get(0).isEmpty()) {
+        telegramClient.sendTextMessage(chatId, "No targets available within your range.");
+      } else {
+        telegramClient.sendReplyKeyboard(communicate, chatId, update.getMessage().getMessageId());
+      }
     }
   }
 }

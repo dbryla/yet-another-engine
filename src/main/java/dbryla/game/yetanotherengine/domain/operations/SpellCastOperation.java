@@ -42,6 +42,9 @@ public class SpellCastOperation {
     if (HEAL.equals(spell.getSpellType())) {
       int healRoll = spell.roll(diceRollService);
       healRoll += getModifier(source, spell);
+      if (healRoll <= 0) {
+        healRoll = 1;
+      }
       for (Subject target : targets) {
         OperationResult op = heal(source, target, healRoll);
         operationResult.addAll(op.getChangedSubjects(), op.getEmittedEvents());
@@ -64,9 +67,11 @@ public class SpellCastOperation {
     if (SpellSaveType.ARMOR_CLASS.equals(spell.getSpellSaveType())) {
       return handleSpellAttack(source, spell, targets);
     }
-
     int attackDamage = spell.roll(diceRollService);
     attackDamage += getModifier(source, spell);
+    if (attackDamage <= 0) {
+      attackDamage = 1;
+    }
     if (SpellSaveType.CONSTITUTION_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets,
           attackDamage, fightHelper::getConstitutionSavingThrow,

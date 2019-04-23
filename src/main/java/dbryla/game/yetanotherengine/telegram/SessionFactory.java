@@ -1,5 +1,9 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.RACE;
+
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameFactory;
 import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
@@ -7,16 +11,12 @@ import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.Session;
-
+import dbryla.game.yetanotherengine.session.SessionStorage;
 import java.util.LinkedList;
 import java.util.List;
-
-import dbryla.game.yetanotherengine.session.SessionStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.*;
 
 @Component
 @Profile("tg")
@@ -45,6 +45,7 @@ public class SessionFactory {
     if (messageText.contains(RACE)) {
       CharacterClass characterClass = CharacterClass.valueOf((String) session.getData().get(CLASS));
       Race race = Race.valueOf(callbackData);
+      session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
       session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
       buildingFactory.chooseArmorCommunicate(characterClass, race).ifPresent(session::addLastCommunicate);
     }

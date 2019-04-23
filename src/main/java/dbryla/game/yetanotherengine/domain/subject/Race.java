@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.Getter;
+import org.apache.commons.text.WordUtils;
 
 @Getter
 public enum Race {
@@ -118,6 +119,6 @@ public enum Race {
 
   @Override
   public String toString() {
-    return super.toString().toLowerCase().replace("_", " ");
+    return WordUtils.capitalizeFully(super.toString().replace("_", " "));
   }
 }

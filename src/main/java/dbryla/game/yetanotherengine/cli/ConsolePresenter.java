@@ -1,11 +1,11 @@
 package dbryla.game.yetanotherengine.cli;
 
-import dbryla.game.yetanotherengine.domain.operations.OperationType;
-import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameOptions;
-import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.operations.OperationType;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -57,7 +56,7 @@ public class ConsolePresenter {
 
   public List<Weapon> showAvailableWeapons(CharacterClass characterClass, Race race) {
     List<Weapon> weapons = new LinkedList<>();
-    StringBuilder communicate = new StringBuilder("Choose your weapon:");
+    StringBuilder communicate = new StringBuilder("Choose your two weapons:");
     int i = 0;
     for (Weapon weapon : gameOptions.getAvailableWeapons(characterClass, race)) {
       communicate.append(String.format(CHOICE_FORMAT, i++, weapon.toString()));
@@ -69,14 +68,19 @@ public class ConsolePresenter {
     return weapons;
   }
 
-  public List<Spell> showAvailableSpells(CharacterClass characterClass) {
+  public List<Spell> showAvailableSpells(Game game, Subject subject) {
     List<Spell> spells = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your spell:");
-    Set<Spell> spellsForClass = Arrays.stream(Spell.values())
-        .filter(spell -> spell.forClass(characterClass))
+    Set<Spell> spellsSet = Arrays.stream(Spell.values())
+        .filter(spell -> spell.forClass(subject.getCharacterClass()) && !game.getPossibleTargets(subject.getName(), spell).isEmpty())
+        .collect(Collectors.toSet());
+    spellsSet.addAll(subject.getSpells());
+    spellsSet = spellsSet
+        .stream()
+        .filter(spell -> !game.getPossibleTargets(subject.getName(), spell).isEmpty())
         .collect(Collectors.toSet());
     int i = 0;
-    for (Spell spell : spellsForClass) {
+    for (Spell spell : spellsSet) {
       communicate.append(String.format(CHOICE_FORMAT, i++, spell.toString()));
       spells.add(spell);
     }
@@ -86,13 +90,19 @@ public class ConsolePresenter {
     return spells;
   }
 
-  List<OperationType> showAvailableOperations(CharacterClass characterClass) {
+  List<OperationType> showAvailableOperations(Game game, Subject subject) {
     List<OperationType> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
-    communicate.append(String.format(CHOICE_FORMAT, 0, "attack"));
-    operations.add(OperationType.ATTACK);
-    if (characterClass.isSpellCaster()) {
-      communicate.append(String.format(CHOICE_FORMAT, 1, "spell"));
+    communicate.append(String.format(CHOICE_FORMAT, 0, "move"));
+    operations.add(OperationType.MOVE);
+    List<Weapon> weapons = game.getAvailableWeaponsForAttack(subject);
+    if (!weapons.isEmpty()) {
+      communicate.append(String.format(CHOICE_FORMAT, 1, "attack"));
+      operations.add(OperationType.ATTACK);
+    }
+    List<Spell> spells = game.getAvailableSpellsForCast(subject);
+    if (subject.isSpellCaster() && !spells.isEmpty()) {
+      communicate.append(String.format(CHOICE_FORMAT, 2, "spell"));
       operations.add(OperationType.SPELL_CAST);
     }
     System.out.println(communicate.toString());
@@ -103,11 +113,7 @@ public class ConsolePresenter {
     return showAvailableTargets(game.getAllAliveEnemyNames());
   }
 
-  List<String> showAvailableFriendlyTargets(Game game) {
-    return showAvailableTargets(game.getAllAliveAllyNames());
-  }
-
-  private List<String> showAvailableTargets(List<String> allAliveAllies) {
+  List<String> showAvailableTargets(List<String> allAliveAllies) {
     List<String> targets = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your target:");
     int i = 0;
@@ -151,11 +157,40 @@ public class ConsolePresenter {
     List<Race> races = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose your race:");
     int i = 0;
-    for (Race race: gameOptions.getAvailableRaces()) {
+    for (Race race : gameOptions.getAvailableRaces()) {
       communicate.append(String.format(CHOICE_FORMAT, i++, race));
       races.add(race);
     }
     System.out.println(communicate.toString());
     return races;
   }
+
+  public void showAvailablePositions(Game game, Subject subject) {
+    int battlegroundLocation = subject.getPosition().getBattlegroundLocation();
+    StringBuilder communicate = new StringBuilder("Choose your position:");
+    int backPosition = battlegroundLocation - 1;
+    if (backPosition >= 0) {
+      communicate.append(String.format(CHOICE_FORMAT, backPosition, "Back"));
+    }
+    int frontPosition = battlegroundLocation + 1;
+    if (frontPosition <= 4 && game.isThereNoEnemiesOnCurrentPosition(subject)) {
+      communicate.append(String.format(CHOICE_FORMAT, frontPosition, "Front"));
+    }
+    System.out.println(communicate.toString());
+  }
+
+  public List<Weapon> showAvailableWeapons(Game game, Subject subject) {
+    List<Weapon> weapons = new LinkedList<>();
+    StringBuilder communicate = new StringBuilder("Choose weapon:");
+    int i = 0;
+    for (Weapon weapon : game.getAvailableWeaponsForAttack(subject)) {
+      communicate.append(String.format(CHOICE_FORMAT, i++, weapon.toString()));
+      weapons.add(weapon);
+    }
+    if (!weapons.isEmpty()) {
+      System.out.println(communicate.toString());
+    }
+    return weapons;
+  }
+
 }

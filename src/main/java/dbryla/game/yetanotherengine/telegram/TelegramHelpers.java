@@ -16,7 +16,7 @@ public class TelegramHelpers {
   }
 
   public static boolean isNextUser(String playerName, Game game) {
-    return game.getNextSubjectName().isPresent() && playerName.equals(game.getNextSubjectName().get());
+    return game != null && game.getNextSubjectName().isPresent() && playerName.equals(game.getNextSubjectName().get());
   }
 
   public static String getSpellCommandIfApplicable(Subject subject) {

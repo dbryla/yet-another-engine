@@ -109,7 +109,7 @@ class SubjectFactoryTest {
         characterClass,
         affiliation,
         abilities,
-        weapon,
+        List.of(weapon),
         armor,
         null);
 
@@ -138,7 +138,7 @@ class SubjectFactoryTest {
         characterClass,
         affiliation,
         abilities,
-        weapon,
+        List.of(weapon),
         armor,
         null);
 

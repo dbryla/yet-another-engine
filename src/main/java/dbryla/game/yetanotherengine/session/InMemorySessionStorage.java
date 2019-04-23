@@ -34,7 +34,7 @@ public class InMemorySessionStorage implements SessionStorage {
   }
 
   @Override
-  public void clear(Long gameId) {
+  public void clearGame(Long gameId) {
     games.computeIfPresent(gameId, (id, game) -> {
           game.cleanup();
           return null;

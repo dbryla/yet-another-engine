@@ -64,10 +64,10 @@ class ConsoleCharacterBuilder {
     System.out.println("Do you want (0) manual or (1) automatic abilities assignment?");
     int playerChoice = inputProvider.cmdLineToOption();
     Abilities abilities = getAbilities(playerChoice);
-    Weapon weapon = getWeapon(characterClass, race);
-    Armor shield = getShield(characterClass, weapon);
+    List<Weapon> weapons = getWeapons(characterClass, race);
+    Armor shield = getShield(characterClass);
     Armor armor = getArmor(characterClass, race);
-    return subjectFactory.createNewSubject(playerName, race, characterClass, PLAYERS, abilities, weapon, armor, shield);
+    return subjectFactory.createNewSubject(playerName, race, characterClass, PLAYERS, abilities, weapons, armor, shield);
   }
 
   private Abilities getAbilities(int playerChoice) {
@@ -78,17 +78,16 @@ class ConsoleCharacterBuilder {
     }
   }
 
-  private Weapon getWeapon(CharacterClass characterClass, Race race) {
+  private List<Weapon> getWeapons(CharacterClass characterClass, Race race) {
     List<Weapon> availableWeapons = presenter.showAvailableWeapons(characterClass, race);
     if (availableWeapons.isEmpty()) {
-      return null;
+      return List.of();
     }
-    int playerChoice = inputProvider.cmdLineToOption();
-    return availableWeapons.get(playerChoice);
+    return List.of(availableWeapons.get(inputProvider.cmdLineToOption()), availableWeapons.get(inputProvider.cmdLineToOption()));
   }
 
-  private Armor getShield(CharacterClass characterClass, Weapon weapon) {
-    if (!weapon.isEligibleForShield() || !characterClass.getArmorProficiencies().contains(Armor.SHIELD) ) {
+  private Armor getShield(CharacterClass characterClass) {
+    if (!characterClass.getArmorProficiencies().contains(Armor.SHIELD) ) {
       return null;
     }
     List<Armor> shield = presenter.showAvailableShield();

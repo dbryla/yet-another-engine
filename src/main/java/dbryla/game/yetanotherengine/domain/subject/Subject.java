@@ -17,6 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class Subject {
 
+  @Getter
   private final SubjectProperties subjectProperties;
   @Getter
   private final int currentHealthPoints;
@@ -61,10 +62,10 @@ public class Subject {
     if (currentHealthPoints == subjectProperties.getMaxHealthPoints()) {
       return State.NORMAL;
     }
-    if (currentHealthPoints > Math.ceil(0.75 * subjectProperties.getMaxHealthPoints())) {
+    if (currentHealthPoints >= Math.ceil(0.75 * subjectProperties.getMaxHealthPoints())) {
       return State.LIGHTLY_WOUNDED;
     }
-    if (currentHealthPoints > Math.ceil(0.50 * subjectProperties.getMaxHealthPoints())) {
+    if (currentHealthPoints >= Math.ceil(0.50 * subjectProperties.getMaxHealthPoints())) {
       return State.WOUNDED;
     }
     if (currentHealthPoints <= Math.ceil(0.10 * subjectProperties.getMaxHealthPoints()) && currentHealthPoints < 10) {
@@ -94,9 +95,9 @@ public class Subject {
   }
 
   public Subject of(Effect effect) {
-    Set<ActiveEffect> activeEffects = new HashSet<>(this.getActiveEffects());
-    activeEffects.add(effect.activate());
-    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects, this.equippedWeapon);
+    Set<ActiveEffect> effects = new HashSet<>(this.getActiveEffects());
+    effects.add(effect.activate());
+    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, effects, this.equippedWeapon);
   }
 
   public Subject effectExpired(Effect effect) {
@@ -106,6 +107,9 @@ public class Subject {
   }
 
   public Subject of(Position newPosition) {
+    if (this.position.equals(newPosition)) {
+      return this;
+    }
     return new Subject(this.subjectProperties, this.currentHealthPoints, newPosition, this.activeEffects, this.equippedWeapon);
   }
 
@@ -116,7 +120,7 @@ public class Subject {
   @Override
   public String toString() {
     StringBuilder stringBuilder = new StringBuilder(subjectProperties.getRace() + " " + subjectProperties.getCharacterClass() + "\n"
-        + "HP:" + currentHealthPoints + "/" + subjectProperties.getMaxHealthPoints() + " AC:" + getArmorClass() + "\n"
+        + "HP:" + subjectProperties.getMaxHealthPoints() + " AC:" + getArmorClass() + "\n"
         + subjectProperties.getAbilities() + "\n"
         + "Equipment:\n");
     subjectProperties

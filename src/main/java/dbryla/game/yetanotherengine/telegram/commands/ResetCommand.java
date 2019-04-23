@@ -17,7 +17,7 @@ public class ResetCommand {
 
   public void execute(Update update) {
     Long chatId = update.getMessage().getChatId();
-    sessionStorage.clear(chatId);
+    sessionStorage.clearGame(chatId);
     telegramClient.sendTextMessage(chatId, "Ok :) I'll forget anything that happened.");
   }
 }

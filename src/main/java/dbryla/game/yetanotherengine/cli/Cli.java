@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.cli;
 
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 
+import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.encounters.MonstersFactory;
 import dbryla.game.yetanotherengine.domain.game.Game;
@@ -11,9 +12,9 @@ import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.RequiredArgsConstructor;
@@ -87,52 +88,77 @@ public class Cli implements CommandLineRunner {
     log.info("The end.");
   }
 
-  private Optional<Spell> getSpell(Subject subject, OperationType operation) {
-    if (OperationType.SPELL_CAST.equals(operation)) {
-      List<Spell> spells = presenter.showAvailableSpells(subject.getCharacterClass());
-      return Optional.of(spells.get(inputProvider.cmdLineToOption()));
+  private void handleNextMove(String subjectName) {
+    handleNextMove(subjectName, false);
+  }
+
+  private void handleNextMove(String subjectName, boolean isMoving) {
+    Subject subject = game.getSubject(subjectName);
+    List<OperationType> availableOperations = presenter.showAvailableOperations(game, subject);
+    int option = inputProvider.cmdLineToOption();
+    OperationType operation = availableOperations.get(option);
+    ActionData actionData = getActionData(operation, subject);
+    if (actionData.getPosition() == null) {
+      int numberOfTargets = getAllowedNumberOfTargets(actionData);
+      if (numberOfTargets == ALL_TARGETS_WITHIN_RANGE) {
+        game.execute(
+            SubjectTurn.of(new Action(subjectName, game.getPossibleTargets(subjectName, actionData.getSpell()), operation, actionData)));
+      } else {
+        List<String> targets = pickTargets(subjectName, numberOfTargets, actionData);
+        game.execute(SubjectTurn.of(new Action(subjectName, targets, operation, actionData)));
+      }
+    } else {
+      if (!isMoving) {
+        game.moveSubject(subjectName, actionData.getPosition());
+        System.out.println(subjectName + " moves to " + actionData.getPosition()  + ".");
+        handleNextMove(subjectName, true);
+      } else {
+        game.execute(SubjectTurn.of(new Action(subjectName, operation, actionData)));
+      }
     }
-    return Optional.empty();
   }
 
-  private boolean isFriendlyAction(ActionData actionData) {
-    return actionData.getSpell() != null && actionData.getSpell().isPositiveSpell();
-  }
-
-  private List<String> pickTargets(int numberOfTargets, boolean friendlyTarget) {
+  private List<String> pickTargets(String playerName, int numberOfTargets, ActionData actionData) {
     List<String> targets = new LinkedList<>();
-    List<String> aliveTargets = game.getAllAliveSubjectNames(friendlyTarget);
+    List<String> aliveTargets = getAliveTargets(playerName, actionData);
     if (aliveTargets.size() <= numberOfTargets) {
       return aliveTargets;
     }
     for (int i = 0; i < numberOfTargets; i++) {
-      targets.add(pickTarget(friendlyTarget));
+      targets.add(pickTarget(aliveTargets));
     }
     return targets;
   }
 
-  private String pickTarget(boolean friendlyTarget) {
-    List<String> availableTargets = friendlyTarget
-        ? presenter.showAvailableFriendlyTargets(game)
-        : presenter.showAvailableEnemyTargets(game);
-    return availableTargets.get(inputProvider.cmdLineToOption());
+  private List<String> getAliveTargets(String playerName, ActionData actionData) {
+    if (actionData.getWeapon() != null) {
+      return game.getPossibleTargets(playerName, actionData.getWeapon());
+    }
+    if (actionData.getSpell() != null) {
+      return game.getPossibleTargets(playerName, actionData.getSpell());
+    }
+    return List.of();
   }
 
-  private void handleNextMove(String subjectName) {
-    Subject subject = game.getSubject(subjectName);
-    List<OperationType> availableOperations = presenter.showAvailableOperations(subject.getCharacterClass());
-    int option = inputProvider.cmdLineToOption();
-    OperationType operation = availableOperations.get(option);
-    ActionData actionData = getSpell(subject, operation)
-        .map(ActionData::new)
-        .orElse(new ActionData(subject.getEquipment().getWeapons().get(0))); // fixme choose weapon from player
-    int numberOfTargets = getAllowedNumberOfTargets(actionData);
-    boolean friendlyAction = isFriendlyAction(actionData);
-    if (numberOfTargets == ALL_TARGETS_WITHIN_RANGE) {
-      game.execute(SubjectTurn.of(new Action(subject.getName(), game.getPossibleTargets(subjectName, actionData.getSpell()), operation, actionData)));
-    } else {
-      game.execute(SubjectTurn.of(new Action(subject.getName(), pickTargets(numberOfTargets, friendlyAction), operation, actionData)));
+  private String pickTarget(List<String> aliveTargets) {
+    presenter.showAvailableTargets(aliveTargets);
+    return aliveTargets.get(inputProvider.cmdLineToOption());
+  }
+
+  private ActionData getActionData(OperationType operation, Subject subject) {
+    if (OperationType.SPELL_CAST.equals(operation)) {
+      List<Spell> spells = presenter.showAvailableSpells(game, subject);
+      return new ActionData(spells.get(inputProvider.cmdLineToOption()));
     }
+    if (OperationType.ATTACK.equals(operation)) {
+      List<Weapon> weapons = presenter.showAvailableWeapons(game, subject);
+      return new ActionData(weapons.get(inputProvider.cmdLineToOption()));
+    }
+    if (OperationType.MOVE.equals(operation)) {
+      presenter.showAvailablePositions(game, subject);
+      return new ActionData(Position.valueOf(inputProvider.cmdLineToOption()));
+    }
+    throw new IllegalArgumentException("Unsupported operation type: " + operation);
   }
 
   private int getAllowedNumberOfTargets(ActionData actionData) {

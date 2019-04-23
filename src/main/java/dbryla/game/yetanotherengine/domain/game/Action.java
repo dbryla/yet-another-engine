@@ -23,4 +23,11 @@ public class Action {
     this.actionData = actionData;
   }
 
+  public Action(String sourceName, OperationType operationType, ActionData actionData) {
+    this.sourceName = sourceName;
+    this.targetNames = null;
+    this.operationType = operationType;
+    this.actionData = actionData;
+  }
+
 }

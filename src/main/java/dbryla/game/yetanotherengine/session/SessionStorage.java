@@ -12,5 +12,5 @@ public interface SessionStorage {
 
   Game get(Long gameId);
 
-  void clear(Long gameId);
+  void clearGame(Long gameId);
 }

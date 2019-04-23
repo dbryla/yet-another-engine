@@ -9,6 +9,7 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.text.WordUtils;
 
 @AllArgsConstructor
 @Getter
@@ -20,7 +21,7 @@ public enum CharacterClass {
   WIZARD(6, true, Position.PLAYERS_BACK,
       Set.of(Weapon.DAGGER, Weapon.QUARTERSTAFF),
       Set.of()),
-  CLERIC(8, true, Position.PLAYERS_FRONT,
+  CLERIC(8, true, Position.PLAYERS_BACK,
       Arrays.stream(Weapon.values()).filter(Weapon::isSimpleType).collect(Collectors.toSet()),
       Arrays.stream(Armor.values()).filter(Armor::isNotHeavyArmor).collect(Collectors.toSet()));
 
@@ -32,7 +33,7 @@ public enum CharacterClass {
 
   @Override
   public String toString() {
-    return super.toString().toLowerCase();
+    return WordUtils.capitalizeFully(super.toString());
   }
 
 }

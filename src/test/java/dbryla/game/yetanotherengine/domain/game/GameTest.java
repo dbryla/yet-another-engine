@@ -37,14 +37,14 @@ class GameTest {
   void shouldSaveCreatedCharacter() {
     Subject subject = mock(Subject.class);
 
-    game.createCharacter(subject);
+    game.createPlayerCharacter(subject);
 
     verify(stateStorage).save(any(), eq(subject));
   }
 
   @Test
   void shouldSaveCreatedEnemies() {
-    game.createEnemies((List.of(mock(Subject.class))));
+    game.createNonPlayableCharacters((List.of(mock(Subject.class))));
 
     verify(stateStorage, atLeastOnce()).save(any(), any());
   }

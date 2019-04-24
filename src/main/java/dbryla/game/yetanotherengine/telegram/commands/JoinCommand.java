@@ -43,7 +43,7 @@ public class JoinCommand {
             );
       } else {
         game = sessionFactory.getGameOrCreate(message.getChatId());
-        game.createCharacter(sessionFactory.getSession(sessionId).getSubject());
+        game.createPlayerCharacter(sessionFactory.getSession(sessionId).getSubject());
         telegramClient.sendTextMessage(message.getChatId(), playerName + ": You've joined next battle!");
       }
     }
@@ -53,7 +53,7 @@ public class JoinCommand {
     Subject subject = subjectFactory.fromCharacter(character);
     sessionFactory.createSession(sessionId, playerName, subject);
     Game game = sessionFactory.getGameOrCreate(message.getChatId());
-    game.createCharacter(subject);
+    game.createPlayerCharacter(subject);
     telegramClient.sendTextMessage(message.getChatId(), playerName + ": Joining with existing character.\n" + subject);
   }
 

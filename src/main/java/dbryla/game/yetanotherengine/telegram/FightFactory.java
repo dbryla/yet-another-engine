@@ -50,12 +50,8 @@ public class FightFactory {
 
   public Communicate spellCommunicate(Game game, Subject subject) {
     AtomicInteger counter = new AtomicInteger();
-    List<Spell> spells = Arrays.stream(Spell.values())
-        .filter(spell -> spell.forClass(subject.getCharacterClass()))
-        .collect(Collectors.toList());
-    spells.addAll(subject.getSpells());
-    Collection<List<InlineKeyboardButton>> values = spells.stream()
-        .filter(spell -> !game.getPossibleTargets(subject, spell).isEmpty())
+    Collection<List<InlineKeyboardButton>> values = game.getAvailableSpellsForCast(subject)
+        .stream()
         .map(spell -> new InlineKeyboardButton(spell.toString()).setCallbackData(spell.name()))
         .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 3))
         .values();

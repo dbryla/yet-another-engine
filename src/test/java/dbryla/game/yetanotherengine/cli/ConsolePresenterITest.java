@@ -33,7 +33,7 @@ class ConsolePresenterITest {
   void shouldReturnOnlyAliveTargets() {
     Long gameId = 123L;
     Game game = gameFactory.newGame(gameId);
-    game.createEnemies(monstersFactory.createEncounter(2, 0));
+    game.createNonPlayableCharacters(monstersFactory.createEncounter(2, 0));
     stateStorage.findAll(gameId).stream()
         .findAny()
         .ifPresent(subject -> stateStorage.save(gameId, subject.of(0)));

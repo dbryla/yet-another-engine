@@ -33,7 +33,7 @@ public class FightCommand {
       telegramClient.sendTextMessage(chatId, "Please join game before starting fight!");
       return;
     }
-    game.createEnemies(monstersFactory.createEncounter(playersNumber));
+    game.createNonPlayableCharacters(monstersFactory.createEncounter(playersNumber));
     game.start();
   }
 }

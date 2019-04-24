@@ -1,8 +1,5 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.operations.OperationType.PASS;
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
-
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.encounters.MonstersFactory;
 import dbryla.game.yetanotherengine.domain.game.Action;
@@ -14,14 +11,18 @@ import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.LinkedList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static dbryla.game.yetanotherengine.domain.operations.OperationType.PASS;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 
 @Component
 @Profile("cli")
@@ -67,16 +68,16 @@ public class Cli implements CommandLineRunner {
     int playersNumber = inputProvider.cmdLineToOption();
     for (int i = 0; i < playersNumber; i++) {
       Subject player = consoleCharacterBuilder.createPlayer();
-      game.createCharacter(player);
+      game.createPlayerCharacter(player);
     }
     System.out.println("Do you want (0) random encounter or (1) specific one?");
     int option = inputProvider.cmdLineToOption();
     if (option == 1) {
       System.out.println("Which encounter do you want?");
       int encounterNumber = inputProvider.cmdLineToOption();
-      game.createEnemies(monstersFactory.createEncounter(game.getPlayersNumber(), encounterNumber));
+      game.createNonPlayableCharacters(monstersFactory.createEncounter(game.getPlayersNumber(), encounterNumber));
     } else {
-      game.createEnemies(monstersFactory.createEncounter(game.getPlayersNumber()));
+      game.createNonPlayableCharacters(monstersFactory.createEncounter(game.getPlayersNumber()));
     }
     presenter.showStatus(gameId);
     game.start();

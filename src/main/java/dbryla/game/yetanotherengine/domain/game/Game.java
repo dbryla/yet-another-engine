@@ -39,11 +39,11 @@ public class Game {
 
   private StateMachine stateMachine;
 
-  public void createCharacter(Subject subject) {
+  public void createPlayerCharacter(Subject subject) {
     stateStorage.save(id, subject);
   }
 
-  public void createEnemies(List<Subject> subjects) {
+  public void createNonPlayableCharacters(List<Subject> subjects) {
     subjects.forEach(subject -> {
       stateStorage.save(id, subject);
       artificialIntelligence.initSubject(this, subject);
@@ -182,9 +182,11 @@ public class Game {
   }
 
   public List<Spell> getAvailableSpellsForCast(Subject subject) {
-    return Arrays.stream(Spell.values())
-        .filter(spell -> spell.forClass(subject.getCharacterClass()) && !getPossibleTargets(subject, spell).isEmpty())
+    List<Spell> spells = Arrays.stream(Spell.values())
+        .filter(spell -> spell.forClass(subject.getCharacterClass()))
         .collect(Collectors.toList());
+    spells.addAll(subject.getSpells());
+    return spells.stream().filter(spell -> !getPossibleTargets(subject, spell).isEmpty()).collect(Collectors.toList());
   }
 
 }

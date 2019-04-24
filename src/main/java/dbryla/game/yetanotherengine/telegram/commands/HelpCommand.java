@@ -21,8 +21,9 @@ public class HelpCommand {
         "/character - Display existing character\n" +
         "/join - Join to game\n" +
         "/position - Display characters positions\n" +
-        "/move front/back - Move character to position front/back\n" +
         "/fight - Fight random encounter\n" +
+        "/move - Move character\n" +
+        "/pass - Skip rest of a turn\n" +
         "/attack - Attack with your weapons\n" +
         "/spell - Cast a spell\n" +
         "/status - Show status of fight\n" +

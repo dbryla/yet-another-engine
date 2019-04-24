@@ -54,8 +54,8 @@ public class FightFactory {
         .filter(spell -> spell.forClass(subject.getCharacterClass()))
         .collect(Collectors.toList());
     spells.addAll(subject.getSpells());
-    spells = spells.stream().filter(spell -> !game.getPossibleTargets(subject, spell).isEmpty()).collect(Collectors.toList());
     Collection<List<InlineKeyboardButton>> values = spells.stream()
+        .filter(spell -> !game.getPossibleTargets(subject, spell).isEmpty())
         .map(spell -> new InlineKeyboardButton(spell.toString()).setCallbackData(spell.name()))
         .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 3))
         .values();

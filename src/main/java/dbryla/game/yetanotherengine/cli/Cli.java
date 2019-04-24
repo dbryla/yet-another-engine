@@ -1,5 +1,8 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static dbryla.game.yetanotherengine.domain.operations.OperationType.PASS;
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
+
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.encounters.MonstersFactory;
 import dbryla.game.yetanotherengine.domain.game.Action;
@@ -11,17 +14,14 @@ import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 
 @Component
 @Profile("cli")
@@ -96,12 +96,15 @@ public class Cli implements CommandLineRunner {
     List<OperationType> availableOperations = presenter.showAvailableOperations(game, subject);
     int option = inputProvider.cmdLineToOption();
     OperationType operation = availableOperations.get(option);
+    if (PASS.equals(operation)) {
+      game.execute(new SubjectTurn(subjectName));
+      return;
+    }
     ActionData actionData = getActionData(operation, subject);
     if (actionData.getPosition() == null) {
       int numberOfTargets = getAllowedNumberOfTargets(actionData);
       if (numberOfTargets == ALL_TARGETS_WITHIN_RANGE) {
-        game.execute(
-            SubjectTurn.of(new Action(subjectName, game.getPossibleTargets(subject, actionData.getSpell()), operation, actionData)));
+        game.execute(SubjectTurn.of(new Action(subjectName, game.getPossibleTargets(subject, actionData.getSpell()), operation, actionData)));
       } else {
         List<String> targets = pickTargets(subject, numberOfTargets, actionData);
         game.execute(SubjectTurn.of(new Action(subjectName, targets, operation, actionData)));
@@ -109,7 +112,7 @@ public class Cli implements CommandLineRunner {
     } else {
       if (!isMoving) {
         game.moveSubject(subjectName, actionData.getPosition());
-        System.out.println(subjectName + " moves to " + actionData.getPosition()  + ".");
+        System.out.println(subjectName + " moves to " + actionData.getPosition() + ".");
         handleNextMove(subjectName, true);
       } else {
         game.execute(SubjectTurn.of(new Action(subjectName, operation, actionData)));

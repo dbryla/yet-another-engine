@@ -1,18 +1,17 @@
 package dbryla.game.yetanotherengine.domain.ai;
 
+import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
+import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
+
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-
-import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_FRONT;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
 
 @Component
 @AllArgsConstructor
@@ -41,14 +40,16 @@ class PositionService {
   }
 
   private Optional<ActionData> actionData(Subject source, int range, int distanceToTarget, Game game) {
-    int missingDistanceToRange = distanceToTarget - range;
+    int missingDistanceToRange = (distanceToTarget - range) * source.getAffiliation().getDirection();
     if (missingDistanceToRange == 0
         || isTargetTooFarAway(missingDistanceToRange)
         || isMoveOutsideOfBattleground(source, missingDistanceToRange)
         || wouldNeedToPassEnemies(source, missingDistanceToRange, game)) {
       return Optional.empty();
     }
-    return Optional.of(new ActionData(Position.valueOf(source.getPosition().getBattlegroundLocation() + missingDistanceToRange)));
+    return Optional.of(
+        new ActionData(
+            Position.valueOf(source.getPosition().getBattlegroundLocation() + missingDistanceToRange)));
   }
 
   private boolean isTargetTooFarAway(int range) {
@@ -57,11 +58,11 @@ class PositionService {
 
   private boolean isMoveOutsideOfBattleground(Subject source, int missingDistanceToRange) {
     return PLAYERS_BACK.equals(source.getPosition()) && missingDistanceToRange < 0
-        || ENEMIES_FRONT.equals(source.getPosition()) && missingDistanceToRange > 0;
+        || ENEMIES_BACK.equals(source.getPosition()) && missingDistanceToRange > 0;
   }
 
   boolean wouldNeedToPassEnemies(Subject subject, int missingDistanceToRange, Game game) {
-    if (missingDistanceToRange * subject.getAffiliation().getDirection() < 0) {
+    if (missingDistanceToRange < 0) {
       return game.areEnemiesOnCurrentPosition(subject);
     }
     return false;

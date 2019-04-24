@@ -27,6 +27,6 @@ public class TelegramEventHub implements EventHub {
   public void notifySubjectAboutNextMove(Long gameId, Subject subject) {
     loggingEventHub.notifySubjectAboutNextMove(gameId, subject);
     telegramClient.sendTextMessage(gameId,
-        subject.getName() + " your turn: /move /attack" + TelegramHelpers.getSpellCommandIfApplicable(subject));
+        subject.getName() + " your turn: /move /pass /attack" + TelegramHelpers.getSpellCommandIfApplicable(subject));
   }
 }

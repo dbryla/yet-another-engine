@@ -1,5 +1,15 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.MOVE;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.WEAPON;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSpellCommandIfApplicable;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.isNextUser;
+
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Action;
@@ -11,18 +21,13 @@ import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import java.util.List;
-import java.util.Optional;
-
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.*;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.*;
 
 @Component
 @Slf4j
@@ -98,7 +103,7 @@ public class CallbackHandler {
           if (isNextUser(playerName, game)) {
             session.setMoving(true);
             telegramClient.sendTextMessage(chatId,
-                playerName + " what do you want to do next: /move /attack" + getSpellCommandIfApplicable(session.getSubject()));
+                playerName + " what do you want to do next: /move /pass /attack" + getSpellCommandIfApplicable(session.getSubject()));
           }
         } else {
           SubjectTurn turn = SubjectTurn.of(

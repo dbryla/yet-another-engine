@@ -21,13 +21,16 @@ class YetAnotherGameBotTest {
   @Mock
   private MoveCommand moveCommand;
 
+  @Mock
+  private MoveCommand passCommand;
+
   @InjectMocks
   private YetAnotherGameBot yetAnotherGameBot;
 
   @Test
   void shouldExecuteMoveCommand() {
     Message message = mock(Message.class);
-    when(message.getText()).thenReturn("/move front");
+    when(message.getText()).thenReturn("/move");
     when(message.isCommand()).thenReturn(true);
     when(message.getChatId()).thenReturn(1L);
     when(message.getFrom()).thenReturn(new User());
@@ -38,5 +41,21 @@ class YetAnotherGameBotTest {
     yetAnotherGameBot.onUpdateReceived(update);
 
     verify(moveCommand).execute(eq(update));
+  }
+
+  @Test
+  void shouldExecutePassCommand() {
+    Message message = mock(Message.class);
+    when(message.getText()).thenReturn("/pass");
+    when(message.isCommand()).thenReturn(true);
+    when(message.getChatId()).thenReturn(1L);
+    when(message.getFrom()).thenReturn(new User());
+    Update update = mock(Update.class);
+    when(update.getMessage()).thenReturn(message);
+    when(update.hasMessage()).thenReturn(true);
+
+    yetAnotherGameBot.onUpdateReceived(update);
+
+    verify(passCommand).execute(eq(update));
   }
 }

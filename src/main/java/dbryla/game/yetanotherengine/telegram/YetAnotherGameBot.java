@@ -9,6 +9,7 @@ import dbryla.game.yetanotherengine.telegram.commands.FightCommand;
 import dbryla.game.yetanotherengine.telegram.commands.HelpCommand;
 import dbryla.game.yetanotherengine.telegram.commands.JoinCommand;
 import dbryla.game.yetanotherengine.telegram.commands.MoveCommand;
+import dbryla.game.yetanotherengine.telegram.commands.PassCommand;
 import dbryla.game.yetanotherengine.telegram.commands.PositionCommand;
 import dbryla.game.yetanotherengine.telegram.commands.ResetCommand;
 import dbryla.game.yetanotherengine.telegram.commands.SpellCommand;
@@ -41,6 +42,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private static final String CHARACTER_COMMAND = "/character";
   private static final String POSITION_COMMAND = "/position";
   private static final String MOVE_COMMAND = "/move";
+  private static final String PASS_COMMAND = "/pass";
 
   private final TelegramConfig telegramConfig;
   private final CallbackHandler callbackHandler;
@@ -56,6 +58,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private final CharacterCommand characterCommand;
   private final PositionCommand positionCommand;
   private final MoveCommand moveCommand;
+  private final PassCommand passCommand;
 
 
   @Override
@@ -113,6 +116,9 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
     }
     if (commandText.startsWith(MOVE_COMMAND)) {
       moveCommand.execute(update);
+    }
+    if (commandText.startsWith(PASS_COMMAND)) {
+      passCommand.execute(update);
     }
   }
 

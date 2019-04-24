@@ -1,5 +1,8 @@
 package dbryla.game.yetanotherengine.domain.ai;
 
+import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
+import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
+
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Action;
@@ -10,12 +13,12 @@ import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import org.springframework.stereotype.Component;
-
-import java.util.*;
-
-import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
 
 @Component
 public class ArtificialIntelligence {
@@ -86,7 +89,7 @@ public class ArtificialIntelligence {
   }
 
   private Optional<String> findTarget(Subject subject, ArtificialIntelligenceContext context, SubjectTurn subjectTurn,
-                                      List<String> possibleTargets, int minRange, int maxRange, boolean isMoving) {
+      List<String> possibleTargets, int minRange, int maxRange, boolean isMoving) {
     if (context.getAcquiredTarget() == null && !possibleTargets.isEmpty()) {
       context.setAcquiredTarget(possibleTargets.get(random.nextInt(possibleTargets.size())));
       return Optional.of(context.getAcquiredTarget());
@@ -117,7 +120,7 @@ public class ArtificialIntelligence {
   }
 
   private Optional<Action> tryToMove(Subject subject, ArtificialIntelligenceContext context, int minRange, int maxRange,
-                                     Subject target, boolean isMoving) {
+      Subject target, boolean isMoving) {
     if (isMoving) {
       return Optional.empty();
     }
@@ -132,7 +135,7 @@ public class ArtificialIntelligence {
   }
 
   private Optional<SubjectTurn> attackWithWeapon(Subject subject, ArtificialIntelligenceContext context,
-                                                 Weapon equippedWeapon, boolean isMoving) {
+      Weapon equippedWeapon, boolean isMoving) {
     SubjectTurn turn = new SubjectTurn(subject.getName());
     List<String> possibleTargets = context.getGame().getPossibleTargets(subject, equippedWeapon);
     return findTarget(subject, context, turn, possibleTargets, equippedWeapon.getMinRange(), equippedWeapon.getMaxRange(), isMoving)
@@ -153,26 +156,18 @@ public class ArtificialIntelligence {
       Game game = context.getGame();
       int newBattlegroundPosition = subject.getPosition().getBattlegroundLocation() - 1;
       if (newBattlegroundPosition >= PLAYERS_BACK.getBattlegroundLocation()
-          && !positionService.wouldNeedToPassEnemies(subject, 1, game)) {
-        Position newPosition = Position.valueOf(newBattlegroundPosition);
-        Subject changedSubject = subject.of(newPosition);
-        List<Action> actions = getAction(changedSubject, context, true).getActions();
-        if (actions.size() == 1 && actions.get(0) != null) {
-          return new SubjectTurn(subject.getName())
-              .add(new Action(subject.getName(), OperationType.MOVE, new ActionData(newPosition)))
-              .add(actions.get(0));
+          && !positionService.wouldNeedToPassEnemies(subject, subject.getAffiliation().getDirection(), game)) {
+        Optional<SubjectTurn> turn = tryToMoveAndExecuteAction(subject, context, newBattlegroundPosition);
+        if (turn.isPresent()) {
+          return turn.get();
         }
       }
       newBattlegroundPosition = subject.getPosition().getBattlegroundLocation() + 1;
       if (newBattlegroundPosition <= Position.ENEMIES_BACK.getBattlegroundLocation()
-          && !positionService.wouldNeedToPassEnemies(subject, -1, game)) {
-        Position newPosition = Position.valueOf(newBattlegroundPosition);
-        Subject changedSubject = subject.of(newPosition);
-        List<Action> actions = getAction(changedSubject, context, true).getActions();
-        if (actions.size() == 1 && actions.get(0) != null) {
-          return new SubjectTurn(subject.getName())
-              .add(new Action(subject.getName(), OperationType.MOVE, new ActionData(newPosition)))
-              .add(actions.get(0));
+          && !positionService.wouldNeedToPassEnemies(subject, -1 * subject.getAffiliation().getDirection(), game)) {
+        Optional<SubjectTurn> turn = tryToMoveAndExecuteAction(subject, context, newBattlegroundPosition);
+        if (turn.isPresent()) {
+          return turn.get();
         }
       }
       newBattlegroundPosition = subject.getPosition().getBattlegroundLocation() + (subject.getAffiliation().getDirection() * 2);
@@ -184,6 +179,18 @@ public class ArtificialIntelligence {
       }
     }
     return new SubjectTurn(subject.getName());
+  }
+
+  private Optional<SubjectTurn> tryToMoveAndExecuteAction(Subject subject, ArtificialIntelligenceContext context, int newBattlegroundPosition) {
+    Position newPosition = Position.valueOf(newBattlegroundPosition);
+    Subject changedSubject = subject.of(newPosition);
+    List<Action> actions = getAction(changedSubject, context, true).getActions();
+    if (actions.size() == 1 && actions.get(0) != null) {
+      return Optional.of(new SubjectTurn(subject.getName())
+          .add(new Action(subject.getName(), OperationType.MOVE, new ActionData(newPosition)))
+          .add(actions.get(0)));
+    }
+    return Optional.empty();
   }
 
 }

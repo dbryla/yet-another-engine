@@ -96,14 +96,16 @@ public class ConsolePresenter {
     StringBuilder communicate = new StringBuilder("Which action you pick:");
     communicate.append(String.format(CHOICE_FORMAT, 0, "move"));
     operations.add(OperationType.MOVE);
+    communicate.append(String.format(CHOICE_FORMAT, 1, "pass"));
+    operations.add(OperationType.PASS);
     List<Weapon> weapons = game.getAvailableWeaponsForAttack(subject);
     if (!weapons.isEmpty()) {
-      communicate.append(String.format(CHOICE_FORMAT, 1, "attack"));
+      communicate.append(String.format(CHOICE_FORMAT, 2, "attack"));
       operations.add(OperationType.ATTACK);
     }
     List<Spell> spells = game.getAvailableSpellsForCast(subject);
     if (subject.isSpellCaster() && !spells.isEmpty()) {
-      communicate.append(String.format(CHOICE_FORMAT, 2, "spell"));
+      communicate.append(String.format(CHOICE_FORMAT, 3, "spell"));
       operations.add(OperationType.SPELL_CAST);
     }
     System.out.println(communicate.toString());

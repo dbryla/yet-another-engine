@@ -1,11 +1,7 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import dbryla.game.yetanotherengine.telegram.commands.MoveCommand;
+import dbryla.game.yetanotherengine.telegram.commands.PassCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +11,9 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class YetAnotherGameBotTest {
 
@@ -22,7 +21,7 @@ class YetAnotherGameBotTest {
   private MoveCommand moveCommand;
 
   @Mock
-  private MoveCommand passCommand;
+  private PassCommand passCommand;
 
   @InjectMocks
   private YetAnotherGameBot yetAnotherGameBot;

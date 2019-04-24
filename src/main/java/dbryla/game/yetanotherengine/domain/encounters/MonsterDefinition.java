@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Builder
 @ToString
-public class MonsterDefinition {
+class MonsterDefinition {
   private final String defaultName;
   private final String type;
   private final Race monsterRace;

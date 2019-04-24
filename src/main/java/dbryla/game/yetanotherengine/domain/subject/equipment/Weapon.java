@@ -1,27 +1,13 @@
 package dbryla.game.yetanotherengine.domain.subject.equipment;
 
-import static dbryla.game.yetanotherengine.domain.battleground.Distance.CLOSE_RANGE;
-import static dbryla.game.yetanotherengine.domain.battleground.Distance.EIGHTY_FEET;
-import static dbryla.game.yetanotherengine.domain.battleground.Distance.ONE_HUNDRED_FIFTY_FEET;
-import static dbryla.game.yetanotherengine.domain.battleground.Distance.THIRTY_FEET;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.BITE_NECK;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.CHOP_HEAD;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.CUT_THROAT;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.FINESSE;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.HEADSHOT;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.LIGHT;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.SMASH_HEAD;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.TWO_HANDED;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.MARTIAL_MELEE_WEAPON;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.MARTIAL_RANGED_WEAPON;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.MONSTER_MELEE_WEAPON;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.NON_PLAYABLE;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.SIMPLE_MELEE_WEAPON;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.SIMPLE_RANGED_WEAPON;
-
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
+
 import java.util.Set;
 import java.util.stream.IntStream;
+
+import static dbryla.game.yetanotherengine.domain.battleground.Distance.*;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.*;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.*;
 
 public enum Weapon {
 
@@ -81,7 +67,7 @@ public enum Weapon {
   }
 
   public boolean isMelee() {
-    return SIMPLE_MELEE_WEAPON.equals(type) || MARTIAL_MELEE_WEAPON.equals(type);
+    return MONSTER_MELEE_WEAPON.equals(type) || SIMPLE_MELEE_WEAPON.equals(type) || MARTIAL_MELEE_WEAPON.equals(type);
   }
 
   public boolean isFinesse() {

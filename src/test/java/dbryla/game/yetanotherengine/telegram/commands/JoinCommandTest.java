@@ -69,7 +69,7 @@ class JoinCommandTest extends CommandTestSetup {
   void shouldJoinWithCreatingNewCharacterIfNoSessionAndCharacterExist() {
     Session session = mock(Session.class);
     when(sessionFactory.createCharacterCreationCommunicates(any(), any())).thenReturn(session);
-    when(session.getNextBuildingCommunicate()).thenReturn(Optional.of(mock(Communicate.class)));
+    when(session.getNextCommunicate()).thenReturn(Optional.of(mock(Communicate.class)));
 
     joinCommand.execute(update);
 

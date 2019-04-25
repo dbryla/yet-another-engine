@@ -6,7 +6,7 @@ import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
-import dbryla.game.yetanotherengine.telegram.TelegramHelpers;
+import dbryla.game.yetanotherengine.telegram.Commons;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -20,11 +20,12 @@ public class MoveCommand {
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
   private final FightFactory fightFactory;
+  private final Commons commons;
 
   public void execute(Update update) {
     Long chatId = update.getMessage().getChatId();
     Game game = sessionFactory.getGame(chatId);
-    String sessionId = TelegramHelpers.getSessionId(update.getMessage(), update.getMessage().getFrom());
+    String sessionId = commons.getSessionId(update.getMessage(), update.getMessage().getFrom());
     Session session = sessionFactory.getSession(sessionId);
     if (game == null || session == null) {
       telegramClient.sendTextMessage(chatId, "Move command can be only executed after joining game.");

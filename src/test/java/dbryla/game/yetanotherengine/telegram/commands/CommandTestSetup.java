@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
+import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -23,6 +24,9 @@ public abstract class CommandTestSetup {
 
   @Mock
   protected FightFactory fightFactory;
+
+  @Mock
+  protected Commons commons;
 
   @Mock
   protected Update update;

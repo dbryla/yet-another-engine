@@ -1,16 +1,5 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.MOVE;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGETS;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.WEAPON;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.executeTurn;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSpellCommandIfApplicable;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.isNextUser;
-
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Action;
@@ -22,13 +11,17 @@ import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
-import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.util.List;
+import java.util.Optional;
+
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.*;
 
 @Component
 @Slf4j
@@ -41,14 +34,15 @@ public class CallbackHandler {
   private final FightFactory fightFactory;
   private final SubjectFactory subjectFactory;
   private final CharacterRepository characterRepository;
+  private final Commons commons;
 
   public void execute(Update update) {
     String messageText = update.getCallbackQuery().getMessage().getText();
     Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-    String sessionId = getSessionId(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getFrom());
+    String sessionId = commons.getSessionId(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getFrom());
     log.trace("Callback: {} no:{} [{}]", messageText, messageId, sessionId);
-    String playerName = getCharacterName(update.getCallbackQuery().getFrom());
-    if (!playerName.equals(getCharacterName(update.getCallbackQuery().getMessage().getReplyToMessage().getFrom()))) {
+    String playerName = commons.getCharacterName(update.getCallbackQuery().getFrom());
+    if (!playerName.equals(commons.getCharacterName(update.getCallbackQuery().getMessage().getReplyToMessage().getFrom()))) {
       log.trace("Aborting handling callback. Not the owner of original command.");
       return;
     }
@@ -68,7 +62,7 @@ public class CallbackHandler {
   }
 
   private void handleCharacterBuilding(Communicate communicate, String messageText, Integer messageId,
-      Long chatId, Integer originalMessageId) {
+                                       Long chatId, Integer originalMessageId) {
     if (messageText.contains(ABILITIES) && ABILITIES.equals(communicate.getText())) {
       telegramClient.sendEditKeyboard(communicate, chatId, messageId);
     } else {
@@ -78,7 +72,7 @@ public class CallbackHandler {
   }
 
   private void handleFightAndCharacterCreation(Session session, String playerName, String callbackData, String messageText,
-      Integer messageId, Integer originalMessageId, Long chatId) {
+                                               Integer messageId, Integer originalMessageId, Long chatId) {
     Game game = sessionFactory.getGame(chatId);
     if (messageText.startsWith(SPELL)) {
       handleSpellCallback(playerName, callbackData, messageId, originalMessageId, chatId, game, session);
@@ -93,7 +87,7 @@ public class CallbackHandler {
       fightFactory.targetCommunicate(game, playerName, session.getWeapon())
           .ifPresentOrElse(
               communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, originalMessageId),
-              () -> executeTurn(game, session,
+              () -> commons.executeTurn(game, session,
                   SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
                       OperationType.ATTACK, new ActionData(session.getWeapon())))));
       session.cleanUpCallbackData();
@@ -101,15 +95,14 @@ public class CallbackHandler {
       if (messageText.startsWith(MOVE)) {
         if (!session.isMoving()) {
           handleMoveCallback(session, callbackData, chatId, game);
-          if (isNextUser(playerName, game)) {
+          if (commons.isNextUser(playerName, game)) {
             session.setMoving(true);
-            telegramClient.sendTextMessage(chatId,
-                playerName + " what do you want to do next: /move /pass /attack" + getSpellCommandIfApplicable(session.getSubject()));
+            telegramClient.sendTextMessage(chatId, commons.getPlayerTurnMessage(session.getSubject()));
           }
         } else {
           SubjectTurn turn = SubjectTurn.of(
               new Action(playerName, List.of(), OperationType.MOVE, new ActionData(Position.valueOf(Integer.valueOf(callbackData)))));
-          executeTurn(game, session, turn);
+          commons.executeTurn(game, session, turn);
         }
       }
       telegramClient.deleteMessage(chatId, messageId);
@@ -127,7 +120,7 @@ public class CallbackHandler {
     telegramClient.deleteMessage(chatId, messageId);
     SubjectTurn turn = SubjectTurn.of(
         new Action(playerName, callbackData, OperationType.ATTACK, new ActionData(session.getSubject().getEquipment().getWeapons().get(0))));
-    executeTurn(game, session, turn);
+    commons.executeTurn(game, session, turn);
   }
 
   private void handleSpellTarget(Session session, String playerName, Integer messageId, Long chatId, Game game) {
@@ -141,7 +134,7 @@ public class CallbackHandler {
   }
 
   private void handleSpellCallback(String playerName, String chosenSpell, Integer messageId, Integer originalMessageId,
-      Long chatId, Game game, Session session) {
+                                   Long chatId, Game game, Session session) {
     Spell spell = Spell.valueOf(chosenSpell);
     telegramClient.deleteMessage(chatId, messageId);
     if (!spell.isAreaOfEffectSpell() && game.getPossibleTargets(game.getSubject(playerName), spell).size() > spell.getMaximumNumberOfTargets()) {
@@ -153,13 +146,13 @@ public class CallbackHandler {
     }
     SubjectTurn turn = SubjectTurn.of(
         new Action(playerName, game.getPossibleTargets(game.getSubject(playerName), spell), OperationType.SPELL_CAST, new ActionData(spell)));
-    executeTurn(game, session, turn);
+    commons.executeTurn(game, session, turn);
   }
 
   private void spellCastOnManyTargets(Session session, String playerName, Integer messageId, Long chatId, Game game, Spell spell) {
     telegramClient.deleteMessage(chatId, messageId);
     SubjectTurn turn = SubjectTurn.of(new Action(playerName, session.getTargets(), OperationType.SPELL_CAST, new ActionData(spell)));
-    executeTurn(game, session, turn);
+    commons.executeTurn(game, session, turn);
   }
 
   private void createCharacterIfNeeded(Long chatId, Session session) {

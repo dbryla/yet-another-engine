@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @AllArgsConstructor
 @Profile("tg")
 public class HelpCommand {
+
   private final TelegramClient telegramClient;
 
   public void execute(Update update) {

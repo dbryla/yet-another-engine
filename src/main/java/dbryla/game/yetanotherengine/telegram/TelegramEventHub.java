@@ -16,6 +16,7 @@ public class TelegramEventHub implements EventHub {
 
   private final EventHub loggingEventHub;
   private final TelegramClient telegramClient;
+  private final Commons commons;
 
   @Override
   public void send(Long gameId, Event event) {
@@ -26,7 +27,6 @@ public class TelegramEventHub implements EventHub {
   @Override
   public void notifySubjectAboutNextMove(Long gameId, Subject subject) {
     loggingEventHub.notifySubjectAboutNextMove(gameId, subject);
-    telegramClient.sendTextMessage(gameId,
-        subject.getName() + " your turn: /move /pass /attack" + TelegramHelpers.getSpellCommandIfApplicable(subject));
+    telegramClient.sendTextMessage(gameId, commons.getPlayerTurnMessage(subject));
   }
 }

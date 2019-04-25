@@ -23,6 +23,9 @@ class YetAnotherGameBotTest {
   @Mock
   private PassCommand passCommand;
 
+  @Mock
+  private Commons commons;
+
   @InjectMocks
   private YetAnotherGameBot yetAnotherGameBot;
 
@@ -31,7 +34,6 @@ class YetAnotherGameBotTest {
     Message message = mock(Message.class);
     when(message.getText()).thenReturn("/move");
     when(message.isCommand()).thenReturn(true);
-    when(message.getChatId()).thenReturn(1L);
     when(message.getFrom()).thenReturn(new User());
     Update update = mock(Update.class);
     when(update.getMessage()).thenReturn(message);
@@ -47,7 +49,6 @@ class YetAnotherGameBotTest {
     Message message = mock(Message.class);
     when(message.getText()).thenReturn("/pass");
     when(message.isCommand()).thenReturn(true);
-    when(message.getChatId()).thenReturn(1L);
     when(message.getFrom()).thenReturn(new User());
     Update update = mock(Update.class);
     when(update.getMessage()).thenReturn(message);

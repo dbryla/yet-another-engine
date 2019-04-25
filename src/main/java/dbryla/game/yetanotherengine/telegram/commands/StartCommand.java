@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @AllArgsConstructor
 @Profile("tg")
 public class StartCommand {
+
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
 

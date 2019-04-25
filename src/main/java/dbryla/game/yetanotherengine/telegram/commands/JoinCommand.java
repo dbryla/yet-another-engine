@@ -1,14 +1,12 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
-
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -22,15 +20,17 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @AllArgsConstructor
 @Profile("tg")
 public class JoinCommand {
+
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
   private final CharacterRepository characterRepository;
   private final SubjectFactory subjectFactory;
+  private final Commons commons;
 
   public void execute(Update update) {
     Message message = update.getMessage();
-    String playerName = getCharacterName(message.getFrom());
-    String sessionId = getSessionId(message, message.getFrom());
+    String playerName = commons.getCharacterName(message.getFrom());
+    String sessionId = commons.getSessionId(message, message.getFrom());
     Game game = sessionFactory.getGame(message.getChatId());
     if (game != null && game.isStarted()) {
       telegramClient.sendTextMessage(message.getChatId(), "Can't join during the battle!");
@@ -39,8 +39,7 @@ public class JoinCommand {
         characterRepository.findByName(playerName)
             .ifPresentOrElse(
                 character -> createNewSession(message, playerName, sessionId, character),
-                () -> createNewSessionAndCharacter(message, playerName, sessionId)
-            );
+                () -> createNewSessionAndCharacter(message, playerName, sessionId));
       } else {
         game = sessionFactory.getGameOrCreate(message.getChatId());
         game.createPlayerCharacter(sessionFactory.getSession(sessionId).getSubject());
@@ -58,7 +57,7 @@ public class JoinCommand {
   }
 
   void createNewSessionAndCharacter(Message message, String playerName, String sessionId) {
-    Session session = sessionFactory.createSessionAndPrepareCommunicates(sessionId, playerName);
+    Session session = sessionFactory.createCharacterCreationCommunicates(sessionId, playerName);
     Communicate communicate = session.getNextCommunicate().get();
     telegramClient.sendReplyKeyboard(communicate, message.getChatId(), message.getMessageId());
   }

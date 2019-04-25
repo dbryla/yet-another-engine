@@ -21,6 +21,7 @@ import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 @AllArgsConstructor
 @Profile("tg")
 public class StatusCommand {
+
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
 

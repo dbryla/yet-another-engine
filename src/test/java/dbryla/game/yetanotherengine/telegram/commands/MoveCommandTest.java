@@ -18,7 +18,6 @@ class MoveCommandTest extends CommandTestSetup {
   @Test
   void shouldSendReplyKeyboardToTakeNewPosition() {
     User user = mock(User.class);
-    when(user.getId()).thenReturn(8);
     long chatId = 1L;
     Integer messageId = 2;
     when(message.getChatId()).thenReturn(chatId);
@@ -37,10 +36,7 @@ class MoveCommandTest extends CommandTestSetup {
 
   @Test
   void shouldNotUpdateSessionWhenPlayerTriesToMoveOnCurrentPosition() {
-    long chatId = 1L;
     User user = mock(User.class);
-    when(user.getId()).thenReturn(8);
-    when(message.getChatId()).thenReturn(chatId);
     when(message.getFrom()).thenReturn(user);
 
     moveCommand.execute(update);

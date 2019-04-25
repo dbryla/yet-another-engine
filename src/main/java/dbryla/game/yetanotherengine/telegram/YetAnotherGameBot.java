@@ -1,7 +1,5 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
-
 import dbryla.game.yetanotherengine.telegram.commands.AttackCommand;
 import dbryla.game.yetanotherengine.telegram.commands.CharacterCommand;
 import dbryla.game.yetanotherengine.telegram.commands.CreateCommand;
@@ -46,6 +44,8 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
 
   private final TelegramConfig telegramConfig;
   private final CallbackHandler callbackHandler;
+  private final Commons commons;
+
   private final StartCommand startCommand;
   private final JoinCommand joinCommand;
   private final HelpCommand helpCommand;
@@ -74,13 +74,13 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
     }
     if (isRegularMessage(update)) {
       log.trace("Update: {} no:{} [{}]", update.getMessage().getText(), update.getMessage().getMessageId(),
-          getSessionId(update.getMessage(), update.getMessage().getFrom()));
+          commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
     }
   }
 
   private void handleCommand(Update update, String commandText) {
     log.trace("Command: {} no:{} [{}]", commandText, update.getMessage().getMessageId(),
-        getSessionId(update.getMessage(), update.getMessage().getFrom()));
+        commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
     if (commandText.startsWith(START_COMMAND)) {
       startCommand.execute(update);
     }

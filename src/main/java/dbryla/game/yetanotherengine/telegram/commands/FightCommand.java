@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @AllArgsConstructor
 @Profile("tg")
 public class FightCommand {
+
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
   private final MonstersFactory monstersFactory;

@@ -1,5 +1,16 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.MOVE;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGETS;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.WEAPON;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.executeTurn;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSpellCommandIfApplicable;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.isNextUser;
+
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Action;
@@ -11,18 +22,13 @@ import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import java.util.List;
-import java.util.Optional;
-
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.*;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.*;
 
 @Component
 @Slf4j
@@ -50,7 +56,7 @@ public class CallbackHandler {
     Long chatId = update.getCallbackQuery().getMessage().getChatId();
     Session session = sessionFactory.getSession(sessionId);
     sessionFactory.updateSession(messageText, session, callbackData);
-    session.getNextBuildingCommunicate()
+    session.getNextCommunicate()
         .ifPresentOrElse(
             communicate -> handleCharacterBuilding(communicate, messageText, messageId, chatId, getOriginalMessageId(update)),
             () -> handleFightAndCharacterCreation(session, playerName, callbackData,
@@ -76,7 +82,7 @@ public class CallbackHandler {
     Game game = sessionFactory.getGame(chatId);
     if (messageText.startsWith(SPELL)) {
       handleSpellCallback(playerName, callbackData, messageId, originalMessageId, chatId, game, session);
-    } else if (messageText.startsWith(TARGET)) {
+    } else if (messageText.startsWith(TARGETS)) {
       if (session.isSpellCasting()) {
         handleSpellTarget(session, playerName, messageId, chatId, game);
       } else {

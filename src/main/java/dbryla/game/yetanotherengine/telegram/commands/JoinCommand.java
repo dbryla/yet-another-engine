@@ -1,10 +1,13 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
+import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
+
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
@@ -14,9 +17,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getCharacterName;
-import static dbryla.game.yetanotherengine.telegram.TelegramHelpers.getSessionId;
 
 @Component
 @AllArgsConstructor
@@ -59,7 +59,7 @@ public class JoinCommand {
 
   void createNewSessionAndCharacter(Message message, String playerName, String sessionId) {
     Session session = sessionFactory.createSessionAndPrepareCommunicates(sessionId, playerName);
-    Communicate communicate = session.getNextBuildingCommunicate().get();
+    Communicate communicate = session.getNextCommunicate().get();
     telegramClient.sendReplyKeyboard(communicate, message.getChatId(), message.getMessageId());
   }
 }

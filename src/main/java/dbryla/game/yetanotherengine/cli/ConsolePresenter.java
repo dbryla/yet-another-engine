@@ -182,7 +182,7 @@ public class ConsolePresenter {
     System.out.println(communicate.toString());
   }
 
-  List<Weapon> showAvailableWeapons(Game game, Subject subject) {
+  List<Weapon> showAvailableWeaponsToAttackWith(Game game, Subject subject) {
     List<Weapon> weapons = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Choose weapon:");
     int i = 0;

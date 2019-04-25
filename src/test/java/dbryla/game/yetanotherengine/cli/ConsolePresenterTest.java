@@ -1,30 +1,31 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameOptions;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ConsolePresenterTest {
@@ -34,6 +35,9 @@ class ConsolePresenterTest {
 
   @Mock
   private GameOptions gameOptions;
+
+  @Mock
+  private AbilityScoresSupplier abilityScoresSupplier;
 
   @Test
   void shouldReturnAvailableClasses() {
@@ -117,5 +121,38 @@ class ConsolePresenterTest {
 
     assertThat(armors).contains(Armor.values());
   }
+
+  @Test
+  void shouldReturnGeneratedAbilityScores() {
+    List<Integer> abilityScores = List.of(1, 2, 3, 4, 5, 6);
+    when(abilityScoresSupplier.get()).thenReturn(abilityScores);
+
+    List<Integer> result = consolePresenter.showGeneratedAbilityScores();
+
+    assertThat(result).isEqualTo(abilityScores);
+  }
+
+  @Test
+  void shouldReturnAvailableRaces() {
+    Set<Race> availableRaces = Set.of(Race.values());
+    when(gameOptions.getAvailableRaces()).thenReturn(availableRaces);
+
+    List<Race> result = consolePresenter.showAvailableRaces();
+
+    assertThat(result).hasSameElementsAs(availableRaces);
+  }
+
+  @Test
+  void shouldReturnAvailableWeaponsToAttackWith() {
+    List<Weapon> availableWeapons = List.of(Weapon.values());
+    Subject subject = mock(Subject.class);
+    Game game = mock(Game.class);
+    when(game.getAvailableWeaponsForAttack(eq(subject))).thenReturn(availableWeapons);
+
+    List<Weapon> result = consolePresenter.showAvailableWeaponsToAttackWith(game, subject);
+
+    assertThat(result).isEqualTo(availableWeapons);
+  }
+
 
 }

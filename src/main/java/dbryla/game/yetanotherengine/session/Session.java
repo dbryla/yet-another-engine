@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.session;
 import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
 import static dbryla.game.yetanotherengine.telegram.BuildingFactory.WEAPONS;
 import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGET;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGETS;
 import static dbryla.game.yetanotherengine.telegram.FightFactory.WEAPON;
 
 import dbryla.game.yetanotherengine.domain.spells.Spell;
@@ -48,29 +48,29 @@ public class Session {
   public Session(String playerName, Subject subject) {
     this.playerName = playerName;
     this.subject = subject;
-    this.communicates = List.of();
+    this.communicates = new LinkedList<>();
   }
 
   public void update(String key, String value) {
     if (key.equals(ABILITIES)) {
       data.putIfAbsent(ABILITIES, new LinkedList<>());
-      ((LinkedList) data.get(ABILITIES)).add(value);
+      ((List) data.get(ABILITIES)).add(value);
       return;
     }
-    if (key.equals(TARGET)) {
-      data.putIfAbsent(TARGET, new LinkedList<>());
-      ((LinkedList) data.get(TARGET)).add(value);
+    if (key.equals(TARGETS)) {
+      data.putIfAbsent(TARGETS, new LinkedList<>());
+      ((List) data.get(TARGETS)).add(value);
       return;
     }
     if (key.equals(WEAPONS)) {
       data.putIfAbsent(WEAPONS, new LinkedList<>());
-      ((LinkedList) data.get(WEAPONS)).add(value);
+      ((List) data.get(WEAPONS)).add(value);
       return;
     }
     data.put(key, value);
   }
 
-  public Optional<Communicate> getNextBuildingCommunicate() {
+  public Optional<Communicate> getNextCommunicate() {
     if (communicates.isEmpty()) {
       return Optional.empty();
     }
@@ -86,15 +86,15 @@ public class Session {
   }
 
   public boolean areAllTargetsAcquired() {
-    return Spell.valueOf((String) data.get(SPELL)).getMaximumNumberOfTargets() == ((List) data.get(TARGET)).size();
+    return Spell.valueOf((String) data.get(SPELL)).getMaximumNumberOfTargets() == ((List) data.get(TARGETS)).size();
   }
 
   public List<String> getTargets() {
-    return (List<String>) data.get(TARGET);
+    return (List<String>) data.get(TARGETS);
   }
 
-  public void clearTargets() {
-    List list = (List) data.get(TARGET);
+  private void clearTargets() {
+    List list = (List) data.get(TARGETS);
     if (list != null) {
       list.clear();
     }

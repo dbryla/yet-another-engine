@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Component
 public class FightFactory {
 
-  public static final String TARGET = "Choose your target";
+  public static final String TARGETS = "Choose your target";
   public static final String SPELL = "Choose spell to cast";
   public static final String WEAPON = "Choose weapon to attack with";
   static final String MOVE = "Where do you want to move?";
@@ -45,7 +45,7 @@ public class FightFactory {
         .map(subject -> new InlineKeyboardButton(subject).setCallbackData(subject))
         .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 2))
         .values();
-    return Optional.of(new Communicate(TARGET, new ArrayList<>(values)));
+    return Optional.of(new Communicate(TARGETS, new ArrayList<>(values)));
   }
 
   public Communicate spellCommunicate(Game game, Subject subject) {

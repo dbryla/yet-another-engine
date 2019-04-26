@@ -27,10 +27,12 @@ public class Commons {
     return game != null && game.getNextSubjectName().isPresent() && playerName.equals(game.getNextSubjectName().get());
   }
 
-  public void executeTurn(Game game, Session session, SubjectTurn turn, Long chatId, Integer messageId) {
-    if (messageId != null) {
-      telegramClient.deleteMessage(chatId, messageId);
-    }
+  public void executeTurnAndDeleteMessage(Game game, Session session, SubjectTurn turn, Long chatId, Integer messageId) {
+    game.execute(turn);
+    session.cleanUpCallbackData();
+  }
+
+  public void executeTurn(Game game, Session session, SubjectTurn turn) {
     game.execute(turn);
     session.cleanUpCallbackData();
   }

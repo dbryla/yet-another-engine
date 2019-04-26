@@ -3,9 +3,12 @@ package dbryla.game.yetanotherengine.telegram.commands;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.telegram.Communicate;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.telegram.telegrambots.meta.api.objects.User;
+
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -27,10 +30,28 @@ class MoveCommandTest extends CommandTestSetup {
     Game game = mock(Game.class);
     when(sessionFactory.getSession(any())).thenReturn(new Session("player", subject));
     when(sessionFactory.getGame(eq(chatId))).thenReturn(game);
+    when(fightFactory.moveCommunicate(any(), any())).thenReturn(Optional.of(new Communicate(null, null)));
 
     moveCommand.execute(update);
 
     verify(telegramClient).sendReplyKeyboard(any(), eq(chatId), eq(messageId));
+    verifyNoMoreInteractions(telegramClient);
+  }
+
+  @Test
+  void shouldSendCommunicateAboutNotBeingAbleToMove() {
+    User user = mock(User.class);
+    long chatId = 1L;
+    when(message.getChatId()).thenReturn(chatId);
+    when(message.getFrom()).thenReturn(user);
+    Subject subject = mock(Subject.class);
+    Game game = mock(Game.class);
+    when(sessionFactory.getSession(any())).thenReturn(new Session("player", subject));
+    when(sessionFactory.getGame(eq(chatId))).thenReturn(game);
+
+    moveCommand.execute(update);
+
+    verify(telegramClient).sendTextMessage(eq(chatId), eq("You are unable to move right now."));
     verifyNoMoreInteractions(telegramClient);
   }
 

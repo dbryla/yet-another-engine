@@ -24,7 +24,7 @@ public class PassCommand {
     Session session = sessionFactory.getSession(commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
     String playerName = session.getPlayerName();
     if (game.isStarted() && !game.isEnded() && commons.isNextUser(playerName, game)) {
-      commons.executeTurn(game, session, new SubjectTurn(playerName), chatId, null);
+      commons.executeTurn(game, session, new SubjectTurn(playerName));
     }
   }
 }

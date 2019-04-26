@@ -32,8 +32,9 @@ public class MoveCommand {
       return;
     }
     Subject subject = game.getSubject(session.getPlayerName());
-    telegramClient
-        .sendReplyKeyboard(fightFactory.moveCommunicate(game, subject), chatId, update.getMessage().getMessageId());
+    fightFactory.moveCommunicate(game, subject)
+        .ifPresentOrElse(communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, update.getMessage().getMessageId()),
+            () -> telegramClient.sendTextMessage(chatId, "You are unable to move right now."));
   }
 
 }

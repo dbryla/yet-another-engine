@@ -136,7 +136,7 @@ class CallbackHandlerTest {
     callbackHandler.execute(update);
 
     ArgumentCaptor<SubjectTurn> captor = ArgumentCaptor.forClass(SubjectTurn.class);
-    verify(commons).executeTurn(any(), any(), captor.capture(), any(), any());
+    verify(commons).executeTurnAndDeleteMessage(any(), any(), captor.capture(), any(), any());
     SubjectTurn turn = captor.getValue();
     assertThat(turn.getActions()).isNotEmpty();
     assertThat(turn.getActions().get(0).getOperationType()).isEqualTo(OperationType.SPELL_CAST);
@@ -150,7 +150,7 @@ class CallbackHandlerTest {
     callbackHandler.execute(update);
 
     ArgumentCaptor<SubjectTurn> captor = ArgumentCaptor.forClass(SubjectTurn.class);
-    verify(commons).executeTurn(any(), any(), captor.capture(), any(), any());
+    verify(commons).executeTurnAndDeleteMessage(any(), any(), captor.capture(), any(), any());
     SubjectTurn turn = captor.getValue();
     assertThat(turn.getActions()).isNotEmpty();
     assertThat(turn.getActions().get(0).getOperationType()).isEqualTo(OperationType.ATTACK);
@@ -164,7 +164,7 @@ class CallbackHandlerTest {
     callbackHandler.execute(update);
 
     ArgumentCaptor<SubjectTurn> captor = ArgumentCaptor.forClass(SubjectTurn.class);
-    verify(commons).executeTurn(any(), any(), captor.capture(), any(), any());
+    verify(commons).executeTurnAndDeleteMessage(any(), any(), captor.capture(), any(), any());
     SubjectTurn turn = captor.getValue();
     assertThat(turn.getActions()).isNotEmpty();
     assertThat(turn.getActions().get(0).getOperationType()).isEqualTo(OperationType.MOVE);

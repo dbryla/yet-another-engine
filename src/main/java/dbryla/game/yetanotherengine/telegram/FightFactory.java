@@ -58,7 +58,7 @@ public class FightFactory {
     return new Communicate(SPELL, new ArrayList<>(values));
   }
 
-  public Communicate moveCommunicate(Game game, Subject subject) {
+  public Optional<Communicate> moveCommunicate(Game game, Subject subject) {
     int battlegroundLocation = subject.getPosition().getBattlegroundLocation();
     List<InlineKeyboardButton> positions = new ArrayList<>();
     int backPosition = battlegroundLocation - 1;
@@ -71,7 +71,10 @@ public class FightFactory {
     }
     ArrayList<List<InlineKeyboardButton>> values = new ArrayList<>();
     values.add(positions);
-    return new Communicate(MOVE, values);
+    if (positions.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(new Communicate(MOVE, values));
   }
 
   public Communicate weaponCommunicate(Game game, String playerName) {

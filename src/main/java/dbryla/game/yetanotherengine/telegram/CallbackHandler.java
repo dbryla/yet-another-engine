@@ -77,54 +77,57 @@ public class CallbackHandler {
     if (messageText.startsWith(SPELL)) {
       handleSpellCallback(playerName, callbackData, messageId, originalMessageId, chatId, game, session);
     } else if (messageText.startsWith(TARGETS)) {
-      if (session.isSpellCasting()) {
-        handleSpellOnTarget(session, playerName, messageId, chatId, game);
-      } else {
-        handleWeaponAttack(session, playerName, callbackData, messageId, chatId, game);
-      }
+      handleTargetsCallback(session, playerName, callbackData, messageId, chatId, game);
     } else if (messageText.startsWith(WEAPON)) {
-      telegramClient.deleteMessage(chatId, messageId);
-      fightFactory.targetCommunicate(game, playerName, session.getWeapon())
-          .ifPresentOrElse(
-              communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, originalMessageId),
-              () -> commons.executeTurn(game, session,
-                  SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
-                      OperationType.ATTACK, new ActionData(session.getWeapon()))), chatId, null));
+      handleWeaponCallback(session, playerName, messageId, originalMessageId, chatId, game);
+    } else if (messageText.startsWith(MOVE)) {
+      handleMoveCallback(session, playerName, callbackData, messageId, chatId, game);
     } else {
-      if (messageText.startsWith(MOVE)) {
-        if (!session.isMoving()) {
-          handleMoveCallback(session, callbackData, chatId, game);
-          if (commons.isNextUser(playerName, game)) {
-            session.setMoving(true);
-            telegramClient.sendTextMessage(chatId, commons.getPlayerTurnMessage(session.getSubject()));
-          }
-        } else {
-          SubjectTurn turn = SubjectTurn.of(
-              new Action(playerName, List.of(), OperationType.MOVE, new ActionData(Position.valueOf(Integer.valueOf(callbackData)))));
-          commons.executeTurn(game, session, turn, chatId, messageId);
-          return;
-        }
-      }
-      telegramClient.deleteMessage(chatId, messageId);
-      createCharacterIfNeeded(chatId, session);
+      handleCharacterCreation(chatId, session, messageId);
     }
   }
 
-  private void handleMoveCallback(Session session, String callbackData, Long chatId, Game game) {
-    Position newPosition = Position.valueOf(Integer.valueOf(callbackData));
-    game.moveSubject(session.getPlayerName(), newPosition);
-    telegramClient.sendTextMessage(chatId, session.getPlayerName() + " moves to " + newPosition + ".");
+  private void handleMoveCallback(Session session, String playerName, String callbackData, Integer messageId, Long chatId, Game game) {
+    if (!session.isMoving()) {
+      Position newPosition = Position.valueOf(Integer.valueOf(callbackData));
+      game.moveSubject(session.getPlayerName(), newPosition);
+      telegramClient.sendTextMessage(chatId, session.getPlayerName() + " moves to " + newPosition + ".");
+      if (commons.isNextUser(playerName, game)) {
+        session.setMoving(true);
+        telegramClient.sendTextMessage(chatId, commons.getPlayerTurnMessage(session.getSubject()));
+      }
+      telegramClient.deleteMessage(chatId, messageId);
+    } else {
+      SubjectTurn turn = SubjectTurn.of(
+          new Action(playerName, List.of(), OperationType.MOVE, new ActionData(Position.valueOf(Integer.valueOf(callbackData)))));
+      commons.executeTurnAndDeleteMessage(game, session, turn, chatId, messageId);
+    }
   }
 
-  private void handleWeaponAttack(Session session, String playerName, String callbackData, Integer messageId, Long chatId, Game game) {
-    SubjectTurn turn = SubjectTurn.of(new Action(playerName, callbackData, OperationType.ATTACK, new ActionData(session.getWeapon())));
-    commons.executeTurn(game, session, turn, chatId, messageId);
+  private void handleWeaponCallback(Session session, String playerName, Integer messageId, Integer originalMessageId, Long chatId, Game game) {
+    telegramClient.deleteMessage(chatId, messageId);
+    fightFactory.targetCommunicate(game, playerName, session.getWeapon())
+        .ifPresentOrElse(
+            communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, originalMessageId),
+            () -> commons.executeTurn(game, session,
+                SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
+                    OperationType.ATTACK, new ActionData(session.getWeapon())))));
+  }
+
+  private void handleTargetsCallback(Session session, String playerName, String callbackData, Integer messageId, Long chatId, Game game) {
+    if (session.isSpellCasting()) {
+      handleSpellOnTarget(session, playerName, messageId, chatId, game);
+    } else {
+      SubjectTurn turn = SubjectTurn.of(new Action(playerName, callbackData, OperationType.ATTACK, new ActionData(session.getWeapon())));
+      commons.executeTurnAndDeleteMessage(game, session, turn, chatId, messageId);
+    }
   }
 
   private void handleSpellOnTarget(Session session, String playerName, Integer messageId, Long chatId, Game game) {
     Spell spell = Spell.valueOf((String) session.getData().get(SPELL));
     if (session.areAllTargetsAcquired()) {
-      castSpellOnTarget(session, playerName, messageId, chatId, game, spell);
+      SubjectTurn turn = SubjectTurn.of(new Action(playerName, session.getTargets(), OperationType.SPELL_CAST, new ActionData(spell)));
+      commons.executeTurnAndDeleteMessage(game, session, turn, chatId, messageId);
     } else {
       Optional<Communicate> communicate = fightFactory.targetCommunicate(game, playerName, spell, session.getTargets());
       communicate.ifPresent(value -> telegramClient.sendEditKeyboard(value, chatId, messageId));
@@ -144,15 +147,11 @@ public class CallbackHandler {
       }
     }
     SubjectTurn turn = SubjectTurn.of(new Action(playerName, possibleTargets, OperationType.SPELL_CAST, new ActionData(spell)));
-    commons.executeTurn(game, session, turn, chatId, null);
+    commons.executeTurn(game, session, turn);
   }
 
-  private void castSpellOnTarget(Session session, String playerName, Integer messageId, Long chatId, Game game, Spell spell) {
-    SubjectTurn turn = SubjectTurn.of(new Action(playerName, session.getTargets(), OperationType.SPELL_CAST, new ActionData(spell)));
-    commons.executeTurn(game, session, turn, chatId, messageId);
-  }
-
-  private void createCharacterIfNeeded(Long chatId, Session session) {
+  private void handleCharacterCreation(Long chatId, Session session, Integer messageId) {
+    telegramClient.deleteMessage(chatId, messageId);
     if (session.getSubject() == null) {
       Subject subject = subjectFactory.fromSession(session);
       session.setSubject(subject);

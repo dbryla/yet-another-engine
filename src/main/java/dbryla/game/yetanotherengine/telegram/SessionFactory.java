@@ -48,9 +48,8 @@ public class SessionFactory {
       session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
       buildingFactory.chooseArmorCommunicate(characterClass, race).ifPresent(session::addLastCommunicate);
     }
-    if (messageText.contains(ABILITIES) && session.getAbilityScores().size() > 1) {
-      session.addNextCommunicate(
-          buildingFactory.nextAbilityAssignment(session, callbackData));
+    if (messageText.contains(ABILITIES)) {
+      buildingFactory.nextAbilityAssignment(session, callbackData).ifPresent(session::addNextCommunicate);
     }
   }
 

@@ -1,20 +1,19 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
-import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_FRONT;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.MID;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_FRONT;
-
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Game;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+
+import java.util.List;
+import java.util.Map;
+
+import static dbryla.game.yetanotherengine.domain.battleground.Position.*;
 
 @Component
 @AllArgsConstructor
@@ -33,18 +32,19 @@ public class PositionCommand {
     }
 
     StringBuilder stringBuilder = new StringBuilder("Battleground:\n");
-    displayPosition(game, stringBuilder, PLAYERS_BACK);
-    displayPosition(game, stringBuilder, PLAYERS_FRONT);
-    displayPosition(game, stringBuilder, MID);
-    displayPosition(game, stringBuilder, ENEMIES_FRONT);
-    displayPosition(game, stringBuilder, ENEMIES_BACK);
+    Map<Position, List<Subject>> positionsMap = game.getSubjectsPositionsMap();
+    displayPosition(stringBuilder, PLAYERS_BACK, positionsMap);
+    displayPosition(stringBuilder, PLAYERS_FRONT, positionsMap);
+    displayPosition(stringBuilder, MID, positionsMap);
+    displayPosition(stringBuilder, ENEMIES_FRONT, positionsMap);
+    displayPosition(stringBuilder, ENEMIES_BACK, positionsMap);
 
     telegramClient.sendTextMessage(chatId, stringBuilder.toString());
   }
 
-  private void displayPosition(Game game, StringBuilder stringBuilder, Position position) {
+  private void displayPosition(StringBuilder stringBuilder, Position position, Map<Position, List<Subject>> positionsMap) {
     stringBuilder.append(position.toString()).append(": ");
-    game.getSubjectsPositionsMap().getOrDefault(position, List.of()).forEach(subject -> stringBuilder.append(subject.getName()).append(", "));
+    positionsMap.getOrDefault(position, List.of()).forEach(subject -> stringBuilder.append(subject.getName()).append(", "));
     stringBuilder.append("\n");
   }
 

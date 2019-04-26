@@ -12,10 +12,10 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class AttackCommandTest extends CommandTestSetup {
+class SpellCommandTest extends CommandTestSetup {
 
   @InjectMocks
-  private AttackCommand attackCommand;
+  private SpellCommand spellCommand;
 
   @Test
   void shouldIgnoreCommandIfGameHasNotStarted() {
@@ -25,7 +25,7 @@ class AttackCommandTest extends CommandTestSetup {
     Session session = mock(Session.class);
     when(sessionFactory.getSession(any())).thenReturn(session);
 
-    attackCommand.execute(update);
+    spellCommand.execute(update);
 
     verifyZeroInteractions(telegramClient);
   }
@@ -39,7 +39,7 @@ class AttackCommandTest extends CommandTestSetup {
     Session session = mock(Session.class);
     when(sessionFactory.getSession(any())).thenReturn(session);
 
-    attackCommand.execute(update);
+    spellCommand.execute(update);
 
     verifyZeroInteractions(telegramClient);
   }
@@ -54,7 +54,7 @@ class AttackCommandTest extends CommandTestSetup {
     when(sessionFactory.getSession(any())).thenReturn(session);
     when(commons.isNextUser(any(), any())).thenReturn(false);
 
-    attackCommand.execute(update);
+    spellCommand.execute(update);
 
     verifyZeroInteractions(telegramClient);
   }
@@ -68,9 +68,9 @@ class AttackCommandTest extends CommandTestSetup {
     Session session = mock(Session.class);
     when(sessionFactory.getSession(any())).thenReturn(session);
     when(commons.isNextUser(any(), any())).thenReturn(true);
-    when(fightFactory.weaponCommunicate(any(), any())).thenReturn(new Communicate(null, List.of()));
+    when(fightFactory.spellCommunicate(any(), any())).thenReturn(new Communicate(null, List.of()));
 
-    attackCommand.execute(update);
+    spellCommand.execute(update);
 
     verify(telegramClient).sendTextMessage(anyLong(), anyString());
   }
@@ -85,9 +85,9 @@ class AttackCommandTest extends CommandTestSetup {
     when(sessionFactory.getSession(any())).thenReturn(session);
     when(commons.isNextUser(any(), any())).thenReturn(true);
     Communicate communicate = new Communicate(null, List.of(List.of(mock(InlineKeyboardButton.class))));
-    when(fightFactory.weaponCommunicate(any(), any())).thenReturn(communicate);
+    when(fightFactory.spellCommunicate(any(), any())).thenReturn(communicate);
 
-    attackCommand.execute(update);
+    spellCommand.execute(update);
 
     verify(telegramClient).sendReplyKeyboard(eq(communicate), anyLong(), anyInt());
   }

@@ -6,18 +6,14 @@ import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Component
@@ -32,7 +28,7 @@ public class BuildingFactory {
 
   private final GameOptions gameOptions;
 
-  public Communicate chooseClassCommunicate() {
+  Communicate chooseClassCommunicate() {
     ArrayList<CharacterClass> classes = new ArrayList<>(gameOptions.getAvailableClasses());
     List<InlineKeyboardButton> keyboardButtons = new LinkedList<>();
     classes.forEach(characterClass -> keyboardButtons.add(
@@ -40,7 +36,7 @@ public class BuildingFactory {
     return new Communicate(CLASS, List.of(keyboardButtons));
   }
 
-  public Communicate chooseRaceCommunicate() {
+  Communicate chooseRaceCommunicate() {
     ArrayList<Race> races = new ArrayList<>(gameOptions.getAvailableRaces());
     AtomicInteger counter = new AtomicInteger();
     Collection<List<InlineKeyboardButton>> values = races.stream()
@@ -50,7 +46,7 @@ public class BuildingFactory {
     return new Communicate(RACE, new ArrayList<>(values));
   }
 
-  public Communicate assignAbilitiesCommunicate(List<Integer> scores) {
+  Communicate assignAbilitiesCommunicate(List<Integer> scores) {
     List<List<InlineKeyboardButton>> keyboardButtons = createKeyboardButtons(scores);
     return new Communicate(ABILITIES, keyboardButtons);
   }
@@ -64,12 +60,15 @@ public class BuildingFactory {
     return List.of(keyboardButtons);
   }
 
-  public Communicate nextAbilityAssignment(Session session, String lastScore) {
+  Optional<Communicate> nextAbilityAssignment(Session session, String lastScore) {
     session.getAbilityScores().remove(Integer.valueOf(lastScore));
-    return new Communicate(ABILITIES, createKeyboardButtons(session.getAbilityScores()));
+    if (session.getAbilityScores().isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(new Communicate(ABILITIES, createKeyboardButtons(session.getAbilityScores())));
   }
 
-  public Communicate chooseWeaponCommunicate(CharacterClass characterClass, Race race) {
+  Communicate chooseWeaponCommunicate(CharacterClass characterClass, Race race) {
     Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(characterClass, race);
     AtomicInteger counter = new AtomicInteger();
     Collection<List<InlineKeyboardButton>> values = availableWeapons.stream()
@@ -79,7 +78,7 @@ public class BuildingFactory {
     return new Communicate(WEAPONS, new ArrayList<>(values));
   }
 
-  public Optional<Communicate> chooseArmorCommunicate(CharacterClass characterClass, Race race) {
+  Optional<Communicate> chooseArmorCommunicate(CharacterClass characterClass, Race race) {
     Set<Armor> availableArmors = gameOptions.getAvailableArmors(characterClass, race);
     if (availableArmors.isEmpty()) {
       return Optional.empty();

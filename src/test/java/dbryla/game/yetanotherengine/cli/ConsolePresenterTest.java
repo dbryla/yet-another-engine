@@ -1,13 +1,5 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameOptions;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
@@ -18,14 +10,23 @@ import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ConsolePresenterTest {
@@ -52,7 +53,7 @@ class ConsolePresenterTest {
   void shouldReturnAvailableSpellsForSubject() {
     Subject subject = mock(Subject.class);
     Game game = mock(Game.class);
-    when(game.getPossibleTargets(any(), any(Spell.class))).thenReturn(List.of(""));
+    when(game.getPossibleTargets(any(Subject.class), any(Spell.class))).thenReturn(List.of(""));
     when(subject.getCharacterClass()).thenReturn(WIZARD);
 
     List<Spell> spells = consolePresenter.showAvailableSpells(game, subject);

@@ -23,7 +23,7 @@ class PassCommandTest extends CommandTestSetup {
 
     passCommand.execute(update);
 
-    verify(commons).executeTurn(any(), any(), any());
+    verify(commons).executeTurn(any(), any(), any(), any(), any());
   }
 
   @Test

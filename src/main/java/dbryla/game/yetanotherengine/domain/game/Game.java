@@ -137,6 +137,10 @@ public class Game {
     return getPossibleTargets(subject, weapon.getMinRange(), weapon.getMaxRange(), false);
   }
 
+  public List<String> getPossibleTargets(String subjectName, Spell spell) {
+    return getPossibleTargets(getSubject(subjectName), spell);
+  }
+
   public List<String> getPossibleTargets(Subject subject, Spell spell) {
     return getPossibleTargets(subject, spell.getMinRange(), spell.getMaxRange(), spell.isPositiveSpell());
   }

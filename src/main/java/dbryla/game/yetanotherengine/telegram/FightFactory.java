@@ -25,14 +25,14 @@ public class FightFactory {
     return targetCommunicate(possibleTargets, List.of());
   }
 
-  Optional<Communicate> targetCommunicate(Game game, String playerName, Spell spell) {
-    return targetCommunicate(game, playerName, spell, List.of());
-  }
-
   Optional<Communicate> targetCommunicate(Game game, String playerName, Spell spell, List<String> ignore) {
     Subject subject = game.getSubject(playerName);
     List<String> possibleTargets = game.getPossibleTargets(subject, spell);
     return targetCommunicate(possibleTargets, ignore);
+  }
+
+  Optional<Communicate> targetCommunicate(List<String> possibleTargets) {
+    return targetCommunicate(possibleTargets, List.of());
   }
 
   private Optional<Communicate> targetCommunicate(List<String> possibleTargets, List<String> ignore) {

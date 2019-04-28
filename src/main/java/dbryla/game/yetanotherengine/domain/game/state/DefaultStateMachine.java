@@ -1,21 +1,19 @@
 package dbryla.game.yetanotherengine.domain.game.state;
 
-import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
-import dbryla.game.yetanotherengine.domain.operations.*;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
+import dbryla.game.yetanotherengine.domain.operations.*;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import java.util.LinkedList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import static dbryla.game.yetanotherengine.domain.operations.OperationType.*;
 
@@ -44,8 +42,10 @@ public class DefaultStateMachine implements StateMachine {
   public void execute(SubjectTurn subjectTurn) {
     getNextSubject().ifPresent(subject -> {
       verifySource(subjectTurn, subject);
-      List<Event> events = new LinkedList<>();
-      subjectTurn.getActions().forEach(action -> events.addAll(invokeOperation(action, subject)));
+      List<Event> events = subjectTurn.getActions()
+          .stream()
+          .flatMap(action -> invokeOperation(action, subject).stream())
+          .collect(Collectors.toList());
       stepTracker.moveToNextSubject();
       events.addAll(apply(effectConsumer.apply(subject)));
       events.forEach(event -> eventHub.send(gameId, event));

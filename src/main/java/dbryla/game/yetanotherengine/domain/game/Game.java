@@ -133,6 +133,10 @@ public class Game {
     stateStorage.findByIdAndName(id, playerName).ifPresent(subject -> stateStorage.save(id, subject.of(newPosition)));
   }
 
+  public List<String> getPossibleTargets(String subjectName, Weapon weapon) {
+    return getPossibleTargets(getSubject(subjectName), weapon);
+  }
+
   public List<String> getPossibleTargets(Subject subject, Weapon weapon) {
     return getPossibleTargets(subject, weapon.getMinRange(), weapon.getMaxRange(), false);
   }
@@ -192,5 +196,4 @@ public class Game {
     spells.addAll(subject.getSpells());
     return spells.stream().filter(spell -> !getPossibleTargets(subject, spell).isEmpty()).collect(Collectors.toList());
   }
-
 }

@@ -110,7 +110,7 @@ public class CallbackHandler {
         .ifPresentOrElse(
             communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, originalMessageId),
             () -> commons.executeTurn(game, session,
-                SubjectTurn.of(new Action(playerName, game.getAllAliveEnemyNames().get(0),
+                SubjectTurn.of(new Action(playerName, game.getPossibleTargets(playerName, session.getWeapon()).get(0),
                     OperationType.ATTACK, new ActionData(session.getWeapon())))));
   }
 

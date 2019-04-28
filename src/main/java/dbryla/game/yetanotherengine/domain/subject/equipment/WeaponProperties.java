@@ -8,4 +8,5 @@ public enum WeaponProperties {
   static final String CHOP_HEAD = "%s chops off %s's head with ";
   static final String HEADSHOT = "%s shoots %s's head with ";
   static final String BITE_NECK = "%s tears %s's neck with ";
+  static final String STAB = "%s stabs %s fatally with ";
 }

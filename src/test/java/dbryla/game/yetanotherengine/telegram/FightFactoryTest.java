@@ -33,7 +33,7 @@ class FightFactoryTest {
   void shouldReturnCommunicateWithTargetsForWeapon() {
     Game game = mock(Game.class);
     Weapon weapon = Weapon.SHORTSWORD;
-    when(game.getPossibleTargets(any(), eq(weapon))).thenReturn(List.of("target1", "target2"));
+    when(game.getPossibleTargets(any(Subject.class), eq(weapon))).thenReturn(List.of("target1", "target2"));
 
     Optional<Communicate> communicate = fightFactory.targetCommunicate(game, null, weapon);
 

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.ROGUE;
+
 @AllArgsConstructor
 @Component
 public class AttackOperation {
@@ -30,7 +32,8 @@ public class AttackOperation {
       operationResult.add(eventsFactory.failEvent(source, target, weapon.toString(), hitResult));
     } else {
       int attackDamage = fightHelper.getAttackDamage(weapon.rollAttackDamage(diceRollService), hitResult)
-          + getModifier(weapon, source.getAbilities());
+          + getModifier(weapon, source.getAbilities())
+          + getClassModifier(source, weapon);
       if (attackDamage <= 0) {
         attackDamage = 1;
       }
@@ -38,6 +41,13 @@ public class AttackOperation {
       operationResult.add(changedTarget, eventsFactory.successAttackEvent(source, changedTarget, weapon, hitResult));
     }
     return operationResult;
+  }
+
+  private int getClassModifier(Subject source, Weapon weapon) {
+    if (ROGUE.equals(source.getCharacterClass()) && (weapon.isFinesse() || weapon.isRanged())) {
+      return diceRollService.k6();
+    }
+    return 0;
   }
 
   private Optional<OperationResult> equipWeapon(Subject source, ActionData data) {

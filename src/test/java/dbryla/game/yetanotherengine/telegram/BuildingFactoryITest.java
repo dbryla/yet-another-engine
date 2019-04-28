@@ -26,7 +26,7 @@ class BuildingFactoryITest {
   private BuildingFactory buildingFactory;
 
   @Test
-  void shouldSendCommunicateWithAvailableClasses() {
+  void shouldReturnCommunicateWithAvailableClasses() {
     Communicate communicate = buildingFactory.chooseClassCommunicate();
 
     assertThat(communicate.getText()).isEqualTo(CLASS);
@@ -39,7 +39,7 @@ class BuildingFactoryITest {
   }
 
   @Test
-  void shouldSendCommunicateWithPlayableRacesOnly() {
+  void shouldReturnCommunicateWithPlayableRacesOnly() {
     Communicate communicate = buildingFactory.chooseRaceCommunicate();
 
     assertThat(communicate.getText()).isEqualTo(RACE);

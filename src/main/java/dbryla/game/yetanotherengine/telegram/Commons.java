@@ -27,9 +27,9 @@ public class Commons {
     return game != null && game.getNextSubjectName().isPresent() && playerName.equals(game.getNextSubjectName().get());
   }
 
-  public void executeTurnAndDeleteMessage(Game game, Session session, SubjectTurn turn, Long chatId, Integer messageId) {
-    game.execute(turn);
-    session.cleanUpCallbackData();
+  void executeTurnAndDeleteMessage(Game game, Session session, SubjectTurn turn, Long chatId, Integer messageId) {
+    executeTurn(game, session, turn);
+    telegramClient.deleteMessage(chatId, messageId);
   }
 
   public void executeTurn(Game game, Session session, SubjectTurn turn) {

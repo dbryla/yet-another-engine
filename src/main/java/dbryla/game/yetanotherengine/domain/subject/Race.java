@@ -1,30 +1,20 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
+import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import lombok.Getter;
+import org.apache.commons.text.WordUtils;
+
+import java.util.List;
+import java.util.Set;
+
 import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
 import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType.LIGHT;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType.MEDIUM;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.BATTLEAXE;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.CROSSBOW;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.HAMMER;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.HANDAXE;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.LONGBOW;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.LONGSWORD;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.RAPIER;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.SHORTBOW;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.SHORTSWORD;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.WARHAMMER;
-
-import dbryla.game.yetanotherengine.domain.effects.Effect;
-import dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-
-import java.util.List;
-import java.util.Set;
-
-import lombok.Getter;
-import org.apache.commons.text.WordUtils;
+import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.*;
 
 @Getter
 public enum Race {
@@ -45,7 +35,7 @@ public enum Race {
       Set.of(LONGSWORD, SHORTSWORD, SHORTBOW, LONGBOW), Set.of(),
       0, null, Set.of()),
   DARK_ELF(
-      "Drow", List.of(0, 2, 0, 0, 0, 1),
+      "Elf", List.of(0, 2, 0, 0, 0, 1),
       Set.of(RAPIER, SHORTSWORD, CROSSBOW), Set.of(),
       0, null, Set.of()),
   LIGHTFOOT_HALFLING(

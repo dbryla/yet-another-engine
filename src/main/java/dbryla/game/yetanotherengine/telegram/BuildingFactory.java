@@ -36,14 +36,23 @@ public class BuildingFactory {
     return new Communicate(CLASS, List.of(keyboardButtons));
   }
 
-  Communicate chooseRaceCommunicate() {
-    ArrayList<Race> races = new ArrayList<>(gameOptions.getAvailableRaces());
+  Communicate chooseRaceGroupCommunicate() {
+    ArrayList<String> races = new ArrayList<>(gameOptions.getAvailableRaceGroups());
     AtomicInteger counter = new AtomicInteger();
     Collection<List<InlineKeyboardButton>> values = races.stream()
-        .map(race -> new InlineKeyboardButton(race.toString()).setCallbackData(race.name()))
+        .map(race -> new InlineKeyboardButton(race).setCallbackData(race.toUpperCase()))
         .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 3))
         .values();
     return new Communicate(RACE, new ArrayList<>(values));
+  }
+
+  Communicate chooseRaceCommunicate(String raceGroup) {
+    List<InlineKeyboardButton> values = gameOptions.getAvailableRaces()
+        .stream()
+        .filter(race -> raceGroup.equalsIgnoreCase(race.getDisplayName()))
+        .map(race -> new InlineKeyboardButton(race.toString()).setCallbackData(race.name()))
+        .collect(Collectors.toList());
+    return new Communicate(RACE, List.of(values));
   }
 
   Communicate assignAbilitiesCommunicate(List<Integer> scores) {

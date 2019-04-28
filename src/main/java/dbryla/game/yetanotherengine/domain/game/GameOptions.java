@@ -37,4 +37,8 @@ public class GameOptions {
   public Set<Race> getAvailableRaces() {
     return Arrays.stream(Race.values()).filter(Race::isPlayable).collect(Collectors.toSet());
   }
+
+  public Set<String> getAvailableRaceGroups() {
+    return Arrays.stream(Race.values()).filter(Race::isPlayable).map(Race::getDisplayName).collect(Collectors.toSet());
+  }
 }

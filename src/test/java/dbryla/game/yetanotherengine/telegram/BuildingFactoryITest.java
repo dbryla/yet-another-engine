@@ -39,8 +39,8 @@ class BuildingFactoryITest {
   }
 
   @Test
-  void shouldReturnCommunicateWithPlayableRacesOnly() {
-    Communicate communicate = buildingFactory.chooseRaceCommunicate();
+  void shouldReturnCommunicateWithPlayableRaceGroupsOnly() {
+    Communicate communicate = buildingFactory.chooseRaceGroupCommunicate();
 
     assertThat(communicate.getText()).isEqualTo(RACE);
     List<List<InlineKeyboardButton>> keyboardButtons = communicate.getKeyboardButtons();
@@ -54,7 +54,9 @@ class BuildingFactoryITest {
         .contains(
             Arrays.stream(Race.values())
                 .filter(Race::isPlayable)
-                .map(race -> Tuple.tuple(race.toString(), race.name()))
+                .map(Race::getDisplayName)
+                .distinct()
+                .map(race -> Tuple.tuple(race, race.toUpperCase()))
                 .toArray(Tuple[]::new));
   }
 

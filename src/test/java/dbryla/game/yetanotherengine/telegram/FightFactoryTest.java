@@ -34,6 +34,8 @@ class FightFactoryTest {
     Game game = mock(Game.class);
     Weapon weapon = Weapon.SHORTSWORD;
     when(game.getPossibleTargets(any(Subject.class), eq(weapon))).thenReturn(List.of("target1", "target2"));
+    Subject subject = mock(Subject.class);
+    when(game.getSubject(any())).thenReturn(subject);
 
     Optional<Communicate> communicate = fightFactory.targetCommunicate(game, null, weapon);
 

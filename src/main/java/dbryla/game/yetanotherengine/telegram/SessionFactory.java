@@ -32,7 +32,7 @@ public class SessionFactory {
     Session session = new Session(playerName,
         new LinkedList<>(List.of(
             buildingFactory.chooseClassCommunicate(),
-            buildingFactory.chooseRaceCommunicate(),
+            buildingFactory.chooseRaceGroupCommunicate(),
             buildingFactory.assignAbilitiesCommunicate(abilityScores))),
         abilityScores);
     sessionStorage.put(sessionId, session);
@@ -40,16 +40,22 @@ public class SessionFactory {
   }
 
   void updateSession(String messageText, Session session, String callbackData) {
-    session.update(messageText, callbackData);
-    if (messageText.contains(RACE)) {
-      CharacterClass characterClass = CharacterClass.valueOf((String) session.getData().get(CLASS));
-      Race race = Race.valueOf(callbackData);
-      session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
-      session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
-      buildingFactory.chooseArmorCommunicate(characterClass, race).ifPresent(session::addLastCommunicate);
-    }
-    if (messageText.contains(ABILITIES)) {
-      buildingFactory.nextAbilityAssignment(session, callbackData).ifPresent(session::addNextCommunicate);
+    if (session != null) {
+      session.update(messageText, callbackData);
+      if (messageText.contains(RACE)) {
+        CharacterClass characterClass = CharacterClass.valueOf((String) session.getData().get(CLASS));
+        try {
+          Race race = Race.valueOf(callbackData);
+          session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
+          session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
+          buildingFactory.chooseArmorCommunicate(characterClass, race).ifPresent(session::addLastCommunicate);
+        } catch (IllegalArgumentException e) {
+          session.addNextCommunicate(buildingFactory.chooseRaceCommunicate(callbackData));
+        }
+      }
+      if (messageText.contains(ABILITIES)) {
+        buildingFactory.nextAbilityAssignment(session, callbackData).ifPresent(session::addNextCommunicate);
+      }
     }
   }
 

@@ -1,11 +1,7 @@
 package dbryla.game.yetanotherengine.domain.events;
 
-import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
-import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.ARMOR_CLASS;
-import static dbryla.game.yetanotherengine.domain.spells.SpellType.EFFECT;
-
-import dbryla.game.yetanotherengine.domain.operations.HitResult;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.operations.HitResult;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
@@ -13,9 +9,13 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
+import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.ARMOR_CLASS;
+import static dbryla.game.yetanotherengine.domain.spells.SpellType.EFFECT;
+
 @Component
 @AllArgsConstructor
-public class EventsFactory {
+public class EventFactory {
 
   private static final String SUCCESS_HIT_FORMAT = "%s %s hits %s with %s.";
   private static final String TERMINATION_FORMAT = " %s drops dead.";
@@ -25,6 +25,8 @@ public class EventsFactory {
   private static final String HEAL_FORMAT = "%s heals %s.";
   private static final String MOVEMENT_FORMAT = "%s moves to %s.";
   private static final String EQUIP_WEAPON_FORMAT = "%s equips %s.";
+  private static final String KNOCKED_PRONE_FORMAT = "%s knocks prone %s.";
+  private static final String TARGET_IMMUNE_FORMAT = "%s hits %s with %s, but target seems to be immune.";
 
   public Event successAttackEvent(Subject attacker, Subject target, Weapon weapon, HitResult hitResult) {
     return new Event(
@@ -37,7 +39,8 @@ public class EventsFactory {
         return String.format(weapon.getCriticalHitMessage(), attacker, target.getName())
             + String.format(TERMINATION_FORMAT, target.getName());
       }
-      return attackWithHitRoll(attacker, target.getName(), weapon.toString(), hitResult) + String.format(TERMINATION_FORMAT, target.getName());
+      return attackWithHitRoll(attacker, target.getName(), weapon.toString(), hitResult)
+          + String.format(TERMINATION_FORMAT, target.getName());
     }
     return attackWithHitRoll(attacker, target.getName(), weapon.toString(), hitResult) + State.getMessageFor(target);
   }
@@ -49,7 +52,7 @@ public class EventsFactory {
   public Event successSpellCastEvent(Subject attacker, Subject target, Spell spell, HitResult hitResult) {
     if (target.isTerminated()) {
       if (ARMOR_CLASS.equals(spell.getSpellSaveType()) && CRITICAL.equals(hitResult)) {
-        return new Event((String.format(spell.getCriticalHitMessage(), attacker, target))
+        return new Event((String.format(spell.getCriticalHitMessage(), attacker.getName(), target.getName()))
             + String.format(TERMINATION_FORMAT, target.getName()));
       }
       return new Event(
@@ -66,7 +69,8 @@ public class EventsFactory {
     }
     if (target.isTerminated()) {
       return new Event(
-          spellCastWithSaveThrow(attacker.getName(), target.getName(), spell.toString()) + String.format(TERMINATION_FORMAT, target.getName()));
+          spellCastWithSaveThrow(attacker.getName(), target.getName(), spell.toString())
+              + String.format(TERMINATION_FORMAT, target.getName()));
     }
     return new Event(spellCastWithSaveThrow(attacker.getName(), target.getName(), spell.toString()) + State.getMessageFor(target));
   }
@@ -97,5 +101,17 @@ public class EventsFactory {
 
   public Event equipWeaponEvent(Subject source) {
     return new Event(String.format(EQUIP_WEAPON_FORMAT, source.getName(), source.getEquippedWeapon()));
+  }
+
+  public Event successKnockedProneEvent(Subject source, Subject target) {
+    return new Event(String.format(KNOCKED_PRONE_FORMAT, source.getName(), target.getName()));
+  }
+
+  public Event targetImmuneEvent(Subject source, Subject target, Spell spell) {
+    return new Event(String.format(TARGET_IMMUNE_FORMAT, source.getName(), target.getName(), spell.toString()));
+  }
+
+  public Event targetImmuneEvent(Subject source, Subject target, Weapon weapon) {
+    return new Event(String.format(TARGET_IMMUNE_FORMAT, source.getName(), target.getName(), weapon.toString()));
   }
 }

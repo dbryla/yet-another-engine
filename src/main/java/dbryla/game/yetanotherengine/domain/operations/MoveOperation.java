@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.battleground.Position;
-import dbryla.game.yetanotherengine.domain.events.EventsFactory;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class MoveOperation {
 
-  private final EventsFactory eventsFactory;
+  private final EventFactory eventFactory;
 
   public OperationResult invoke(Subject source, ActionData actionData) throws UnsupportedGameOperationException {
     Position position = actionData.getPosition();
     verifyParams(source, position);
     Subject changedSubject = source.of(position);
-    return new OperationResult(changedSubject, eventsFactory.movementEvent(changedSubject));
+    return new OperationResult(changedSubject, eventFactory.movementEvent(changedSubject));
   }
 
   private void verifyParams(Subject source, Position position) throws UnsupportedGameOperationException {

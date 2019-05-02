@@ -2,8 +2,7 @@ package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
-import dbryla.game.yetanotherengine.domain.events.EventHub;
-import dbryla.game.yetanotherengine.domain.events.EventsFactory;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,7 +31,7 @@ class SpellCastOperationTest {
   private FightHelper fightHelper;
 
   @Mock
-  private EventsFactory eventsFactory;
+  private EventFactory eventFactory;
 
   @Mock
   private Subject source;
@@ -45,7 +46,7 @@ class SpellCastOperationTest {
   void shouldInvokeDmgSpell() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.FIRE_BOLT);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
-    when(fightHelper.dealDamage(eq(target), anyInt())).thenReturn(target);
+    when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     OperationResult operationResult = spellCastOperation.invoke(source, actionData, target);
 
@@ -99,7 +100,7 @@ class SpellCastOperationTest {
 
     spellCastOperation.invoke(source, actionData, target);
 
-    verify(eventsFactory).successSpellCastEvent(any(), eq(changedTarget), eq(Spell.COLOR_SPRAY));
+    verify(eventFactory).successSpellCastEvent(any(), eq(changedTarget), eq(Spell.COLOR_SPRAY));
   }
 
   @Test
@@ -109,7 +110,7 @@ class SpellCastOperationTest {
 
     spellCastOperation.invoke(source, actionData, target);
 
-    verify(eventsFactory).failEvent(any(), any(), any(), any());
+    verify(eventFactory).failEvent(any(), any(), any(), any());
   }
 
   @Test

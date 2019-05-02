@@ -27,6 +27,7 @@ public class DefaultStateMachine implements StateMachine {
   private final AttackOperation attackOperation;
   private final SpellCastOperation spellCastOperation;
   private final MoveOperation moveOperation;
+  private final SpecialAttackOperation specialAttackOperation;
   private final EffectConsumer effectConsumer;
 
   @Override
@@ -62,6 +63,9 @@ public class DefaultStateMachine implements StateMachine {
       }
       if (MOVE.equals(action.getOperationType())) {
         return apply(moveOperation.invoke(subject, action.getActionData()));
+      }
+      if (SPECIAL_ATTACK.equals(action.getOperationType())) {
+        return apply(specialAttackOperation.invoke(subject, action.getActionData(), getTargets(action)));
       }
     } catch (UnsupportedGameOperationException e) {
       throw new IncorrectStateException("Couldn't invoke operation on target(s).", e);

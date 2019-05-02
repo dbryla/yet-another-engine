@@ -9,10 +9,9 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+
+import static dbryla.game.yetanotherengine.domain.operations.DamageType.POISON;
 
 @Component
 public class MonstersBook {
@@ -36,7 +35,7 @@ public class MonstersBook {
           .abilities(new Abilities(13, 12, 12, 10, 11, 10))
           .armor(Armor.CHAIN_SHIRT)
           .shield(Armor.SHIELD)
-          .weapons(List.of(Weapon.SHORTBOW, Weapon.SHORTSWORD))
+          .weapons(List.of(Weapon.SHORTBOW, Weapon.SHORTSWORD)) // fixme spear
           .challengeRating(0.125)
           .defaultName("Guard")
           .hitDice(8)
@@ -52,7 +51,7 @@ public class MonstersBook {
           .hitDice(8)
           .numberOfHitDices(2)
           .type("Acolyte")
-          .spells(new ArrayList<>(List.of(Spell.SACRED_FLAME, Spell.BLESS, Spell.HEALING_WORD)))
+          .spells(new ArrayList<>(List.of(Spell.SACRED_FLAME, Spell.BLESS, Spell.CURE_WOUNDS)))
           .weapon(Weapon.CLUB)
           .monsterRace(Race.HUMANOID)
           .preferredPosition(Position.ENEMIES_BACK)
@@ -77,11 +76,12 @@ public class MonstersBook {
           .hitDice(6)
           .numberOfHitDices(6)
           .type("Goblin")
-          .weapon(Weapon.SCIMITAR)
+          .weapons(List.of(Weapon.SCIMITAR))
           .armor(Armor.CHAIN_SHIRT)
           .shield(Armor.SHIELD)
           .monsterRace(Race.GOBLINOID)
           .preferredPosition(Position.ENEMIES_FRONT)
+          .specialAttack(SpecialAttack.MULTI_ATTACK)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(14, 15, 10, 3, 14, 7))
@@ -90,9 +90,10 @@ public class MonstersBook {
           .hitDice(8)
           .numberOfHitDices(3)
           .type("Panther")
-          .weapon(Weapon.BITE)
+          .weapons(List.of(Weapon.BITE, Weapon.CLAW))
           .monsterRace(Race.BEAST)
           .preferredPosition(Position.ENEMIES_FRONT)
+          .specialAttack(SpecialAttack.POUNCE)
           .build());
       add(MonsterDefinition.builder()
           .abilities(new Abilities(10, 14, 15, 6, 8, 5))
@@ -105,6 +106,7 @@ public class MonstersBook {
           .armor(Armor.SCRAPS)
           .monsterRace(Race.UNDEAD)
           .preferredPosition(Position.ENEMIES_FRONT)
+          .immunity(POISON)
           .build());
     }
   };
@@ -115,7 +117,7 @@ public class MonstersBook {
     this.random = random;
   }
 
-  public MonsterDefinition getRandomMonster(int playersLevel) {
+  MonsterDefinition getRandomMonster(int playersLevel) {
     return monsters.get(random.nextInt(monsters.size()));
   }
 }

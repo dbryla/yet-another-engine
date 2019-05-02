@@ -85,6 +85,8 @@ public class MonstersFactory {
         .spells(monsterDefinition.getSpells())
         .position(monsterDefinition.getPreferredPosition())
         .race(race)
+        .specialAttacks(monsterDefinition.getSpecialAttacks())
+        .immunities(monsterDefinition.getImmunities())
         .build();
   }
 

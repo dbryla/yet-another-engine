@@ -81,18 +81,18 @@ public enum Race {
   private final Set<ArmorType> armorProficiencies;
   private final int additionalHealthPoints;
   private final CharacterClass cantripForClass;
-  private final Set<Effect> classEffects;
+  private final Set<Effect> raceEffects;
   private final boolean playable;
 
   Race(String displayName, List<Integer> abilitiesModifiers, Set<Weapon> weaponProficiencies, Set<ArmorType> armorProficiencies,
-       int additionalHealthPoints, CharacterClass cantripForClass, Set<Effect> classEffects) {
+       int additionalHealthPoints, CharacterClass cantripForClass, Set<Effect> raceEffects) {
     this.displayName = displayName;
     this.abilitiesModifiers = abilitiesModifiers;
     this.weaponProficiencies = weaponProficiencies;
     this.armorProficiencies = armorProficiencies;
     this.additionalHealthPoints = additionalHealthPoints;
     this.cantripForClass = cantripForClass;
-    this.classEffects = classEffects;
+    this.raceEffects = raceEffects;
     this.playable = true;
   }
 
@@ -103,7 +103,18 @@ public enum Race {
     this.armorProficiencies = Set.of();
     this.additionalHealthPoints = 0;
     this.cantripForClass = null;
-    this.classEffects = Set.of();
+    this.raceEffects = Set.of();
+    this.playable = false;
+  }
+
+  Race(Set<Effect> raceEffects) {
+    this.displayName = null;
+    this.abilitiesModifiers = List.of(0, 0, 0, 0, 0, 0);
+    this.weaponProficiencies = Set.of();
+    this.armorProficiencies = Set.of();
+    this.additionalHealthPoints = 0;
+    this.cantripForClass = null;
+    this.raceEffects = raceEffects;
     this.playable = false;
   }
 

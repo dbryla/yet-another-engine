@@ -94,18 +94,19 @@ public class ConsolePresenter {
   List<OperationType> showAvailableOperations(Game game, Subject subject) {
     List<OperationType> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
-    communicate.append(String.format(CHOICE_FORMAT, 0, "move"));
+    int actionNumber = 0;
+    communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "move"));
     operations.add(OperationType.MOVE);
-    communicate.append(String.format(CHOICE_FORMAT, 1, "pass"));
+    communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "pass"));
     operations.add(OperationType.PASS);
     List<Weapon> weapons = game.getAvailableWeaponsForAttack(subject);
     if (!weapons.isEmpty()) {
-      communicate.append(String.format(CHOICE_FORMAT, 2, "attack"));
+      communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "attack"));
       operations.add(OperationType.ATTACK);
     }
     List<Spell> spells = game.getAvailableSpellsForCast(subject);
     if (subject.isSpellCaster() && !spells.isEmpty()) {
-      communicate.append(String.format(CHOICE_FORMAT, 3, "spell"));
+      communicate.append(String.format(CHOICE_FORMAT, actionNumber, "spell"));
       operations.add(OperationType.SPELL_CAST);
     }
     System.out.println(communicate.toString());

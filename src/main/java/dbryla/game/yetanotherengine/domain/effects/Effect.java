@@ -9,7 +9,11 @@ import static dbryla.game.yetanotherengine.domain.effects.EffectLogic.FOREVER;
 
 @AllArgsConstructor
 public enum Effect {
-  BLIND(1), BLESS(CONCENTRATION), LUCKY(FOREVER), RELENTLESS_ENDURANCE(FOREVER);
+  BLIND(1),
+  BLESS(CONCENTRATION),
+  LUCKY(FOREVER),
+  RELENTLESS_ENDURANCE(FOREVER),
+  MULTI_ATTACK(1);
 
   @Getter
   private final int durationInTurns;

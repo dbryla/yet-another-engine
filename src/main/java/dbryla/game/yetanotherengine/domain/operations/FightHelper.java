@@ -1,9 +1,5 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
-import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
-
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.dice.DisadvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
@@ -15,6 +11,12 @@ import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
+import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
+import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
+
 @Component
 @AllArgsConstructor
 class FightHelper {
@@ -25,7 +27,7 @@ class FightHelper {
   HitRoll getHitRoll(Subject source, Subject target) {
     int hitRoll = diceRollService.k20();
     int modifiers = 0;
-    boolean sourceHasDisadvantage = false;
+    boolean sourceHasDisadvantage = false; // fixme dis/adv cancel each other
     for (ActiveEffect activeEffect : source.getActiveEffects()) {
       HitDiceRollModifier sourceModifier = effectsMapper.getLogic(activeEffect.getEffect()).getSourceHitRollModifier();
       if (sourceModifier.canModifyOriginalHitRoll()) {
@@ -48,7 +50,7 @@ class FightHelper {
   }
 
   private Integer handleLuckyEffect(Subject source, Integer hitRoll) {
-    if (source.getRace().getClassEffects().contains(LUCKY)) {
+    if (source.getRace().getRaceEffects().contains(LUCKY)) {
       HitDiceRollModifier sourceModifier = effectsMapper.getLogic(LUCKY).getSourceHitRollModifier();
       hitRoll = sourceModifier.apply(hitRoll);
     }
@@ -89,6 +91,10 @@ class FightHelper {
     return applyRulesToSavingThrow(target) + target.getAbilities().getDexterityModifier();
   }
 
+  int getStrengthSavingThrow(Subject target) {
+    return applyRulesToSavingThrow(target) + target.getAbilities().getStrengthModifier();
+  }
+
   int getModifier(Subject source, Spell spell) {
     if (spell.forClass(CharacterClass.WIZARD)) {
       return source.getAbilities().getIntelligenceModifier();
@@ -99,11 +105,14 @@ class FightHelper {
     return 0;
   }
 
-  Subject dealDamage(Subject target, int attackDamage) {
-    int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
-    if (remainingHealthPoints == 0 && target.getRace().getClassEffects().contains(RELENTLESS_ENDURANCE)) {
-      return target.of(1);
+  Optional<Subject> dealDamage(Subject target, int attackDamage, DamageType damageType) {
+    if (target.getImmunities().contains(damageType)) {
+      return Optional.empty();
     }
-    return target.of(remainingHealthPoints);
+    int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
+    if (remainingHealthPoints == 0 && target.getRace().getRaceEffects().contains(RELENTLESS_ENDURANCE)) {
+      return Optional.of(target.of(1));
+    }
+    return Optional.of(target.of(remainingHealthPoints));
   }
 }

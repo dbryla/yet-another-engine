@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import dbryla.game.yetanotherengine.domain.events.EventsFactory;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ class MoveOperationTest {
   private MoveOperation moveOperation;
 
   @Mock
-  private EventsFactory eventsFactory;
+  private EventFactory eventFactory;
 
   @Test
   void shouldMoveSubjectToGivenPosition() throws UnsupportedGameOperationException {

@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
-import dbryla.game.yetanotherengine.domain.events.EventsFactory;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
@@ -11,13 +11,14 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.ROGUE;
+import static dbryla.game.yetanotherengine.domain.subject.Race.BEAST;
 
 @AllArgsConstructor
 @Component
 public class AttackOperation {
 
   private final FightHelper fightHelper;
-  private final EventsFactory eventsFactory;
+  private final EventFactory eventFactory;
   private final DiceRollService diceRollService;
 
   public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
@@ -29,7 +30,7 @@ public class AttackOperation {
     hitRoll.addModifier(getModifier(weapon, source.getAbilities()));
     HitResult hitResult = HitResult.of(hitRoll, target);
     if (!hitResult.isTargetHit()) {
-      operationResult.add(eventsFactory.failEvent(source, target, weapon.toString(), hitResult));
+      operationResult.add(eventFactory.failEvent(source, target, weapon.toString(), hitResult));
     } else {
       int attackDamage = fightHelper.getAttackDamage(weapon.rollAttackDamage(diceRollService), hitResult)
           + getModifier(weapon, source.getAbilities())
@@ -37,8 +38,10 @@ public class AttackOperation {
       if (attackDamage <= 0) {
         attackDamage = 1;
       }
-      Subject changedTarget = fightHelper.dealDamage(target, attackDamage);
-      operationResult.add(changedTarget, eventsFactory.successAttackEvent(source, changedTarget, weapon, hitResult));
+      fightHelper.dealDamage(target, attackDamage, weapon.getDamageType())
+          .ifPresentOrElse(changedTarget -> operationResult
+                  .add(changedTarget, eventFactory.successAttackEvent(source, changedTarget, weapon, hitResult)),
+              () -> operationResult.add(eventFactory.targetImmuneEvent(source, target, weapon)));
     }
     return operationResult;
   }
@@ -51,11 +54,11 @@ public class AttackOperation {
   }
 
   private Optional<OperationResult> equipWeapon(Subject source, ActionData data) {
-    if (source.getEquippedWeapon().equals(data.getWeapon())) {
+    if (source.getEquippedWeapon().equals(data.getWeapon()) || BEAST.equals(source.getRace())) {
       return Optional.empty();
     }
     Subject changedSubject = source.of(data.getWeapon());
-    return Optional.of(new OperationResult(changedSubject, eventsFactory.equipWeaponEvent(changedSubject)));
+    return Optional.of(new OperationResult(changedSubject, eventFactory.equipWeaponEvent(changedSubject)));
   }
 
   private void verifyParams(Subject source, ActionData actionData, Subject[] targets) throws UnsupportedAttackException {

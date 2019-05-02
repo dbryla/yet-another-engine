@@ -16,9 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class EventsFactoryTest {
+class EventFactoryTest {
 
-  private EventsFactory eventsFactory = new EventsFactory();
+  private EventFactory eventFactory = new EventFactory();
 
   @Test
   void shouldReturnSuccessAttackEventMessage() {
@@ -28,7 +28,7 @@ class EventsFactoryTest {
     when(target.getName()).thenReturn("target");
     when(target.getSubjectState()).thenReturn(State.HEAVILY_WOUNDED);
 
-    Event event = eventsFactory.successAttackEvent(attacker, target, Weapon.GREATSWORD, HitResult.HIT);
+    Event event = eventFactory.successAttackEvent(attacker, target, Weapon.GREATSWORD, HitResult.HIT);
 
     assertThat(event.toString()).isEqualTo("attacker hits target with greatsword. target is heavily wounded.");
   }
@@ -41,7 +41,7 @@ class EventsFactoryTest {
     when(target.getName()).thenReturn("target");
     when(target.getSubjectState()).thenReturn(State.HEAVILY_WOUNDED);
 
-    Event event = eventsFactory.successSpellCastEvent(attacker, target, Spell.FIRE_BOLT);
+    Event event = eventFactory.successSpellCastEvent(attacker, target, Spell.FIRE_BOLT);
 
     assertThat(event.toString()).isEqualTo("attacker casts fire bolt and hits target. target is heavily wounded.");
   }
@@ -53,7 +53,7 @@ class EventsFactoryTest {
     Subject target = mock(Subject.class);
     when(target.getName()).thenReturn("target");
 
-    Event event = eventsFactory.failEvent(attacker, target, "weapons", HitResult.MISS);
+    Event event = eventFactory.failEvent(attacker, target, "weapons", HitResult.MISS);
 
     assertThat(event.toString()).isEqualTo("attacker misses attack on target with weapons.");
   }
@@ -63,7 +63,7 @@ class EventsFactoryTest {
     Subject attacker = mock(Subject.class);
     when(attacker.getName()).thenReturn("attacker");
 
-    Event event = eventsFactory.effectExpiredEvent(attacker, Effect.BLIND);
+    Event event = eventFactory.effectExpiredEvent(attacker, Effect.BLIND);
 
     assertThat(event.toString()).isEqualTo("attacker is no longer blinded.");
   }
@@ -74,7 +74,7 @@ class EventsFactoryTest {
     when(attacker.getName()).thenReturn("attacker");
     when(attacker.getEquippedWeapon()).thenReturn(Weapon.SHORTSWORD);
 
-    Event event = eventsFactory.equipWeaponEvent(attacker);
+    Event event = eventFactory.equipWeaponEvent(attacker);
 
     assertThat(event.toString()).isEqualTo("attacker equips shortsword.");
   }

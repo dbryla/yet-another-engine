@@ -7,8 +7,10 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +26,7 @@ class ConsoleCharacterBuilder {
   private final ConsoleAbilitiesProvider consoleAbilitiesProvider;
   private final CharacterRepository characterRepository;
   private final SubjectFactory subjectFactory;
+  private final Environment environment;
 
   Subject createPlayer() {
     System.out.println("Would you like to create new character (0) or load existing one (1) ?");
@@ -40,8 +43,10 @@ class ConsoleCharacterBuilder {
     CharacterClass characterClass = chooseClass();
     Race race = chooseRace();
     Subject subject = buildSubject(playerName, characterClass, race);
-    characterRepository.findByName(playerName).ifPresent(characterRepository::delete);
-    characterRepository.save(subjectFactory.toCharacter(subject));
+    if (Arrays.stream(environment.getActiveProfiles()).noneMatch("offline"::equals)) {
+      characterRepository.findByName(playerName).ifPresent(characterRepository::delete);
+      characterRepository.save(subjectFactory.toCharacter(subject));
+    }
     return subject;
   }
 

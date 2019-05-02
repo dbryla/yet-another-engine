@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
-import dbryla.game.yetanotherengine.domain.events.EventsFactory;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,7 +34,7 @@ class AttackOperationTest {
   private FightHelper fightHelper;
 
   @Mock
-  private EventsFactory eventsFactory;
+  private EventFactory eventFactory;
 
   @Mock
   private DiceRollService diceRollService;
@@ -45,7 +47,7 @@ class AttackOperationTest {
     Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
-    when(fightHelper.dealDamage(eq(target), anyInt())).thenReturn(target);
+    when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
 
@@ -92,11 +94,12 @@ class AttackOperationTest {
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.getAttackDamage(anyInt(), any())).thenReturn(attackDamage);
+    when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
 
     assertThat(operationResult.getChangedSubjects().size()).isEqualTo(1);
-    verify(fightHelper).dealDamage(target, attackDamage);
+    verify(fightHelper).dealDamage(eq(target), eq(attackDamage), any());
   }
 
   @Test
@@ -106,10 +109,11 @@ class AttackOperationTest {
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.getAttackDamage(anyInt(), any())).thenReturn(attackDamage);
+    when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 
-    verify(eventsFactory).successAttackEvent(any(), any(), any(), any());
+    verify(eventFactory).successAttackEvent(any(), any(), any(), any());
   }
 
   @Test
@@ -117,10 +121,11 @@ class AttackOperationTest {
     Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 
-    verify(eventsFactory).successAttackEvent(any(), any(), any(), any());
+    verify(eventFactory).successAttackEvent(any(), any(), any(), any());
   }
 
   @Test
@@ -131,7 +136,7 @@ class AttackOperationTest {
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 
-    verify(eventsFactory).failEvent(any(), any(), any(), any());
+    verify(eventFactory).failEvent(any(), any(), any(), any());
   }
 
   @Test
@@ -143,7 +148,7 @@ class AttackOperationTest {
     operation.invoke(source, TEST_ACTION_DATA, target);
 
     verify(source, times(0)).of(eq(TEST_ACTION_DATA.getWeapon()));
-    verify(eventsFactory, times(0)).equipWeaponEvent(any());
+    verify(eventFactory, times(0)).equipWeaponEvent(any());
   }
 
   @Test
@@ -157,6 +162,6 @@ class AttackOperationTest {
     operation.invoke(source, TEST_ACTION_DATA, target);
 
     verify(source).of(eq(TEST_ACTION_DATA.getWeapon()));
-    verify(eventsFactory).equipWeaponEvent(any());
+    verify(eventFactory).equipWeaponEvent(any());
   }
 }

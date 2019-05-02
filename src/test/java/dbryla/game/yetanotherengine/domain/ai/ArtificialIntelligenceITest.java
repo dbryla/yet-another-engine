@@ -6,6 +6,7 @@ import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameFactory;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
+import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.Race;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -237,5 +239,39 @@ class ArtificialIntelligenceITest {
     assertThat(turn.getActions())
         .extracting("operationType", "targetNames", "actionData.spell")
         .contains(tuple(OperationType.SPELL_CAST, List.of(targetName), Spell.SACRED_FLAME));
+  }
+
+  @Test
+  void shouldReturnTurnWithSpecialAttack() {
+    String testSubjectName = "tested-subject";
+    Subject testedSubject = Subject.builder()
+        .name(testSubjectName)
+        .race(Race.GOBLINOID)
+        .affiliation(Affiliation.PLAYERS)
+        .abilities(TestData.ABILITIES)
+        .weapons(List.of(Weapon.SHORTSWORD))
+        .equippedWeapon(Weapon.SHORTSWORD)
+        .position(Position.PLAYERS_BACK)
+        .specialAttacks(Set.of(SpecialAttack.MULTI_ATTACK))
+        .healthPoints(10)
+        .build();
+    String targetName = "target";
+    Subject target = Subject.builder()
+        .name(targetName)
+        .race(Race.HALF_ORC)
+        .affiliation(Affiliation.ENEMIES)
+        .abilities(TestData.ABILITIES)
+        .weapons(List.of(Weapon.SHORTSWORD))
+        .position(Position.PLAYERS_BACK)
+        .healthPoints(10)
+        .build();
+    game.createNonPlayableCharacters(List.of(testedSubject, target));
+
+    SubjectTurn turn = artificialIntelligence.action(testSubjectName);
+
+    assertThat(turn.getActions()).isNotEmpty();
+    assertThat(turn.getActions())
+        .extracting("operationType", "targetNames", "actionData.specialAttack")
+        .contains(tuple(OperationType.SPECIAL_ATTACK, List.of(targetName), SpecialAttack.MULTI_ATTACK));
   }
 }

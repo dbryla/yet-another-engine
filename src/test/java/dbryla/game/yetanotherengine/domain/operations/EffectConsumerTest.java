@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
-import dbryla.game.yetanotherengine.domain.events.EventsFactory;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 
@@ -27,7 +27,7 @@ class EffectConsumerTest {
   @InjectMocks
   private EffectConsumer effectConsumer;
   @Mock
-  private EventsFactory eventsFactory;
+  private EventFactory eventFactory;
 
   @Test
   void shouldReturnEmptyOptionalIfNoEffectIsActive() {
@@ -56,7 +56,7 @@ class EffectConsumerTest {
     ActiveEffect activeEffect = Effect.BLIND.activate();
     when(subject.getActiveEffects()).thenReturn(Set.of(activeEffect));
     when(subject.effectExpired(eq(Effect.BLIND))).thenReturn(subject);
-    when(eventsFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
+    when(eventFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
     OperationResult operationResult = effectConsumer.apply(subject);
 
@@ -69,10 +69,10 @@ class EffectConsumerTest {
     ActiveEffect activeEffect = Effect.BLIND.activate();
     when(subject.getActiveEffects()).thenReturn(Set.of(activeEffect));
     when(subject.effectExpired(eq(Effect.BLIND))).thenReturn(subject);
-    when(eventsFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
+    when(eventFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
     OperationResult operationResult = effectConsumer.apply(subject);
 
-    verify(eventsFactory).effectExpiredEvent(eq(subject), eq(Effect.BLIND));
+    verify(eventFactory).effectExpiredEvent(eq(subject), eq(Effect.BLIND));
   }
 }

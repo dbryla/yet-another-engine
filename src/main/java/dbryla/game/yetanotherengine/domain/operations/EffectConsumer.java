@@ -1,11 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import dbryla.game.yetanotherengine.domain.events.EventsFactory;
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
-
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
 
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
@@ -15,7 +10,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class EffectConsumer {
 
-  private final EventsFactory eventsFactory;
+  private final EventFactory eventFactory;
 
   public OperationResult apply(Subject source) {
     OperationResult operationResult = new OperationResult();
@@ -26,7 +21,7 @@ public class EffectConsumer {
             if (activeEffect.getDurationInTurns() == 0) {
               operationResult.add(
                   source.effectExpired(activeEffect.getEffect()),
-                  eventsFactory.effectExpiredEvent(source, activeEffect.getEffect()));
+                  eventFactory.effectExpiredEvent(source, activeEffect.getEffect()));
             }
           }
         }

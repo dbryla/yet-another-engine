@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Set;
 
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,7 +81,9 @@ class SubjectFactoryTest {
                 Armor.LEATHER),
             new Abilities(10, 10, 10, 10, 10, 10),
             null,
-            10),
+            10,
+            Set.of(),
+            Set.of()),
         Position.PLAYERS_FRONT);
 
     PlayerCharacter playerCharacter = subjectFactory.toCharacter(subject);

@@ -1,34 +1,28 @@
 package dbryla.game.yetanotherengine.domain.game.state;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
-import dbryla.game.yetanotherengine.domain.operations.*;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
+import dbryla.game.yetanotherengine.domain.operations.*;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultStateMachineTest {
@@ -44,6 +38,9 @@ class DefaultStateMachineTest {
 
   @Mock
   private AttackOperation attackOperation;
+
+  @Mock
+  private SpecialAttackOperation specialAttackOperation;
 
   @Mock
   private EventHub eventHub;
@@ -63,7 +60,7 @@ class DefaultStateMachineTest {
   @BeforeEach
   void setUp() {
     stateMachine = new DefaultStateMachine(GAME_ID, stepTracker, stateStorage, eventHub,
-        attackOperation, spellCastOperation, moveOperation, effectConsumer);
+        attackOperation, spellCastOperation, moveOperation, specialAttackOperation, effectConsumer);
   }
 
   @Test

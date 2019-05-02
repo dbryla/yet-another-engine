@@ -2,7 +2,9 @@ package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.operations.DamageType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
@@ -169,5 +171,27 @@ public class Subject {
 
   public Race getRace() {
     return subjectProperties.getRace();
+  }
+
+  public Set<SpecialAttack> getSpecialAttacks() {
+    return subjectProperties.getSpecialAttacks();
+  }
+
+  public Set<DamageType> getImmunities() {
+    return subjectProperties.getImmunities();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof Subject)) {
+      return false;
+    }
+    Subject subject = (Subject) obj;
+    return this.subjectProperties.equals(subject.subjectProperties);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.subjectProperties.hashCode();
   }
 }

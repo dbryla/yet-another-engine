@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
@@ -23,8 +24,9 @@ public class SubjectFactory {
     SubjectIdentifier id = new SubjectIdentifier(character.getName(), character.getAffiliation());
     Equipment equipment = new Equipment(character.getWeapons(), character.getShield(), character.getArmor());
     CharacterClass characterClass = character.getCharacterClass();
-    return new Subject(new SubjectProperties(id, character.getRace(), characterClass,
-        equipment, character.getAbilities(), character.getSpells(), character.getMaxHealthPoints()), characterClass.getPreferredPosition());
+    SubjectProperties subjectProperties = new SubjectProperties(id, character.getRace(), characterClass,
+        equipment, character.getAbilities(), character.getSpells(), character.getMaxHealthPoints(), Set.of(), Set.of());
+    return new Subject(subjectProperties, characterClass.getPreferredPosition());
   }
 
   public Subject fromSession(Session session) {

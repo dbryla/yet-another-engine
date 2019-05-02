@@ -2,13 +2,17 @@ package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
+import dbryla.game.yetanotherengine.domain.operations.DamageType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class SubjectBuilder {
 
@@ -24,6 +28,8 @@ public class SubjectBuilder {
   private int healthPoints;
   private Position position;
   private Weapon equippedWeapon = Weapon.FISTS;
+  private Set<SpecialAttack> specialAttacks = new HashSet<>();
+  private Set<DamageType> immunities = new HashSet<>();
 
   public SubjectBuilder name(String name) {
     this.name = name;
@@ -85,6 +91,16 @@ public class SubjectBuilder {
     return this;
   }
 
+  public SubjectBuilder specialAttacks(Set<SpecialAttack> specialAttacks) {
+    this.specialAttacks = specialAttacks;
+    return this;
+  }
+
+  public SubjectBuilder immunities(Set<DamageType> immunities) {
+    this.immunities = immunities;
+    return this;
+  }
+
   /**
    * Replaces default class health points
    */
@@ -108,7 +124,8 @@ public class SubjectBuilder {
     if (cantripForClass != null) {
       Spell.of(cantripForClass, 0).ifPresent(spells::add);
     }
-    SubjectProperties subjectProperties = new SubjectProperties(id, race, characterClass, equipment, abilities, spells, healthPoints);
+    SubjectProperties subjectProperties
+        = new SubjectProperties(id, race, characterClass, equipment, abilities, spells, healthPoints, specialAttacks, immunities);
     return new Subject(subjectProperties, healthPoints, position, new HashSet<>(), equippedWeapon);
   }
 

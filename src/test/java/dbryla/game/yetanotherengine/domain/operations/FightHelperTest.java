@@ -1,19 +1,11 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.effects.EffectLogic;
 import dbryla.game.yetanotherengine.domain.effects.EffectsMapper;
 import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
-
-import java.util.Set;
-
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
@@ -21,6 +13,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+import java.util.Set;
+
+import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FightHelperTest {
@@ -126,8 +128,9 @@ class FightHelperTest {
     Subject changedTarget = mock(Subject.class);
     when(target.of(eq(1))).thenReturn(changedTarget);
 
-    Subject resultTarget  = fightHelper.dealDamage(target, 10);
+    Optional<Subject> resultTarget = fightHelper.dealDamage(target, 10, DamageType.SLASHING);
 
-    assertThat(resultTarget).isEqualTo(changedTarget);
+    assertThat(resultTarget).isPresent();
+    assertThat(resultTarget.get()).isEqualTo(changedTarget);
   }
 }

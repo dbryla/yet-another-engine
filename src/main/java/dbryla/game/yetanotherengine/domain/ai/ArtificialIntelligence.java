@@ -1,10 +1,8 @@
 package dbryla.game.yetanotherengine.domain.ai;
 
-import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
-
 import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
+import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
@@ -13,12 +11,12 @@ import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Random;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
+import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
 
 @Component
 public class ArtificialIntelligence {
@@ -51,9 +49,32 @@ public class ArtificialIntelligence {
   }
 
   private SubjectTurn getAction(Subject subject, ArtificialIntelligenceContext context, boolean isMoving) {
-    return spellAction(subject, context, isMoving)
+    return specialAttack(subject, context, isMoving)
+        .or(() -> spellAction(subject, context, isMoving))
         .or(() -> attackAction(subject, context, isMoving))
         .orElseGet(() -> moveAction(subject, context, isMoving));
+  }
+
+  private Optional<SubjectTurn> specialAttack(Subject subject, ArtificialIntelligenceContext context, boolean isMoving) {
+    if (subject.getSpecialAttacks().isEmpty()) {
+      return Optional.empty();
+    }
+    Game game = context.getGame();
+    for (SpecialAttack specialAttack : subject.getSpecialAttacks()) {
+      if (isMoving && specialAttack.isWithMove()) {
+        continue;
+      }
+      List<String> possibleTargets = game.getPossibleTargets(subject, specialAttack);
+      SubjectTurn turn = new SubjectTurn(subject.getName());
+      Optional<SubjectTurn> subjectTurn =
+          findTarget(subject, context, turn, possibleTargets,
+              specialAttack.getMinRange(), specialAttack.getMaxRange(), isMoving || specialAttack.isWithMove())
+              .map(target -> turn.add(new Action(subject.getName(), target, OperationType.SPECIAL_ATTACK, new ActionData(specialAttack))));
+      if (subjectTurn.isPresent()) {
+        return subjectTurn;
+      }
+    }
+    return Optional.empty();
   }
 
   private Optional<SubjectTurn> spellAction(Subject subject, ArtificialIntelligenceContext context, boolean isMoving) {
@@ -61,12 +82,11 @@ public class ArtificialIntelligence {
     List<Spell> spells = game.getAvailableSpellsForCast(subject);
     List<String> allies = game.getAllAliveAllyNames(subject);
     if (spells != null && !spells.isEmpty()) {
-      if (spells.contains(Spell.HEALING_WORD)) {
-        List<String> possibleTargets = game.getPossibleTargets(subject, Spell.HEALING_WORD);
+      for (Spell spell : List.of(Spell.CURE_WOUNDS, Spell.HEALING_WORD)) {
+        List<String> possibleTargets = game.getPossibleTargets(subject, spell);
         for (String ally : possibleTargets) {
           if (game.getSubject(ally).getSubjectState().needsHealing()) {
-            return Optional.of(SubjectTurn.of(new Action(subject.getName(), ally,
-                OperationType.SPELL_CAST, new ActionData(Spell.HEALING_WORD))));
+            return Optional.of(SubjectTurn.of(new Action(subject.getName(), ally, OperationType.SPELL_CAST, new ActionData(spell))));
           }
         }
       }
@@ -78,7 +98,7 @@ public class ArtificialIntelligence {
       }
       Spell spell = Spell.SACRED_FLAME;
       if (spells.contains(spell)) {
-        possibleTargets = context.getGame().getPossibleTargets(subject, spell);
+        possibleTargets = game.getPossibleTargets(subject, spell);
         SubjectTurn turn = new SubjectTurn(subject.getName());
         return findTarget(subject, context, turn, possibleTargets, spell.getMinRange(), spell.getMaxRange(), isMoving)
             .map(target -> turn.add(new Action(subject.getName(), target, OperationType.SPELL_CAST, new ActionData(spell))));

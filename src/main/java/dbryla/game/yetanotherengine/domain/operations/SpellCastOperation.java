@@ -1,28 +1,25 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
-import static dbryla.game.yetanotherengine.domain.spells.SpellType.DAMAGE;
-import static dbryla.game.yetanotherengine.domain.spells.SpellType.EFFECT;
-import static dbryla.game.yetanotherengine.domain.spells.SpellType.HEAL;
-
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.events.Event;
-import dbryla.game.yetanotherengine.domain.events.EventsFactory;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.spells.SpellSaveType;
-
-import java.util.function.Function;
-
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.function.Function;
+
+import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
+import static dbryla.game.yetanotherengine.domain.spells.SpellType.*;
 
 @AllArgsConstructor
 @Component
 public class SpellCastOperation {
 
   private final FightHelper fightHelper;
-  private final EventsFactory eventsFactory;
+  private final EventFactory eventFactory;
   private final DiceRollService diceRollService;
 
   public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
@@ -75,12 +72,12 @@ public class SpellCastOperation {
     if (SpellSaveType.CONSTITUTION_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets,
           attackDamage, fightHelper::getConstitutionSavingThrow,
-          target -> new OperationResult().add(eventsFactory.failEventBySavingThrow(source, spell, target)));
+          target -> new OperationResult().add(eventFactory.failEventBySavingThrow(source, spell, target)));
     }
     if (SpellSaveType.DEXTERITY_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets,
           attackDamage, fightHelper::getDexteritySavingThrow,
-          target -> new OperationResult().add(eventsFactory.failEventBySavingThrow(source, spell, target)));
+          target -> new OperationResult().add(eventFactory.failEventBySavingThrow(source, spell, target)));
     }
     int attackDamageOnSavedThrow = attackDamage / 2;
     if (SpellSaveType.DEXTERITY_HALF_SAVING_THROW.equals(spell.getSpellSaveType())) {
@@ -103,7 +100,7 @@ public class SpellCastOperation {
     hitRoll.addModifier(fightHelper.getModifier(source, spell));
     HitResult hitResult = HitResult.of(hitRoll, target);
     if (!hitResult.isTargetHit()) {
-      return new OperationResult().add(eventsFactory.failEvent(source, target, spell.toString(), hitResult));
+      return new OperationResult().add(eventFactory.failEvent(source, target, spell.toString(), hitResult));
     } else {
       int attackDamage = fightHelper.getAttackDamage(spell.roll(diceRollService), hitResult);
       attackDamage += getModifier(source, spell);
@@ -112,9 +109,13 @@ public class SpellCastOperation {
   }
 
   private OperationResult dealDamage(Subject source, Subject target, int attackDamage, Spell spell, HitResult hitResult) {
-    Subject changedTarget = fightHelper.dealDamage(target, attackDamage);
-    Event event = eventsFactory.successSpellCastEvent(source, changedTarget, spell, hitResult);
-    return new OperationResult(changedTarget, event);
+    return fightHelper
+        .dealDamage(target, attackDamage, spell.getDamageType())
+        .map(changedTarget -> {
+          Event event = eventFactory.successSpellCastEvent(source, changedTarget, spell, hitResult);
+          return new OperationResult(changedTarget, event);
+        })
+        .orElseGet(() -> new OperationResult().add(eventFactory.targetImmuneEvent(source, target, spell)));
   }
 
   private OperationResult handleSavingThrow(Subject source, Spell spell, Subject[] targets, int attackDamage,
@@ -134,20 +135,23 @@ public class SpellCastOperation {
   }
 
   private OperationResult dealDamage(Subject source, Subject target, int attackDamage, Spell spell) {
-    Subject changedTarget = fightHelper.dealDamage(target, attackDamage);
-    Event event = eventsFactory.successSpellCastEvent(source, changedTarget, spell);
-    return new OperationResult(changedTarget, event);
+    return fightHelper.dealDamage(target, attackDamage, spell.getDamageType())
+        .map(changedTarget -> {
+          Event event = eventFactory.successSpellCastEvent(source, changedTarget, spell);
+          return new OperationResult(changedTarget, event);
+        })
+        .orElseGet(() -> new OperationResult().add(eventFactory.targetImmuneEvent(source, target, spell)));
   }
 
   private OperationResult applyEffect(Subject source, Spell spell, Subject target) {
     Subject changedTarget = target.of(spell.getSpellEffect());
-    Event event = eventsFactory.successSpellCastEvent(source, changedTarget, spell);
+    Event event = eventFactory.successSpellCastEvent(source, changedTarget, spell);
     return new OperationResult(changedTarget, event);
   }
 
   private OperationResult heal(Subject source, Subject target, int healRoll) {
     Subject changedTarget = target.of(Math.min(target.getCurrentHealthPoints() + healRoll, target.getMaxHealthPoints()));
-    Event event = eventsFactory.successHealEvent(source, changedTarget);
+    Event event = eventFactory.successHealEvent(source, changedTarget);
     return new OperationResult(changedTarget, event);
   }
 

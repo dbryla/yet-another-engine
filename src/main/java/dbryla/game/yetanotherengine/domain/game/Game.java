@@ -7,6 +7,7 @@ import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
@@ -147,6 +148,10 @@ public class Game {
 
   public List<String> getPossibleTargets(Subject subject, Spell spell) {
     return getPossibleTargets(subject, spell.getMinRange(), spell.getMaxRange(), spell.isPositiveSpell());
+  }
+
+  public List<String> getPossibleTargets(Subject subject, SpecialAttack specialAttack) {
+    return getPossibleTargets(subject, specialAttack.getMinRange(), specialAttack.getMaxRange(), false);
   }
 
   private List<String> getPossibleTargets(Subject subject, int minRange, int maxRange, boolean allies) {

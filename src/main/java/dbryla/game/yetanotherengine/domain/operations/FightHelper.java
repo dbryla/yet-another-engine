@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import dbryla.game.yetanotherengine.domain.dice.AdvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.dice.DisadvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
@@ -27,11 +28,13 @@ class FightHelper {
   HitRoll getHitRoll(Subject source, Subject target) {
     int hitRoll = diceRollService.k20();
     int modifiers = 0;
-    boolean sourceHasDisadvantage = false; // fixme dis/adv cancel each other
+    boolean sourceHasDisadvantage = false;
+    boolean sourceHasAdvantage = false;
     for (ActiveEffect activeEffect : source.getActiveEffects()) {
       HitDiceRollModifier sourceModifier = effectsMapper.getLogic(activeEffect.getEffect()).getSourceHitRollModifier();
       if (sourceModifier.canModifyOriginalHitRoll()) {
         sourceHasDisadvantage = sourceModifier instanceof DisadvantageRollModifier;
+        sourceHasAdvantage = sourceModifier instanceof AdvantageRollModifier;
         hitRoll = sourceModifier.apply(hitRoll);
       } else {
         modifiers += sourceModifier.apply(hitRoll);
@@ -40,7 +43,11 @@ class FightHelper {
     hitRoll = handleLuckyEffect(source, hitRoll);
     for (ActiveEffect activeEffect : target.getActiveEffects()) {
       HitDiceRollModifier targetModifier = effectsMapper.getLogic(activeEffect.getEffect()).getTargetHitRollModifier();
-      if (!sourceHasDisadvantage && targetModifier.canModifyOriginalHitRoll()) {
+      if (targetModifier.canModifyOriginalHitRoll()) {
+        if ((sourceHasAdvantage && targetModifier instanceof DisadvantageRollModifier)
+            || (sourceHasDisadvantage && targetModifier instanceof AdvantageRollModifier)) {
+          continue;
+        }
         hitRoll = targetModifier.apply(hitRoll);
       } else {
         modifiers += targetModifier.apply(hitRoll);

@@ -17,7 +17,7 @@ import static dbryla.game.yetanotherengine.domain.spells.SpellType.*;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
 
-public enum Spell { // fixme verify spell dmg type
+public enum Spell {
 
   SACRED_FLAME(CLERIC, 0, DEXTERITY_SAVING_THROW, 1, 8,
       1, SIXTY_FEET, DamageType.RADIANT),

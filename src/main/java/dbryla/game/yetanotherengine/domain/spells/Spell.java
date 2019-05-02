@@ -20,7 +20,7 @@ import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
 public enum Spell { // fixme verify spell dmg type
 
   SACRED_FLAME(CLERIC, 0, DEXTERITY_SAVING_THROW, 1, 8,
-      1, SIXTY_FEET, DamageType.HOLY),
+      1, SIXTY_FEET, DamageType.RADIANT),
   ACID_SPLASH(WIZARD, 0, DEXTERITY_SAVING_THROW, 1, 6,
       2, SIXTY_FEET, DamageType.ACID),
   POISON_SPRAY(WIZARD, 0, CONSTITUTION_SAVING_THROW, 1, 12,

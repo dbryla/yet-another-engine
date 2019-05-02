@@ -35,7 +35,7 @@ public class MonstersBook {
           .abilities(new Abilities(13, 12, 12, 10, 11, 10))
           .armor(Armor.CHAIN_SHIRT)
           .shield(Armor.SHIELD)
-          .weapons(List.of(Weapon.SHORTBOW, Weapon.SHORTSWORD)) // fixme spear
+          .weapons(List.of(Weapon.SPEAR))
           .challengeRating(0.125)
           .defaultName("Guard")
           .hitDice(8)

@@ -83,10 +83,12 @@ public class ArtificialIntelligence {
     List<String> allies = game.getAllAliveAllyNames(subject);
     if (spells != null && !spells.isEmpty()) {
       for (Spell spell : List.of(Spell.CURE_WOUNDS, Spell.HEALING_WORD)) {
-        List<String> possibleTargets = game.getPossibleTargets(subject, spell);
-        for (String ally : possibleTargets) {
-          if (game.getSubject(ally).getSubjectState().needsHealing()) {
-            return Optional.of(SubjectTurn.of(new Action(subject.getName(), ally, OperationType.SPELL_CAST, new ActionData(spell))));
+        if (spells.contains(spell)) {
+          List<String> possibleTargets = game.getPossibleTargets(subject, spell);
+          for (String ally : possibleTargets) {
+            if (game.getSubject(ally).getSubjectState().needsHealing()) {
+              return Optional.of(SubjectTurn.of(new Action(subject.getName(), ally, OperationType.SPELL_CAST, new ActionData(spell))));
+            }
           }
         }
       }
@@ -109,7 +111,7 @@ public class ArtificialIntelligence {
   }
 
   private Optional<String> findTarget(Subject subject, ArtificialIntelligenceContext context, SubjectTurn subjectTurn,
-      List<String> possibleTargets, int minRange, int maxRange, boolean isMoving) {
+                                      List<String> possibleTargets, int minRange, int maxRange, boolean isMoving) {
     if (context.getAcquiredTarget() == null && !possibleTargets.isEmpty()) {
       context.setAcquiredTarget(possibleTargets.get(random.nextInt(possibleTargets.size())));
       return Optional.of(context.getAcquiredTarget());
@@ -140,7 +142,7 @@ public class ArtificialIntelligence {
   }
 
   private Optional<Action> tryToMove(Subject subject, ArtificialIntelligenceContext context, int minRange, int maxRange,
-      Subject target, boolean isMoving) {
+                                     Subject target, boolean isMoving) {
     if (isMoving) {
       return Optional.empty();
     }
@@ -155,7 +157,7 @@ public class ArtificialIntelligence {
   }
 
   private Optional<SubjectTurn> attackWithWeapon(Subject subject, ArtificialIntelligenceContext context,
-      Weapon equippedWeapon, boolean isMoving) {
+                                                 Weapon equippedWeapon, boolean isMoving) {
     SubjectTurn turn = new SubjectTurn(subject.getName());
     List<String> possibleTargets = context.getGame().getPossibleTargets(subject, equippedWeapon);
     return findTarget(subject, context, turn, possibleTargets, equippedWeapon.getMinRange(), equippedWeapon.getMaxRange(), isMoving)

@@ -65,8 +65,8 @@ class GameITest {
   }
 
   private List<Subject> givenEnemies() {
-    List<Subject> enemies = monstersFactory.createEncounter(1, 1);
-    enemies.addAll(monstersFactory.createEncounter(1, 2));
+    List<Subject> enemies = monstersFactory.createEncounter(1);
+    enemies.addAll(monstersFactory.createEncounter(1));
     return enemies;
   }
 

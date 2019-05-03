@@ -4,7 +4,6 @@ import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -19,7 +18,6 @@ import static dbryla.game.yetanotherengine.domain.subject.Race.HUMANOID;
 
 @AllArgsConstructor
 @Component
-@Slf4j
 public class MonstersFactory {
 
   private static final int DIFFICULTY_FACTOR = 1;
@@ -29,15 +27,9 @@ public class MonstersFactory {
   private final MonstersNames monstersNames;
 
   public List<Subject> createEncounter(int playersNumber) {
-    MonsterDefinition monsterDefinition = getMonster(playersNumber);
+    MonsterDefinition monsterDefinition = monstersBook.getRandomMonster(1);
     int monstersNumber = getMonstersNumber(playersNumber, monsterDefinition.getChallengeRating());
     return createMonsters(monsterDefinition, monstersNumber);
-  }
-
-  public List<Subject> createEncounter(int playersNumber, int encounterNumber) {
-    MonsterDefinition monsterDefinition = monstersBook.getMonsters().get(encounterNumber);
-    int monstersNumber = getMonstersNumber(playersNumber, monsterDefinition.getChallengeRating());
-    return createMonsters(monsterDefinition, monstersNumber == 0 ? 1 : monstersNumber);
   }
 
   private List<Subject> createMonsters(MonsterDefinition monsterDefinition, int monstersNumber) {
@@ -97,31 +89,17 @@ public class MonstersFactory {
     return monstersNames.getModifiers(monsterDefinition.getMonsterRace()).get(i) + " " + monsterDefinition.getDefaultName();
   }
 
-  private MonsterDefinition getMonster(int playersNumber) {
-    int monstersNumber = 0;
-    MonsterDefinition monsterDefinition = null;
-    while (monstersNumber == 0) {
-      monsterDefinition = monstersBook.getRandomMonster(1);
-      monstersNumber = getMonstersNumber(playersNumber, monsterDefinition.getChallengeRating());
-      log.trace("{} - Suggesting {} monsters.", monsterDefinition, monstersNumber);
-    }
-    return monsterDefinition;
-  }
-
   private int getMonstersNumber(int playersNumber, double challengeRating) {
     if (challengeRating == 0.125) {
       return DIFFICULTY_FACTOR * playersNumber;
     }
     if (challengeRating == 0.25) {
-      return DIFFICULTY_FACTOR * playersNumber / 2;
+      return Math.max(DIFFICULTY_FACTOR * playersNumber / 2, 1);
     }
     if (challengeRating == 0.5) {
-      return DIFFICULTY_FACTOR * playersNumber / 4;
+      return Math.max(DIFFICULTY_FACTOR * playersNumber / 4, 1);
     }
-    if (challengeRating == 1) {
-      return DIFFICULTY_FACTOR * playersNumber / 4;
-    }
-    return 0;
+    return 1;
   }
 
   private int getMonsterHealthPoints(MonsterDefinition monsterDefinition) {

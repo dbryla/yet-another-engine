@@ -94,7 +94,7 @@ class FightHelperTest {
   void shouldGetUnchangedAttackDamageIfDidNotRollTwenty() {
     int attackDamage = 10;
 
-    int result = fightHelper.getAttackDamage(attackDamage, HitResult.HIT);
+    int result = fightHelper.getAttackDamage(null, () -> attackDamage, HitResult.HIT);
 
     assertThat(result).isEqualTo(attackDamage);
   }
@@ -102,8 +102,10 @@ class FightHelperTest {
   @Test
   void shouldGetDoubledAttackDamageIfRollTwenty() {
     int attackDamage = 10;
+    Subject source = mock(Subject.class);
+    when(source.getRace()).thenReturn(Race.HUMAN);
 
-    int result = fightHelper.getAttackDamage(attackDamage, HitResult.CRITICAL);
+    int result = fightHelper.getAttackDamage(source, () -> attackDamage, HitResult.CRITICAL);
 
     assertThat(result).isEqualTo(2 * attackDamage);
   }

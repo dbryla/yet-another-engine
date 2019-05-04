@@ -14,9 +14,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
-import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.*;
 import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
 
 @Component
@@ -66,11 +66,14 @@ class FightHelper {
     return hitRoll;
   }
 
-  int getAttackDamage(int attackDamage, HitResult hitResult) {
+  int getAttackDamage(Subject source, Supplier<Integer> attackDamage, HitResult hitResult) {
     if (CRITICAL.equals(hitResult)) {
-      return attackDamage * 2;
+      if (source.getRace().getRaceEffects().contains(SAVAGE_ATTACK)) {
+        return attackDamage.get() * 2 + attackDamage.get();
+      }
+      return attackDamage.get() * 2;
     }
-    return attackDamage;
+    return attackDamage.get();
   }
 
   int getConstitutionSavingThrow(Subject target, DamageType damageType) {

@@ -10,9 +10,8 @@ import org.apache.commons.text.WordUtils;
 import java.util.List;
 import java.util.Set;
 
-import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.RELENTLESS_ENDURANCE;
-import static dbryla.game.yetanotherengine.domain.operations.DamageType.POISON;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.*;
+import static dbryla.game.yetanotherengine.domain.operations.DamageType.*;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType.LIGHT;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType.MEDIUM;
@@ -23,55 +22,55 @@ public enum Race {
   HILL_DWARF(
       "Dwarf", List.of(0, 0, 2, 0, 1, 0),
       Set.of(HANDAXE, BATTLEAXE, HAMMER, WARHAMMER), Set.of(),
-      1, null, Set.of(), Set.of(POISON), Set.of(POISON)),
+      1, null, Set.of(), Set.of(POISON), Set.of(POISON), Set.of()),
   MOUNTAIN_DWARF(
       "Dwarf", List.of(2, 0, 2, 0, 0, 0),
       Set.of(HANDAXE, BATTLEAXE, HAMMER, WARHAMMER), Set.of(LIGHT, MEDIUM),
-      0, null, Set.of(), Set.of(POISON), Set.of(POISON)),
+      0, null, Set.of(), Set.of(POISON), Set.of(POISON), Set.of()),
   HIGH_ELF(
       "Elf", List.of(0, 2, 0, 1, 0, 0),
       Set.of(LONGSWORD, SHORTSWORD, SHORTBOW, LONGBOW), Set.of(),
-      0, WIZARD, Set.of(), Set.of(), Set.of()),
+      0, WIZARD, Set.of(), Set.of(), Set.of(CHARM), Set.of(SLEEP)),
   WOOD_ELF(
       "Elf", List.of(0, 2, 0, 0, 1, 0),
       Set.of(LONGSWORD, SHORTSWORD, SHORTBOW, LONGBOW), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of()),
+      0, null, Set.of(), Set.of(), Set.of(CHARM), Set.of(SLEEP)),
   DARK_ELF(
       "Elf", List.of(0, 2, 0, 0, 0, 1),
       Set.of(RAPIER, SHORTSWORD, CROSSBOW), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of()),
+      0, null, Set.of(), Set.of(), Set.of(CHARM), Set.of(SLEEP)),
   LIGHTFOOT_HALFLING(
       "Halfling", List.of(0, 2, 0, 0, 0, 1),
       Set.of(), Set.of(),
-      0, null, Set.of(LUCKY), Set.of(), Set.of()),
+      0, null, Set.of(LUCKY), Set.of(), Set.of(FEAR), Set.of()),
   STOUT_HALFLING(
       "Halfling", List.of(0, 2, 1, 0, 0, 0),
       Set.of(), Set.of(),
-      0, null, Set.of(LUCKY), Set.of(), Set.of()),
+      0, null, Set.of(LUCKY), Set.of(POISON), Set.of(FEAR, POISON), Set.of()),
   HUMAN(
       "Human", List.of(1, 1, 1, 1, 1, 1),
       Set.of(), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of()),
+      0, null, Set.of(), Set.of(), Set.of(), Set.of()),
   FOREST_GNOME(
       "Gnome", List.of(0, 1, 0, 2, 0, 0),
       Set.of(), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of()),
+      0, null, Set.of(), Set.of(), Set.of(), Set.of()),
   ROCK_GNOME(
       "Gnome", List.of(0, 0, 1, 2, 0, 0),
       Set.of(), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of()),
+      0, null, Set.of(), Set.of(), Set.of(), Set.of()),
   HALF_ELF(
       "Half-Elf", List.of(0, 1, 0, 1, 0, 2),
       Set.of(), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of()),
+      0, null, Set.of(), Set.of(), Set.of(CHARM), Set.of(SLEEP)),
   HALF_ORC(
       "Half-Orc", List.of(2, 0, 1, 0, 0, 0),
       Set.of(), Set.of(),
-      0, null, Set.of(RELENTLESS_ENDURANCE), Set.of(), Set.of()),
+      0, null, Set.of(RELENTLESS_ENDURANCE, SAVAGE_ATTACK), Set.of(), Set.of(), Set.of()),
   TIEFLING(
       "Thiefling", List.of(0, 0, 0, 1, 0, 2),
       Set.of(), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of()),
+      0, null, Set.of(), Set.of(FIRE), Set.of(), Set.of()),
   HUMANOID,
   GOBLINOID,
   BEAST,
@@ -91,7 +90,7 @@ public enum Race {
 
   Race(String displayName, List<Integer> abilitiesModifiers, Set<Weapon> weaponProficiencies, Set<ArmorType> armorProficiencies,
        int additionalHealthPoints, CharacterClass cantripForClass, Set<Effect> raceEffects, Set<DamageType> resistances,
-       Set<DamageType> advantageOnSavingThrows) {
+       Set<DamageType> advantageOnSavingThrows, Set<DamageType> immunities) {
     this.displayName = displayName;
     this.abilitiesModifiers = abilitiesModifiers;
     this.weaponProficiencies = weaponProficiencies;
@@ -101,7 +100,7 @@ public enum Race {
     this.raceEffects = raceEffects;
     this.resistances = resistances;
     this.advantageOnSavingThrows = advantageOnSavingThrows;
-    this.immunities = Set.of();
+    this.immunities = immunities;
     this.playable = true;
   }
 

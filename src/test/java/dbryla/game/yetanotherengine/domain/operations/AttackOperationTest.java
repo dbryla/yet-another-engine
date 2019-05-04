@@ -93,7 +93,7 @@ class AttackOperationTest {
     int attackDamage = 5;
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
-    when(fightHelper.getAttackDamage(anyInt(), any())).thenReturn(attackDamage);
+    when(fightHelper.getAttackDamage(any(), any(), any())).thenReturn(attackDamage);
     when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
@@ -108,7 +108,7 @@ class AttackOperationTest {
     int attackDamage = 10;
     Subject target = mock(Subject.class);
     when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
-    when(fightHelper.getAttackDamage(anyInt(), any())).thenReturn(attackDamage);
+    when(fightHelper.getAttackDamage(any(), any(), any())).thenReturn(attackDamage);
     when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     operation.invoke(source, TEST_ACTION_DATA, target);

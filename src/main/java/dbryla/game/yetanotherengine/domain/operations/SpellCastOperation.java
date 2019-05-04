@@ -103,7 +103,7 @@ public class SpellCastOperation {
     if (!hitResult.isTargetHit()) {
       return new OperationResult().add(eventFactory.failEvent(source, target, spell.toString(), hitResult));
     } else {
-      int attackDamage = fightHelper.getAttackDamage(spell.roll(diceRollService), hitResult);
+      int attackDamage = fightHelper.getAttackDamage(source, () -> spell.roll(diceRollService), hitResult);
       attackDamage += getModifier(source, spell);
       return dealDamage(source, target, attackDamage, spell, hitResult);
     }

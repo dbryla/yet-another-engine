@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum Effect {
-  BLIND, BLESS, LUCKY, RELENTLESS_ENDURANCE, ADVANTAGE_ON_SAVING_THROWS_AGAINST_POISON, RESISTANCE_AGAINST_POISON, MULTI_ATTACK;
+  BLIND, BLESS, LUCKY, RELENTLESS_ENDURANCE, SAVAGE_ATTACK, MULTI_ATTACK;
 
   public ActiveEffect activate(int durationInTurns) {
     return new ActiveEffect(this, durationInTurns);

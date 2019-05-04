@@ -25,7 +25,7 @@ public class EventFactory {
   private static final String HEAL_FORMAT = "%s heals %s.";
   private static final String MOVEMENT_FORMAT = "%s moves to %s.";
   private static final String EQUIP_WEAPON_FORMAT = "%s equips %s.";
-  private static final String KNOCKED_PRONE_FORMAT = "%s knocks prone %s.";
+  private static final String KNOCKED_PRONE_FORMAT = "%s knocks %s prone.";
   private static final String TARGET_IMMUNE_FORMAT = "%s hits %s with %s, but target seems to be immune.";
 
   public Event successAttackEvent(Subject attacker, Subject target, Weapon weapon, HitResult hitResult) {

@@ -9,29 +9,29 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Builder
 @ToString
-class MonsterDefinition {
-  private final String defaultName;
-  private final String type;
-  private final Race monsterRace;
-  private final int numberOfHitDices;
-  private final int hitDice;
-  private final Abilities abilities;
-  @Singular
-  private final List<Weapon> weapons;
-  private final Armor armor;
-  private final Armor shield;
-  private final double challengeRating;
-  private final Position preferredPosition;
-  private final List<Spell> spells;
-  @Singular
-  private final Set<SpecialAttack> specialAttacks;
-  @Singular
-  private final Set<DamageType> immunities;
+public class MonsterDefinition {
+  private String defaultName;
+  private String type;
+  private Race monsterRace;
+  private int numberOfHitDices;
+  private int hitDice;
+  private Abilities abilities;
+  private List<Weapon> weapons;
+  private Armor armor;
+  private Armor shield;
+  private double challengeRating;
+  private Position preferredPosition;
+  private List<Spell> spells = new LinkedList<>();
+  private Set<SpecialAttack> specialAttacks = new HashSet<>();
+  private Set<DamageType> immunities = new HashSet<>();
 }

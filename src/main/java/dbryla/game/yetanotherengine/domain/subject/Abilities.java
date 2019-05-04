@@ -1,7 +1,9 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 
@@ -10,46 +12,77 @@ import java.util.List;
 @ToString(exclude = {"strengthModifier", "dexterityModifier", "constitutionModifier",
     "intelligenceModifier", "wisdomModifier", "charismaModifier"})
 @EqualsAndHashCode
+@NoArgsConstructor
 public class Abilities {
 
-  private final int strength;
-  private final int dexterity;
-  private final int constitution;
-  private final int intelligence;
-  private final int wisdom;
-  private final int charisma;
+  private int strength;
+  private int dexterity;
+  private int constitution;
+  private int intelligence;
+  private int wisdom;
+  private int charisma;
 
   @Getter
   @Transient
-  private final int strengthModifier;
+  @JsonIgnore
+  private int strengthModifier;
   @Getter
   @Transient
-  private final int dexterityModifier;
+  @JsonIgnore
+  private int dexterityModifier;
   @Getter
   @Transient
-  private final int constitutionModifier;
+  @JsonIgnore
+  private int constitutionModifier;
   @Getter
   @Transient
-  private final int intelligenceModifier;
+  @JsonIgnore
+  private int intelligenceModifier;
   @Getter
   @Transient
-  private final int wisdomModifier;
+  @JsonIgnore
+  private int wisdomModifier;
   @Getter
   @Transient
-  private final int charismaModifier;
+  @JsonIgnore
+  private int charismaModifier;
 
   public Abilities(int strength, int dexterity, int constitution, int intelligence, int wisdom, int charisma) {
+    this.setStrength(strength);
+    this.setDexterity(dexterity);
+    this.setConstitution(constitution);
+    this.setIntelligence(intelligence);
+    this.setWisdom(wisdom);
+    this.setCharisma(charisma);
+  }
+
+  public void setStrength(int strength) {
     this.strength = strength;
-    this.dexterity = dexterity;
-    this.constitution = constitution;
-    this.intelligence = intelligence;
-    this.wisdom = wisdom;
-    this.charisma = charisma;
     this.strengthModifier = modifier(this.strength);
+  }
+
+  public void setDexterity(int dexterity) {
+    this.dexterity = dexterity;
     this.dexterityModifier = modifier(this.dexterity);
+  }
+
+  public void setConstitution(int constitution) {
+    this.constitution = constitution;
     this.constitutionModifier = modifier(this.constitution);
+  }
+
+  public void setIntelligence(int intelligence) {
+    this.intelligence = intelligence;
     this.intelligenceModifier = modifier(this.intelligence);
+  }
+
+  public void setWisdom(int wisdom) {
+    this.wisdom = wisdom;
     this.wisdomModifier = modifier(this.wisdom);
+  }
+
+  public void setCharisma(int charisma) {
+    this.charisma = charisma;
     this.charismaModifier = modifier(this.charisma);
   }
 

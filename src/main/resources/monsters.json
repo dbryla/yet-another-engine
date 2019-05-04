@@ -1,0 +1,169 @@
+{
+  "monsters": [
+    {
+      "abilities": {
+        "strength": 11,
+        "dexterity": 12,
+        "constitution": 10,
+        "intelligence": 10,
+        "wisdom": 11,
+        "charisma": 10
+      },
+      "armor": "LEATHER",
+      "weapons": [
+        "SCIMITAR"
+      ],
+      "challengeRating": 0.125,
+      "defaultName": "Cultist",
+      "hitDice": 8,
+      "numberOfHitDices": 2,
+      "type": "Cultist",
+      "monsterRace": "HUMANOID",
+      "preferredPosition": "ENEMIES_FRONT"
+    },
+    {
+      "abilities": {
+        "strength": 13,
+        "dexterity": 12,
+        "constitution": 12,
+        "intelligence": 10,
+        "wisdom": 11,
+        "charisma": 10
+      },
+      "armor": "CHAIN_SHIRT",
+      "shield": "SHIELD",
+      "weapons": [
+        "SPEAR"
+      ],
+      "challengeRating": 0.125,
+      "defaultName": "Guard",
+      "hitDice": 8,
+      "numberOfHitDices": 2,
+      "type": "Guard",
+      "monsterRace": "HUMANOID",
+      "preferredPosition": "ENEMIES_FRONT"
+    },
+    {
+      "abilities": {
+        "strength": 10,
+        "dexterity": 10,
+        "constitution": 10,
+        "intelligence": 10,
+        "wisdom": 14,
+        "charisma": 11
+      },
+      "weapons": [
+        "CLUB"
+      ],
+      "challengeRating": 0.25,
+      "defaultName": "Acolyte",
+      "hitDice": 8,
+      "type": "Acolyte",
+      "spells": [
+        "SACRED_FLAME",
+        "BLESS",
+        "CURE_WOUNDS"
+      ],
+      "numberOfHitDices": 2,
+      "monsterRace": "HUMANOID",
+      "preferredPosition": "ENEMIES_BACK"
+    },
+    {
+      "abilities": {
+        "strength": 8,
+        "dexterity": 14,
+        "constitution": 10,
+        "intelligence": 10,
+        "wisdom": 8,
+        "charisma": 8
+      },
+      "armor": "LEATHER",
+      "shield": "SHIELD",
+      "weapons": [
+        "SHORTBOW",
+        "SCIMITAR"
+      ],
+      "challengeRating": 0.25,
+      "defaultName": "Goblin",
+      "hitDice": 6,
+      "numberOfHitDices": 2,
+      "type": "Goblin",
+      "monsterRace": "GOBLINOID",
+      "preferredPosition": "ENEMIES_FRONT"
+    },
+    {
+      "abilities": {
+        "strength": 14,
+        "dexterity": 15,
+        "constitution": 10,
+        "intelligence": 3,
+        "wisdom": 14,
+        "charisma": 7
+      },
+      "weapons": [
+        "BITE",
+        "CLAW"
+      ],
+      "challengeRating": 0.25,
+      "defaultName": "Panther",
+      "hitDice": 8,
+      "numberOfHitDices": 3,
+      "type": "Panther",
+      "monsterRace": "BEAST",
+      "preferredPosition": "ENEMIES_FRONT",
+      "specialAttacks": [
+        "POUNCE"
+      ]
+    },
+    {
+      "abilities": {
+        "strength": 10,
+        "dexterity": 14,
+        "constitution": 15,
+        "intelligence": 6,
+        "wisdom": 8,
+        "charisma": 5
+      },
+      "armor": "SCRAPS",
+      "weapons": [
+        "SHORTBOW",
+        "SHORTSWORD"
+      ],
+      "challengeRating": 0.25,
+      "defaultName": "Skeleton",
+      "hitDice": 8,
+      "numberOfHitDices": 2,
+      "type": "Skeleton",
+      "monsterRace": "UNDEAD",
+      "preferredPosition": "ENEMIES_FRONT",
+      "immunities": [
+        "POISON"
+      ]
+    },
+    {
+      "abilities": {
+        "strength": 10,
+        "dexterity": 14,
+        "constitution": 10,
+        "intelligence": 10,
+        "wisdom": 8,
+        "charisma": 10
+      },
+      "armor": "CHAIN_SHIRT",
+      "shield": "SHIELD",
+      "weapons": [
+        "SCIMITAR"
+      ],
+      "challengeRating": 1,
+      "defaultName": "Goblin Boss",
+      "hitDice": 6,
+      "numberOfHitDices": 6,
+      "type": "Goblin",
+      "monsterRace": "GOBLINOID",
+      "preferredPosition": "ENEMIES_FRONT",
+      "specialAttacks": [
+        "MULTI_ATTACK"
+      ]
+    }
+  ]
+}

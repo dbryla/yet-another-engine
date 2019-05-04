@@ -1,5 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import dbryla.game.yetanotherengine.domain.TestData;
+import dbryla.game.yetanotherengine.domain.dice.AdvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
@@ -21,8 +23,7 @@ import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class FightHelperTest {
@@ -35,6 +36,9 @@ class FightHelperTest {
 
   @Mock
   private EffectsMapper effectsMapper;
+
+  @Mock
+  private AdvantageRollModifier advantageRollModifier;
 
   @Test
   void shouldReturnHitRollIfNoEffectIsActive() {
@@ -133,4 +137,28 @@ class FightHelperTest {
     assertThat(resultTarget).isPresent();
     assertThat(resultTarget.get()).isEqualTo(changedTarget);
   }
+
+  @Test
+  void shouldHadAdvantageAgainstPoisonAttackIfTargetIsDwarf() {
+    Subject target = mock(Subject.class);
+    when(target.getRace()).thenReturn(Race.HILL_DWARF);
+    when(target.getAbilities()).thenReturn(TestData.ABILITIES);
+
+    fightHelper.getConstitutionSavingThrow(target, DamageType.POISON);
+
+    verify(advantageRollModifier).apply(anyInt());
+  }
+
+  @Test
+  void shouldPoisonDamageBeDividedByHalfIfTargetIsDwarf() {
+    Subject target = mock(Subject.class);
+    when(target.getRace()).thenReturn(Race.HILL_DWARF);
+    when(target.getCurrentHealthPoints()).thenReturn(10);
+    when(target.of(anyInt())).thenReturn(target);
+
+    fightHelper.dealDamage(target, 10, DamageType.POISON);
+
+    verify(target).of(5);
+  }
+
 }

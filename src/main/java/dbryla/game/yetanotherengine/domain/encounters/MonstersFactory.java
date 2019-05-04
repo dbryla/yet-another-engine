@@ -78,7 +78,6 @@ public class MonstersFactory {
         .position(monsterDefinition.getPreferredPosition())
         .race(race)
         .specialAttacks(monsterDefinition.getSpecialAttacks())
-        .immunities(monsterDefinition.getImmunities())
         .build();
   }
 

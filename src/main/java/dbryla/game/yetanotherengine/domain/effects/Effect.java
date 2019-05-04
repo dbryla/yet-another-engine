@@ -2,23 +2,12 @@ package dbryla.game.yetanotherengine.domain.effects;
 
 import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-import static dbryla.game.yetanotherengine.domain.effects.EffectLogic.CONCENTRATION;
-import static dbryla.game.yetanotherengine.domain.effects.EffectLogic.FOREVER;
 
 @AllArgsConstructor
 public enum Effect {
-  BLIND(1),
-  BLESS(CONCENTRATION),
-  LUCKY(FOREVER),
-  RELENTLESS_ENDURANCE(FOREVER),
-  MULTI_ATTACK(1);
+  BLIND, BLESS, LUCKY, RELENTLESS_ENDURANCE, ADVANTAGE_ON_SAVING_THROWS_AGAINST_POISON, RESISTANCE_AGAINST_POISON, MULTI_ATTACK;
 
-  @Getter
-  private final int durationInTurns;
-
-  public ActiveEffect activate() {
+  public ActiveEffect activate(int durationInTurns) {
     return new ActiveEffect(this, durationInTurns);
   }
 

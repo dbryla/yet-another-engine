@@ -71,18 +71,19 @@ public class SpellCastOperation {
     }
     if (SpellSaveType.CONSTITUTION_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets,
-          attackDamage, fightHelper::getConstitutionSavingThrow,
+          attackDamage, target -> fightHelper.getConstitutionSavingThrow(target, spell.getDamageType()),
           target -> new OperationResult().add(eventFactory.failEventBySavingThrow(source, spell, target)));
     }
     if (SpellSaveType.DEXTERITY_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets,
-          attackDamage, fightHelper::getDexteritySavingThrow,
+          attackDamage, target -> fightHelper.getDexteritySavingThrow(target, spell.getDamageType()),
           target -> new OperationResult().add(eventFactory.failEventBySavingThrow(source, spell, target)));
     }
     int attackDamageOnSavedThrow = attackDamage / 2;
     if (SpellSaveType.DEXTERITY_HALF_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets, attackDamage,
-          fightHelper::getDexteritySavingThrow, target -> dealDamage(source, target, attackDamageOnSavedThrow / 2, spell));
+          target -> fightHelper.getDexteritySavingThrow(target, spell.getDamageType()),
+          target -> dealDamage(source, target, attackDamageOnSavedThrow / 2, spell));
     }
     return new OperationResult();
   }
@@ -144,7 +145,7 @@ public class SpellCastOperation {
   }
 
   private OperationResult applyEffect(Subject source, Spell spell, Subject target) {
-    Subject changedTarget = target.of(spell.getSpellEffect());
+    Subject changedTarget = target.of(spell.cast());
     Event event = eventFactory.successSpellCastEvent(source, changedTarget, spell);
     return new OperationResult(changedTarget, event);
   }

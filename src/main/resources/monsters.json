@@ -135,10 +135,7 @@
       "numberOfHitDices": 2,
       "type": "Skeleton",
       "monsterRace": "UNDEAD",
-      "preferredPosition": "ENEMIES_FRONT",
-      "immunities": [
-        "POISON"
-      ]
+      "preferredPosition": "ENEMIES_FRONT"
     },
     {
       "abilities": {

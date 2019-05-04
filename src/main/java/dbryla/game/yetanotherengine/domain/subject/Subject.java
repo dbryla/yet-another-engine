@@ -4,7 +4,6 @@ import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
-import dbryla.game.yetanotherengine.domain.operations.DamageType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
@@ -96,9 +95,9 @@ public class Subject {
     return new Subject(this.subjectProperties, healthPoints, this.position, this.activeEffects, this.equippedWeapon);
   }
 
-  public Subject of(Effect effect) {
+  public Subject of(ActiveEffect effect) {
     Set<ActiveEffect> effects = new HashSet<>(this.getActiveEffects());
-    effects.add(effect.activate());
+    effects.add(effect);
     return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, effects, this.equippedWeapon);
   }
 
@@ -175,10 +174,6 @@ public class Subject {
 
   public Set<SpecialAttack> getSpecialAttacks() {
     return subjectProperties.getSpecialAttacks();
-  }
-
-  public Set<DamageType> getImmunities() {
-    return subjectProperties.getImmunities();
   }
 
   @Override

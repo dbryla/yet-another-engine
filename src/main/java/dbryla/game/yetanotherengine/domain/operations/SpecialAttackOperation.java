@@ -35,7 +35,7 @@ public class SpecialAttackOperation {
     if (indexOfTarget != -1 && operationResult.getChangedSubjects().get(indexOfTarget).getCurrentHealthPoints() <= 0) {
       return operationResult;
     }
-    operationResult.copyFrom(attackOperation.invoke(source.of(Effect.MULTI_ATTACK), attackData, target));
+    operationResult.copyFrom(attackOperation.invoke(source.of(Effect.MULTI_ATTACK.activate(1)), attackData, target));
     return operationResult;
   }
 

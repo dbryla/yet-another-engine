@@ -1,8 +1,7 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
-import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
-import dbryla.game.yetanotherengine.domain.operations.DamageType;
+import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
@@ -24,7 +23,6 @@ class SubjectProperties {
   private final List<Spell> spells;
   private final int maxHealthPoints;
   private final Set<SpecialAttack> specialAttacks;
-  private final Set<DamageType> immunities;
 
   int getArmorClass(Weapon equippedWeapon) {
     Integer modifier = abilities.getDexterityModifier();

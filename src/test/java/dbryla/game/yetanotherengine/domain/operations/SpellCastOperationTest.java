@@ -1,9 +1,9 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
-import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,7 +57,7 @@ class SpellCastOperationTest {
   void shouldInvokeEffectSpell() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
-    when(target.of(Effect.BLIND)).thenReturn(changedTarget);
+    when(target.of(any(ActiveEffect.class))).thenReturn(changedTarget);
 
     OperationResult operationResult = spellCastOperation.invoke(source, actionData, target);
 
@@ -85,7 +85,7 @@ class SpellCastOperationTest {
   void shouldNotGetHitRollIfSpellIsTypeOfIrresistible() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
-    when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
+    when(target.of(any(ActiveEffect.class))).thenReturn(changedTarget);
 
     spellCastOperation.invoke(source, actionData, target);
 
@@ -96,7 +96,7 @@ class SpellCastOperationTest {
   void shouldCreateEventOnSuccessfulSpellCast() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
-    when(target.of(eq(Effect.BLIND))).thenReturn(changedTarget);
+    when(target.of(any(ActiveEffect.class))).thenReturn(changedTarget);
 
     spellCastOperation.invoke(source, actionData, target);
 

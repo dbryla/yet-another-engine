@@ -8,6 +8,7 @@ import dbryla.game.yetanotherengine.domain.effects.EffectsMapper;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ class FightHelper {
 
   private final DiceRollService diceRollService;
   private final EffectsMapper effectsMapper;
+  private final AdvantageRollModifier advantageRollModifier;
 
   HitRoll getHitRoll(Subject source, Subject target) {
     int hitRoll = diceRollService.k20();
@@ -71,11 +73,11 @@ class FightHelper {
     return attackDamage;
   }
 
-  int getConstitutionSavingThrow(Subject target) {
-    return applyRulesToSavingThrow(target) + target.getAbilities().getConstitutionModifier();
+  int getConstitutionSavingThrow(Subject target, DamageType damageType) {
+    return applyRulesToSavingThrow(target, damageType) + target.getAbilities().getConstitutionModifier();
   }
 
-  private int applyRulesToSavingThrow(Subject target) {
+  private int applyRulesToSavingThrow(Subject target, DamageType damageType) {
     int hitRoll = diceRollService.k20();
     int modifiers = 0;
     for (ActiveEffect activeEffect : target.getActiveEffects()) {
@@ -86,20 +88,23 @@ class FightHelper {
         modifiers += targetModifier.apply(hitRoll);
       }
     }
+    if (damageType != null && target.getRace().getAdvantageOnSavingThrows().contains(damageType)) {
+      hitRoll = advantageRollModifier.apply(hitRoll);
+    }
     hitRoll = handleLuckyEffect(target, hitRoll);
     return hitRoll + modifiers;
   }
 
-  boolean isSaved(Subject source, Spell spell, int savingThrow) {
-    return savingThrow >= 8 + getModifier(source, spell);
-  }
-
-  int getDexteritySavingThrow(Subject target) {
-    return applyRulesToSavingThrow(target) + target.getAbilities().getDexterityModifier();
+  int getDexteritySavingThrow(Subject target, DamageType damageType) {
+    return applyRulesToSavingThrow(target, damageType) + target.getAbilities().getDexterityModifier();
   }
 
   int getStrengthSavingThrow(Subject target) {
-    return applyRulesToSavingThrow(target) + target.getAbilities().getStrengthModifier();
+    return applyRulesToSavingThrow(target, null) + target.getAbilities().getStrengthModifier();
+  }
+
+  boolean isSaved(Subject source, Spell spell, int savingThrow) {
+    return savingThrow >= 8 + getModifier(source, spell);
   }
 
   int getModifier(Subject source, Spell spell) {
@@ -113,11 +118,15 @@ class FightHelper {
   }
 
   Optional<Subject> dealDamage(Subject target, int attackDamage, DamageType damageType) {
-    if (target.getImmunities().contains(damageType)) {
+    Race targetRace = target.getRace();
+    if (targetRace.getImmunities().contains(damageType)) {
       return Optional.empty();
     }
+    if (targetRace.getResistances().contains(damageType)) {
+      attackDamage = attackDamage / 2;
+    }
     int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
-    if (remainingHealthPoints == 0 && target.getRace().getRaceEffects().contains(RELENTLESS_ENDURANCE)) {
+    if (remainingHealthPoints == 0 && targetRace.getRaceEffects().contains(RELENTLESS_ENDURANCE)) {
       return Optional.of(target.of(1));
     }
     return Optional.of(target.of(remainingHealthPoints));

@@ -1,9 +1,8 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.domain.battleground.Position;
-import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
-import dbryla.game.yetanotherengine.domain.operations.DamageType;
+import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
@@ -29,7 +28,6 @@ public class SubjectBuilder {
   private Position position;
   private Weapon equippedWeapon = Weapon.FISTS;
   private Set<SpecialAttack> specialAttacks = new HashSet<>();
-  private Set<DamageType> immunities = new HashSet<>();
 
   public SubjectBuilder name(String name) {
     this.name = name;
@@ -96,11 +94,6 @@ public class SubjectBuilder {
     return this;
   }
 
-  public SubjectBuilder immunities(Set<DamageType> immunities) {
-    this.immunities = immunities;
-    return this;
-  }
-
   /**
    * Replaces default class health points
    */
@@ -125,7 +118,7 @@ public class SubjectBuilder {
       Spell.of(cantripForClass, 0).ifPresent(spells::add);
     }
     SubjectProperties subjectProperties
-        = new SubjectProperties(id, race, characterClass, equipment, abilities, spells, healthPoints, specialAttacks, immunities);
+        = new SubjectProperties(id, race, characterClass, equipment, abilities, spells, healthPoints, specialAttacks);
     return new Subject(subjectProperties, healthPoints, position, new HashSet<>(), equippedWeapon);
   }
 

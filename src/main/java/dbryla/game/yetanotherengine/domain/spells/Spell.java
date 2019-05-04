@@ -3,6 +3,7 @@ package dbryla.game.yetanotherengine.domain.spells;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.operations.DamageType;
+import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import lombok.Getter;
 
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static dbryla.game.yetanotherengine.domain.battleground.Distance.*;
+import static dbryla.game.yetanotherengine.domain.effects.EffectLogic.CONCENTRATION;
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.*;
 import static dbryla.game.yetanotherengine.domain.spells.SpellType.*;
@@ -34,8 +36,8 @@ public enum Spell {
   FIRE_BOLT(WIZARD, 0, 1, 10,
       "%s burns %s to dust with fire bolt.", THIRTY_FEET, ONE_HUNDRED_TWENTY_FEET, DamageType.FIRE),
 
-  BLESS(CLERIC, 0, Effect.BLESS, 3, true, THIRTY_FEET),
-  COLOR_SPRAY(WIZARD, 1, Effect.BLIND, ALL_TARGETS_WITHIN_RANGE, false, CLOSE_RANGE);
+  BLESS(CLERIC, 0, Effect.BLESS, 3, true, THIRTY_FEET, CONCENTRATION),
+  COLOR_SPRAY(WIZARD, 1, Effect.BLIND, ALL_TARGETS_WITHIN_RANGE, false, CLOSE_RANGE, 1);
 
   private final CharacterClass owner;
   private final int spellLevel;
@@ -45,6 +47,7 @@ public enum Spell {
   private final SpellSaveType spellSaveType;
   @Getter
   private final Effect spellEffect;
+  private final int spellEffectDurationInTurns;
   private final int numberOfHitDice;
   private final int hitDice;
   @Getter
@@ -81,6 +84,7 @@ public enum Spell {
     this.spellEffect = null;
     this.positiveSpell = false;
     this.criticalHitMessage = null;
+    this.spellEffectDurationInTurns = 0;
   }
 
   /**
@@ -101,6 +105,7 @@ public enum Spell {
     this.spellType = HEAL;
     this.spellEffect = null;
     this.criticalHitMessage = null;
+    this.spellEffectDurationInTurns = 0;
   }
 
   /**
@@ -122,13 +127,14 @@ public enum Spell {
     this.isModifierApply = false;
     this.maxRange = maxRange;
     this.spellEffect = null;
+    this.spellEffectDurationInTurns = 0;
   }
 
   /**
    * for effect spells
    */
   Spell(CharacterClass owner, int spellLevel, Effect spellEffect,
-        int maximumNumberOfTargets, boolean positiveSpell, int maxRange) {
+        int maximumNumberOfTargets, boolean positiveSpell, int maxRange, int durationInTurns) {
     this.owner = owner;
     this.spellLevel = spellLevel;
     this.spellType = EFFECT;
@@ -143,6 +149,7 @@ public enum Spell {
     this.criticalHitMessage = null;
     this.isModifierApply = false;
     this.damageType = null;
+    this.spellEffectDurationInTurns = durationInTurns;
   }
 
   public static Optional<Spell> of(CharacterClass owner, int spellLevel) { // return random spell for now
@@ -166,4 +173,7 @@ public enum Spell {
     return maximumNumberOfTargets == ALL_TARGETS_WITHIN_RANGE;
   }
 
+  public ActiveEffect cast() {
+    return spellEffect.activate(this.spellEffectDurationInTurns);
+  }
 }

@@ -82,7 +82,6 @@ class SubjectFactoryTest {
             new Abilities(10, 10, 10, 10, 10, 10),
             null,
             10,
-            Set.of(),
             Set.of()),
         Position.PLAYERS_FRONT);
 

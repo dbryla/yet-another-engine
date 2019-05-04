@@ -25,7 +25,7 @@ public class SubjectFactory {
     Equipment equipment = new Equipment(character.getWeapons(), character.getShield(), character.getArmor());
     CharacterClass characterClass = character.getCharacterClass();
     SubjectProperties subjectProperties = new SubjectProperties(id, character.getRace(), characterClass,
-        equipment, character.getAbilities(), character.getSpells(), character.getMaxHealthPoints(), Set.of(), Set.of());
+        equipment, character.getAbilities(), character.getSpells(), character.getMaxHealthPoints(), Set.of());
     return new Subject(subjectProperties, characterClass.getPreferredPosition());
   }
 

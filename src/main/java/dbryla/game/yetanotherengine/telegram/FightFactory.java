@@ -62,11 +62,11 @@ public class FightFactory {
     int battlegroundLocation = subject.getPosition().getBattlegroundLocation();
     List<InlineKeyboardButton> positions = new ArrayList<>();
     int backPosition = battlegroundLocation - 1;
-    if (backPosition >= 0) {
+    if (game.canMoveToPosition(subject, backPosition)) {
       positions.add(new InlineKeyboardButton("Back").setCallbackData(String.valueOf(backPosition)));
     }
     int frontPosition = battlegroundLocation + 1;
-    if (frontPosition <= 4 && !game.areEnemiesOnCurrentPosition(subject) && canMoveSoFar(game, frontPosition)) {
+    if (game.canMoveToPosition(subject, frontPosition) && canMoveSoFar(game, frontPosition)) {
       positions.add(new InlineKeyboardButton("Front").setCallbackData(String.valueOf(frontPosition)));
     }
     ArrayList<List<InlineKeyboardButton>> values = new ArrayList<>();

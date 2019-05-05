@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.domain.subject.equipment;
 
+import dbryla.game.yetanotherengine.domain.Range;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.operations.DamageType;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import static dbryla.game.yetanotherengine.domain.battleground.Distance.*;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.*;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.*;
 
-public enum Weapon {
+public enum Weapon implements Range {
 
   CLUB(SIMPLE_MELEE_WEAPON, 1, 4, SMASH_HEAD, DamageType.BLUDGEONING, LIGHT),
   DAGGER(SIMPLE_MELEE_WEAPON, 1, 4, CUT_THROAT, DamageType.PIERCING, FINESSE, LIGHT),
@@ -106,4 +107,8 @@ public enum Weapon {
     return isMelee() ? CLOSE_RANGE : THIRTY_FEET;
   }
 
+  @Override
+  public boolean isClose() {
+    return isMelee();
+  }
 }

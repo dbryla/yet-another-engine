@@ -1,12 +1,13 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import dbryla.game.yetanotherengine.domain.Range;
 import dbryla.game.yetanotherengine.domain.dice.AdvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.dice.DisadvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
-import dbryla.game.yetanotherengine.domain.effects.EffectsMapper;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.effects.FightEffectsMapper;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
@@ -14,54 +15,53 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static dbryla.game.yetanotherengine.domain.effects.Effect.*;
+import static dbryla.game.yetanotherengine.domain.operations.DamageType.DISEASE;
+import static dbryla.game.yetanotherengine.domain.operations.DamageType.POISON;
 import static dbryla.game.yetanotherengine.domain.operations.HitResult.CRITICAL;
 
 @Component
 @AllArgsConstructor
 class FightHelper {
 
+  private static final Set<Effect> NO_SAVE_THROW_ON_STRENGTH_AND_DEXTERITY = Set.of(PARALYZED, PETRIFIED, STUNNED, UNCONSCIOUS);
   private final DiceRollService diceRollService;
-  private final EffectsMapper effectsMapper;
+  private final FightEffectsMapper fightEffectsMapper;
   private final AdvantageRollModifier advantageRollModifier;
+  private final DisadvantageRollModifier disadvantageRollModifier;
 
-  HitRoll getHitRoll(Subject source, Subject target) {
+  HitRoll getHitRoll(Subject source, Range range, Subject target) {
+    Set<HitDiceRollModifier> modifiers = source
+        .getConditions()
+        .stream()
+        .map(condition -> fightEffectsMapper.getLogic(condition.getEffect()).getSourceHitRollModifier())
+        .collect(Collectors.toSet());
+    modifiers.addAll(target
+        .getConditions()
+        .stream()
+        .map(condition -> fightEffectsMapper.getLogic(condition.getEffect()).getTargetHitRollModifier(range))
+        .collect(Collectors.toSet()));
+    cancelOppositeModifiers(modifiers);
     int hitRoll = diceRollService.k20();
-    int modifiers = 0;
-    boolean sourceHasDisadvantage = false;
-    boolean sourceHasAdvantage = false;
-    for (ActiveEffect activeEffect : source.getActiveEffects()) {
-      HitDiceRollModifier sourceModifier = effectsMapper.getLogic(activeEffect.getEffect()).getSourceHitRollModifier();
-      if (sourceModifier.canModifyOriginalHitRoll()) {
-        sourceHasDisadvantage = sourceModifier instanceof DisadvantageRollModifier;
-        sourceHasAdvantage = sourceModifier instanceof AdvantageRollModifier;
-        hitRoll = sourceModifier.apply(hitRoll);
+    int hitRollModifier = 0;
+    for (HitDiceRollModifier modifier : modifiers) {
+      if (modifier.canModifyOriginalHitRoll()) {
+        hitRoll = modifier.apply(hitRoll);
       } else {
-        modifiers += sourceModifier.apply(hitRoll);
+        hitRollModifier += modifier.apply(hitRoll);
       }
     }
     hitRoll = handleLuckyEffect(source, hitRoll);
-    for (ActiveEffect activeEffect : target.getActiveEffects()) {
-      HitDiceRollModifier targetModifier = effectsMapper.getLogic(activeEffect.getEffect()).getTargetHitRollModifier();
-      if (targetModifier.canModifyOriginalHitRoll()) {
-        if ((sourceHasAdvantage && targetModifier instanceof DisadvantageRollModifier)
-            || (sourceHasDisadvantage && targetModifier instanceof AdvantageRollModifier)) {
-          continue;
-        }
-        hitRoll = targetModifier.apply(hitRoll);
-      } else {
-        modifiers += targetModifier.apply(hitRoll);
-      }
-    }
-    return new HitRoll(hitRoll, modifiers);
+    return new HitRoll(hitRoll, hitRollModifier);
   }
 
-  private Integer handleLuckyEffect(Subject source, Integer hitRoll) {
+  private int handleLuckyEffect(Subject source, int hitRoll) {
     if (source.getRace().getRaceEffects().contains(LUCKY)) {
-      HitDiceRollModifier sourceModifier = effectsMapper.getLogic(LUCKY).getSourceHitRollModifier();
-      hitRoll = sourceModifier.apply(hitRoll);
+      return fightEffectsMapper.getLogic(LUCKY).getSourceHitRollModifier().apply(hitRoll);
     }
     return hitRoll;
   }
@@ -77,33 +77,65 @@ class FightHelper {
     return attackDamage;
   }
 
-  int getConstitutionSavingThrow(Subject target, DamageType damageType) {
-    return applyRulesToSavingThrow(target, damageType) + target.getAbilities().getConstitutionModifier();
+  int getConstitutionSavingThrow(Subject target, Spell spell) {
+    return applyRulesToSavingThrow(target, spell) + target.getAbilities().getConstitutionModifier();
   }
 
-  private int applyRulesToSavingThrow(Subject target, DamageType damageType) {
+  private int applyRulesToSavingThrow(Subject target, Spell spell) {
+    return applyRulesToSavingThrow(target, spell, false);
+  }
+
+  private int applyRulesToSavingThrow(Subject target, Spell spell, boolean hasDisadvantage) {
+    Set<HitDiceRollModifier> modifiers = target
+        .getConditions()
+        .stream()
+        .map(condition -> fightEffectsMapper.getLogic(condition.getEffect()).getTargetSavingThrowModifier())
+        .collect(Collectors.toSet());
+    if (hasDisadvantage) {
+      modifiers.add(disadvantageRollModifier);
+    }
+    if (spell != null && target.getRace().getAdvantageOnSavingThrows().contains(spell.getDamageTypeOrEffect())) {
+      modifiers.add(advantageRollModifier);
+    }
+    cancelOppositeModifiers(modifiers);
     int hitRoll = diceRollService.k20();
-    int modifiers = 0;
-    for (ActiveEffect activeEffect : target.getActiveEffects()) {
-      HitDiceRollModifier targetModifier = effectsMapper.getLogic(activeEffect.getEffect()).getTargetSavingThrowModifier();
-      if (targetModifier.canModifyOriginalHitRoll()) {
-        hitRoll = targetModifier.apply(hitRoll);
+    int hitRollModifier = 0;
+    for (HitDiceRollModifier modifier : modifiers) {
+      if (modifier.canModifyOriginalHitRoll()) {
+        hitRoll = modifier.apply(hitRoll);
       } else {
-        modifiers += targetModifier.apply(hitRoll);
+        hitRollModifier += modifier.apply(hitRoll);
       }
     }
-    if (damageType != null && target.getRace().getAdvantageOnSavingThrows().contains(damageType)) {
-      hitRoll = advantageRollModifier.apply(hitRoll);
-    }
     hitRoll = handleLuckyEffect(target, hitRoll);
-    return hitRoll + modifiers;
+    return hitRoll + hitRollModifier;
   }
 
-  int getDexteritySavingThrow(Subject target, DamageType damageType) {
-    return applyRulesToSavingThrow(target, damageType) + target.getAbilities().getDexterityModifier();
+  private void cancelOppositeModifiers(Set<HitDiceRollModifier> modifiers) {
+    if (modifiers.contains(advantageRollModifier) && modifiers.contains(disadvantageRollModifier)) {
+      modifiers.removeAll(Set.of(advantageRollModifier, disadvantageRollModifier));
+    }
+  }
+
+  int getDexteritySavingThrow(Subject target, Spell spell) {
+    if (noSaveThrowOnStrengthOrDexterity(target)) {
+      return 0;
+    }
+    return applyRulesToSavingThrow(target, spell, isRestrained(target)) + target.getAbilities().getDexterityModifier();
+  }
+
+  private boolean noSaveThrowOnStrengthOrDexterity(Subject target) {
+    return target.getConditions().stream().anyMatch(condition -> NO_SAVE_THROW_ON_STRENGTH_AND_DEXTERITY.contains(condition.getEffect()));
+  }
+
+  private boolean isRestrained(Subject target) {
+    return target.getConditions().stream().anyMatch(condition -> RESTRAINED.equals(condition.getEffect()));
   }
 
   int getStrengthSavingThrow(Subject target) {
+    if (noSaveThrowOnStrengthOrDexterity(target)) {
+      return 0;
+    }
     return applyRulesToSavingThrow(target, null) + target.getAbilities().getStrengthModifier();
   }
 
@@ -123,10 +155,10 @@ class FightHelper {
 
   Optional<Subject> dealDamage(Subject target, int attackDamage, DamageType damageType) {
     Race targetRace = target.getRace();
-    if (targetRace.getImmunities().contains(damageType)) {
+    if (targetRace.getImmunities().contains(damageType) || (isPetrified(target) && Set.of(POISON, DISEASE).contains(damageType))) {
       return Optional.empty();
     }
-    if (targetRace.getResistances().contains(damageType)) {
+    if (targetRace.getResistances().contains(damageType) || isPetrified(target)) {
       attackDamage = attackDamage / 2;
     }
     int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
@@ -134,5 +166,9 @@ class FightHelper {
       return Optional.of(target.of(1));
     }
     return Optional.of(target.of(remainingHealthPoints));
+  }
+
+  private boolean isPetrified(Subject target) {
+    return target.getConditions().stream().anyMatch(condition -> PETRIFIED.equals(condition.getEffect()));
   }
 }

@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static dbryla.game.yetanotherengine.domain.effects.Effect.PRONE;
+
 @AllArgsConstructor
 @Component
 @Profile("cli")
@@ -95,8 +97,13 @@ public class ConsolePresenter {
     List<OperationType> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
     int actionNumber = 0;
-    communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "move"));
-    operations.add(OperationType.MOVE);
+    if (isAbleToMove(subject)) {
+      communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "move"));
+      operations.add(OperationType.MOVE);
+    } else {
+      communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "stand up"));
+      operations.add(OperationType.STAND_UP);
+    }
     communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "pass"));
     operations.add(OperationType.PASS);
     List<Weapon> weapons = game.getAvailableWeaponsForAttack(subject);
@@ -111,6 +118,10 @@ public class ConsolePresenter {
     }
     System.out.println(communicate.toString());
     return operations;
+  }
+
+  private boolean isAbleToMove(Subject subject) {
+    return subject.getConditions().stream().noneMatch(condition -> PRONE.equals(condition.getEffect()));
   }
 
   List<String> showAvailableEnemyTargets(Game game) {
@@ -170,14 +181,14 @@ public class ConsolePresenter {
   }
 
   void showAvailablePositions(Game game, Subject subject) {
-    int battlegroundLocation = subject.getPosition().getBattlegroundLocation();
     StringBuilder communicate = new StringBuilder("Choose your position:");
+    int battlegroundLocation = subject.getPosition().getBattlegroundLocation();
     int backPosition = battlegroundLocation - 1;
-    if (backPosition >= 0) {
+    if (game.canMoveToPosition(subject, backPosition)) {
       communicate.append(String.format(CHOICE_FORMAT, backPosition, "Back"));
     }
     int frontPosition = battlegroundLocation + 1;
-    if (frontPosition <= 4 && !game.areEnemiesOnCurrentPosition(subject)) {
+    if (game.canMoveToPosition(subject, frontPosition)) {
       communicate.append(String.format(CHOICE_FORMAT, frontPosition, "Front"));
     }
     System.out.println(communicate.toString());

@@ -30,23 +30,23 @@ public enum Race {
   HIGH_ELF(
       "Elf", List.of(0, 2, 0, 1, 0, 0),
       Set.of(LONGSWORD, SHORTSWORD, SHORTBOW, LONGBOW), Set.of(),
-      0, WIZARD, Set.of(), Set.of(), Set.of(CHARM), Set.of(SLEEP)),
+      0, WIZARD, Set.of(), Set.of(), Set.of(CHARMED), Set.of(SLEEP)),
   WOOD_ELF(
       "Elf", List.of(0, 2, 0, 0, 1, 0),
       Set.of(LONGSWORD, SHORTSWORD, SHORTBOW, LONGBOW), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of(CHARM), Set.of(SLEEP)),
+      0, null, Set.of(), Set.of(), Set.of(CHARMED), Set.of(SLEEP)),
   DARK_ELF(
       "Elf", List.of(0, 2, 0, 0, 0, 1),
       Set.of(RAPIER, SHORTSWORD, CROSSBOW), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of(CHARM), Set.of(SLEEP)),
+      0, null, Set.of(), Set.of(), Set.of(CHARMED), Set.of(SLEEP)),
   LIGHTFOOT_HALFLING(
       "Halfling", List.of(0, 2, 0, 0, 0, 1),
       Set.of(), Set.of(),
-      0, null, Set.of(LUCKY), Set.of(), Set.of(FEAR), Set.of()),
+      0, null, Set.of(LUCKY), Set.of(), Set.of(FRIGHTENED), Set.of()),
   STOUT_HALFLING(
       "Halfling", List.of(0, 2, 1, 0, 0, 0),
       Set.of(), Set.of(),
-      0, null, Set.of(LUCKY), Set.of(POISON), Set.of(FEAR, POISON), Set.of()),
+      0, null, Set.of(LUCKY), Set.of(POISON), Set.of(FRIGHTENED, POISON), Set.of()),
   HUMAN(
       "Human", List.of(1, 1, 1, 1, 1, 1),
       Set.of(), Set.of(),
@@ -62,7 +62,7 @@ public enum Race {
   HALF_ELF(
       "Half-Elf", List.of(0, 1, 0, 1, 0, 2),
       Set.of(), Set.of(),
-      0, null, Set.of(), Set.of(), Set.of(CHARM), Set.of(SLEEP)),
+      0, null, Set.of(), Set.of(), Set.of(CHARMED), Set.of(SLEEP)),
   HALF_ORC(
       "Half-Orc", List.of(2, 0, 1, 0, 0, 0),
       Set.of(), Set.of(),
@@ -84,13 +84,13 @@ public enum Race {
   private final CharacterClass cantripForClass;
   private final Set<Effect> raceEffects;
   private final Set<DamageType> resistances;
-  private final Set<DamageType> advantageOnSavingThrows;
+  private final Set<? extends Enum> advantageOnSavingThrows;
   private final Set<DamageType> immunities;
   private final boolean playable;
 
   Race(String displayName, List<Integer> abilitiesModifiers, Set<Weapon> weaponProficiencies, Set<ArmorType> armorProficiencies,
        int additionalHealthPoints, CharacterClass cantripForClass, Set<Effect> raceEffects, Set<DamageType> resistances,
-       Set<DamageType> advantageOnSavingThrows, Set<DamageType> immunities) {
+       Set<? extends Enum> advantageOnSavingThrows, Set<DamageType> immunities) {
     this.displayName = displayName;
     this.abilitiesModifiers = abilitiesModifiers;
     this.weaponProficiencies = weaponProficiencies;

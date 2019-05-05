@@ -27,6 +27,7 @@ public class EventFactory {
   private static final String EQUIP_WEAPON_FORMAT = "%s equips %s.";
   private static final String KNOCKED_PRONE_FORMAT = "%s knocks %s prone.";
   private static final String TARGET_IMMUNE_FORMAT = "%s hits %s with %s, but target seems to be immune.";
+  private static final String STAND_UP_FORMAT = "%s stands up.";
 
   public Event successAttackEvent(Subject attacker, Subject target, Weapon weapon, HitResult hitResult) {
     return new Event(
@@ -84,7 +85,7 @@ public class EventFactory {
   }
 
   public Event effectExpiredEvent(Subject source, Effect effect) {
-    return new Event(source.getName() + " is no longer " + effect + "ed.");
+    return new Event(source.getName() + " is no longer " + effect + ".");
   }
 
   public Event successHealEvent(Subject source, Subject target) {
@@ -113,5 +114,9 @@ public class EventFactory {
 
   public Event targetImmuneEvent(Subject source, Subject target, Weapon weapon) {
     return new Event(String.format(TARGET_IMMUNE_FORMAT, source.getName(), target.getName(), weapon.toString()));
+  }
+
+  public Event standUpEvent(Subject subject) {
+    return new Event(String.format(STAND_UP_FORMAT, subject.getName()));
   }
 }

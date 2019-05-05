@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
@@ -9,26 +10,31 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.Set;
 
+import static dbryla.game.yetanotherengine.domain.effects.Effect.PARALYZED;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.UNCONSCIOUS;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.ROGUE;
 import static dbryla.game.yetanotherengine.domain.subject.Race.BEAST;
 
 @AllArgsConstructor
 @Component
-public class AttackOperation {
+public class AttackOperation implements Operation {
 
+  public static final Set<Effect> PARALYZED_OR_UNCONSCIOUS = Set.of(PARALYZED, UNCONSCIOUS);
   private final FightHelper fightHelper;
   private final EventFactory eventFactory;
   private final DiceRollService diceRollService;
 
+  @Override
   public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
     verifyParams(source, actionData, targets);
     Subject target = targets[0];
     OperationResult operationResult = equipWeapon(source, actionData).orElseGet(OperationResult::new);
-    HitRoll hitRoll = fightHelper.getHitRoll(source, target);
     Weapon weapon = actionData.getWeapon();
+    HitRoll hitRoll = fightHelper.getHitRoll(source, weapon, target);
     hitRoll.addModifier(getModifier(weapon, source.getAbilities()));
-    HitResult hitResult = HitResult.of(hitRoll, target);
+    HitResult hitResult = getHitResult(weapon, target, hitRoll);
     if (!hitResult.isTargetHit()) {
       operationResult.add(eventFactory.failEvent(source, target, weapon.toString(), hitResult));
     } else {
@@ -44,6 +50,14 @@ public class AttackOperation {
               () -> operationResult.add(eventFactory.targetImmuneEvent(source, target, weapon)));
     }
     return operationResult;
+  }
+
+  private HitResult getHitResult(Weapon weapon, Subject target, HitRoll hitRoll) {
+    if (weapon.isMelee()
+        && target.getConditions().stream().anyMatch(condition -> PARALYZED_OR_UNCONSCIOUS.contains(condition.getEffect()))) {
+      return HitResult.CRITICAL;
+    }
+    return HitResult.of(hitRoll, target);
   }
 
   private int getBonusDamage(Subject source, Weapon weapon) {

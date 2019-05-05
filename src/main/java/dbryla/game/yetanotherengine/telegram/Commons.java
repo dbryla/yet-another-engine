@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
+import static dbryla.game.yetanotherengine.domain.effects.Effect.PRONE;
+
 @Component
 @AllArgsConstructor
 public class Commons {
@@ -38,10 +40,18 @@ public class Commons {
   }
 
   String getPlayerTurnMessage(Subject subject) {
-    return subject.getName() + " what do you want to do next: /move /pass /attack" + getSpellCommandIfApplicable(subject);
+    return subject.getName()
+        + " what do you want to do next: "
+        + getMoveOrStandUpCommand(subject)
+        + " /pass /attack"
+        + getSpellCommandIfApplicable(subject);
   }
 
   private String getSpellCommandIfApplicable(Subject subject) {
     return subject.isSpellCaster() ? " or /spell" : "";
+  }
+
+  private String getMoveOrStandUpCommand(Subject subject) {
+    return subject.getConditions().stream().anyMatch(condition -> PRONE.equals(condition.getEffect())) ? "/standup" : "/move";
   }
 }

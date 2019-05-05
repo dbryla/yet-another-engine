@@ -7,15 +7,19 @@ import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import static dbryla.game.yetanotherengine.domain.effects.Effect.PRONE;
+import static dbryla.game.yetanotherengine.domain.effects.FightEffectLogic.FOREVER;
+
 @AllArgsConstructor
 @Component
-public class SpecialAttackOperation {
+public class SpecialAttackOperation implements Operation {
 
   private final AttackOperation attackOperation;
   private final MoveOperation moveOperation;
   private final FightHelper fightHelper;
   private final EventFactory eventFactory;
 
+  @Override
   public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
     SpecialAttack specialAttack = actionData.getSpecialAttack();
     switch (specialAttack) {
@@ -51,7 +55,7 @@ public class SpecialAttackOperation {
       }
       int savingThrow = fightHelper.getStrengthSavingThrow(changedTarget);
       if (savingThrow < 12) {
-        operationResult.add(eventFactory.successKnockedProneEvent(source, changedTarget));
+        operationResult.add(source.of(PRONE.activate(FOREVER)), eventFactory.successKnockedProneEvent(source, changedTarget));
         operationResult.copyFrom(attackOperation.invoke(source, actionData.getSpecialAttack().getNestedActionData().get(1), changedTarget));
       }
     }

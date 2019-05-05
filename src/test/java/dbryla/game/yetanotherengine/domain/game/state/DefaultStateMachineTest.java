@@ -34,19 +34,10 @@ class DefaultStateMachineTest {
   private StepTracker stepTracker;
 
   @Mock
-  private SpellCastOperation spellCastOperation;
-
-  @Mock
-  private AttackOperation attackOperation;
-
-  @Mock
-  private SpecialAttackOperation specialAttackOperation;
+  private OperationFactory operationFactory;
 
   @Mock
   private EventHub eventHub;
-
-  @Mock
-  private MoveOperation moveOperation;
 
   @Mock
   private EffectConsumer effectConsumer;
@@ -59,8 +50,7 @@ class DefaultStateMachineTest {
 
   @BeforeEach
   void setUp() {
-    stateMachine = new DefaultStateMachine(GAME_ID, stepTracker, stateStorage, eventHub,
-        attackOperation, spellCastOperation, moveOperation, specialAttackOperation, effectConsumer);
+    stateMachine = new DefaultStateMachine(GAME_ID, stepTracker, stateStorage, eventHub, effectConsumer, operationFactory);
   }
 
   @Test
@@ -69,6 +59,8 @@ class DefaultStateMachineTest {
     Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+    Operation attackOperation = mock(Operation.class);
+    when(operationFactory.getOperation(OperationType.ATTACK)).thenReturn(attackOperation);
 
     stateMachine.execute(SubjectTurn.of(action));
 
@@ -96,6 +88,8 @@ class DefaultStateMachineTest {
     Subject subject = givenSubjectOne();
     when(subject.isTerminated()).thenReturn(true);
     Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
+    Operation attackOperation = mock(Operation.class);
+    when(operationFactory.getOperation(OperationType.ATTACK)).thenReturn(attackOperation);
     when(attackOperation.invoke(eq(subject), eq(TEST_ACTION_DATA))).thenReturn(new OperationResult(List.of(subject), List.of()));
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
@@ -113,6 +107,7 @@ class DefaultStateMachineTest {
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject1));
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_2_NAME))).thenReturn(Optional.of(subject2));
+    when(operationFactory.getOperation(OperationType.ATTACK)).thenReturn(mock(Operation.class));
 
     stateMachine.execute(SubjectTurn.of(action));
 
@@ -131,7 +126,8 @@ class DefaultStateMachineTest {
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(target1Name))).thenReturn(Optional.of(target1));
     lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(target2Name))).thenReturn(Optional.of(target2));
-
+    Operation attackOperation = mock(Operation.class);
+    when(operationFactory.getOperation(OperationType.ATTACK)).thenReturn(attackOperation);
 
     stateMachine.execute(SubjectTurn.of(action));
 

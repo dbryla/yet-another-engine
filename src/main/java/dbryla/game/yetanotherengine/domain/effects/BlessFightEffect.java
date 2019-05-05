@@ -1,13 +1,13 @@
 package dbryla.game.yetanotherengine.domain.effects;
 
+import dbryla.game.yetanotherengine.domain.Range;
 import dbryla.game.yetanotherengine.domain.dice.*;
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
-public class BlessEffect implements EffectLogic {
+public class BlessFightEffect implements FightEffectLogic {
 
   private final BlessedRollModifier blessedRollModifier;
   private final NoOpRollModifier noOpRollModifier;
@@ -18,7 +18,7 @@ public class BlessEffect implements EffectLogic {
   }
 
   @Override
-  public HitDiceRollModifier getTargetHitRollModifier() {
+  public HitDiceRollModifier getTargetHitRollModifier(Range range) {
     return noOpRollModifier;
   }
 

@@ -2,12 +2,13 @@ package dbryla.game.yetanotherengine.domain.game;
 
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
-import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
@@ -15,22 +16,21 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
 import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.*;
 import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
 import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 
 @RequiredArgsConstructor
 public class Game {
 
+  private static final Set<Effect> INCAPACITATED = Set.of(Effect.INCAPACITATED, PARALYZED, PETRIFIED, STUNNED, UNCONSCIOUS);
   @Getter
   private final Long id;
   private final StateStorage stateStorage;
@@ -86,6 +86,10 @@ public class Game {
       if (stateMachine.getNextSubject().isPresent()) {
         Subject subject = stateMachine.getNextSubject().get();
         if (PLAYERS.equals(subject.getAffiliation())) {
+          if (cantMove(subject)) {
+            execute(new SubjectTurn(subject.getName()));
+            return;
+          }
           eventHub.notifySubjectAboutNextMove(id, subject);
           return;
         } else {
@@ -93,6 +97,11 @@ public class Game {
         }
       }
     }
+  }
+
+  private boolean cantMove(Subject subject) {
+    return subject.getConditions().stream()
+        .anyMatch(condition -> INCAPACITATED.contains(condition.getEffect()));
   }
 
   public void execute(SubjectTurn subjectTurn) {
@@ -154,17 +163,26 @@ public class Game {
     return getPossibleTargets(subject, specialAttack.getMinRange(), specialAttack.getMaxRange(), false);
   }
 
-  private List<String> getPossibleTargets(Subject subject, int minRange, int maxRange, boolean allies) {
-    Affiliation targetsAffiliation = allies ? subject.getAffiliation() : getEnemyAffiliation(subject.getAffiliation());
-    int position = subject.getPosition().getBattlegroundLocation();
+  private List<String> getPossibleTargets(Subject source, int minRange, int maxRange, boolean allies) {
+    Affiliation targetsAffiliation = allies ? source.getAffiliation() : getEnemyAffiliation(source.getAffiliation());
+    int position = source.getPosition().getBattlegroundLocation();
     Map<Position, List<Subject>> positionsMap = getSubjectsPositionsMap();
-    return getPositionsStream(subject, minRange, maxRange, position)
+    return getPositionsStream(source, minRange, maxRange, position)
         .mapToObj(battlegroundPosition -> positionsMap.getOrDefault(Position.valueOf(battlegroundPosition), List.of())
             .stream()
-            .filter(target -> targetsAffiliation.equals(target.getAffiliation()) && !target.isTerminated())
+            .filter(target -> targetsAffiliation.equals(target.getAffiliation())
+                && !target.isTerminated()
+                && isNotCharmed(source, target))
             .map(Subject::getName))
         .flatMap(Function.identity())
         .collect(Collectors.toList());
+  }
+
+  private boolean isNotCharmed(Subject source, Subject target) {
+    return source.getConditions()
+        .stream()
+        .filter(activeEffect -> CHARMED.equals(activeEffect.getEffect()))
+        .noneMatch(condition -> target.getName().equals(condition.getSource()));
   }
 
   private IntStream getPositionsStream(Subject subject, int minRange, int maxRange, int position) {
@@ -200,5 +218,37 @@ public class Game {
         .collect(Collectors.toList());
     spells.addAll(subject.getSpells());
     return spells.stream().filter(spell -> !getPossibleTargets(subject, spell).isEmpty()).collect(Collectors.toList());
+  }
+
+  public boolean canMoveToPosition(Subject subject, int position) {
+    if (position < 0
+        || position > 4
+        || subject.getConditions().stream().anyMatch(condition -> Set.of(GRAPPLED, RESTRAINED).contains(condition.getEffect()))) {
+      return false;
+    }
+    boolean isMovingBack = !isAheadOfSubject(subject, Position.valueOf(position));
+    return isMovingBack || !areEnemiesOnCurrentPosition(subject) && isNotFrightenedAnyOneAhead(subject);
+  }
+
+  public boolean isNotFrightenedAnyOneAhead(Subject subject) {
+    Set<String> subjects = getSubjectsPositionsMap()
+        .entrySet()
+        .stream()
+        .filter(entry -> isAheadOfSubject(subject, entry.getKey()))
+        .flatMap(entry -> entry.getValue().stream())
+        .map(Subject::getName)
+        .collect(Collectors.toSet());
+
+    return subject.getConditions()
+        .stream()
+        .filter(activeEffect -> FRIGHTENED.equals(activeEffect.getEffect()))
+        .noneMatch(condition -> subjects.contains(condition.getSource()));
+  }
+
+  public boolean isAheadOfSubject(Subject subject, Position newPosition) {
+    return newPosition.getBattlegroundLocation()
+        * subject.getAffiliation().getDirection()
+        > subject.getPosition().getBattlegroundLocation()
+        * subject.getAffiliation().getDirection();
   }
 }

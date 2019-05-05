@@ -16,12 +16,13 @@ import static dbryla.game.yetanotherengine.domain.spells.SpellType.*;
 
 @AllArgsConstructor
 @Component
-public class SpellCastOperation {
+public class SpellCastOperation implements Operation {
 
   private final FightHelper fightHelper;
   private final EventFactory eventFactory;
   private final DiceRollService diceRollService;
 
+  @Override
   public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
     Spell spell = actionData.getSpell();
     verifyTargetsNumber(targets, spell);
@@ -71,18 +72,18 @@ public class SpellCastOperation {
     }
     if (SpellSaveType.CONSTITUTION_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets,
-          attackDamage, target -> fightHelper.getConstitutionSavingThrow(target, spell.getDamageType()),
+          attackDamage, target -> fightHelper.getConstitutionSavingThrow(target, spell),
           target -> new OperationResult().add(eventFactory.failEventBySavingThrow(source, spell, target)));
     }
     if (SpellSaveType.DEXTERITY_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets,
-          attackDamage, target -> fightHelper.getDexteritySavingThrow(target, spell.getDamageType()),
+          attackDamage, target -> fightHelper.getDexteritySavingThrow(target, spell),
           target -> new OperationResult().add(eventFactory.failEventBySavingThrow(source, spell, target)));
     }
     int attackDamageOnSavedThrow = attackDamage / 2;
     if (SpellSaveType.DEXTERITY_HALF_SAVING_THROW.equals(spell.getSpellSaveType())) {
       return handleSavingThrow(source, spell, targets, attackDamage,
-          target -> fightHelper.getDexteritySavingThrow(target, spell.getDamageType()),
+          target -> fightHelper.getDexteritySavingThrow(target, spell),
           target -> dealDamage(source, target, attackDamageOnSavedThrow / 2, spell));
     }
     return new OperationResult();
@@ -97,7 +98,7 @@ public class SpellCastOperation {
 
   private OperationResult handleSpellAttack(Subject source, Spell spell, Subject[] targets) {
     Subject target = targets[0]; // spell attacks can attack only single target
-    HitRoll hitRoll = fightHelper.getHitRoll(source, target);
+    HitRoll hitRoll = fightHelper.getHitRoll(source, spell, target);
     hitRoll.addModifier(fightHelper.getModifier(source, spell));
     HitResult hitResult = HitResult.of(hitRoll, target);
     if (!hitResult.isTargetHit()) {

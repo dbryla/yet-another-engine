@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static dbryla.game.yetanotherengine.domain.operations.OperationType.PASS;
+import static dbryla.game.yetanotherengine.domain.operations.OperationType.STAND_UP;
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 
 @Component
@@ -91,6 +92,10 @@ public class Cli implements CommandLineRunner {
     OperationType operation = availableOperations.get(option);
     if (PASS.equals(operation)) {
       game.execute(new SubjectTurn(subjectName));
+      return;
+    }
+    if (STAND_UP.equals(operation)) {
+      game.execute(SubjectTurn.of(new Action(subjectName, STAND_UP)));
       return;
     }
     ActionData actionData = getActionData(operation, subject);

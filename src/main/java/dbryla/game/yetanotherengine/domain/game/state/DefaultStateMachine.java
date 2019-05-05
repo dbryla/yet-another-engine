@@ -7,15 +7,16 @@ import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
-import dbryla.game.yetanotherengine.domain.operations.*;
+import dbryla.game.yetanotherengine.domain.operations.EffectConsumer;
+import dbryla.game.yetanotherengine.domain.operations.OperationFactory;
+import dbryla.game.yetanotherengine.domain.operations.OperationResult;
+import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static dbryla.game.yetanotherengine.domain.operations.OperationType.*;
 
 @AllArgsConstructor
 public class DefaultStateMachine implements StateMachine {
@@ -24,11 +25,8 @@ public class DefaultStateMachine implements StateMachine {
   private final StepTracker stepTracker;
   private final StateStorage stateStorage;
   private final EventHub eventHub;
-  private final AttackOperation attackOperation;
-  private final SpellCastOperation spellCastOperation;
-  private final MoveOperation moveOperation;
-  private final SpecialAttackOperation specialAttackOperation;
   private final EffectConsumer effectConsumer;
+  private final OperationFactory operationFactory;
 
   @Override
   public Optional<Subject> getNextSubject() {
@@ -55,22 +53,10 @@ public class DefaultStateMachine implements StateMachine {
 
   private List<Event> invokeOperation(Action action, Subject subject) {
     try {
-      if (ATTACK.equals(action.getOperationType())) {
-        return apply(attackOperation.invoke(subject, action.getActionData(), getTargets(action)));
-      }
-      if (SPELL_CAST.equals(action.getOperationType())) {
-        return apply(spellCastOperation.invoke(subject, action.getActionData(), getTargets(action)));
-      }
-      if (MOVE.equals(action.getOperationType())) {
-        return apply(moveOperation.invoke(subject, action.getActionData()));
-      }
-      if (SPECIAL_ATTACK.equals(action.getOperationType())) {
-        return apply(specialAttackOperation.invoke(subject, action.getActionData(), getTargets(action)));
-      }
+      return apply(operationFactory.getOperation(action.getOperationType()).invoke(subject, action.getActionData(), getTargets(action)));
     } catch (UnsupportedGameOperationException e) {
       throw new IncorrectStateException("Couldn't invoke operation on target(s).", e);
     }
-    throw new IncorrectStateException("Couldn't invoke operation " + action.getOperationType() + " on target(s).");
   }
 
   private void verifySource(SubjectTurn subjectTurn, Subject subject) {

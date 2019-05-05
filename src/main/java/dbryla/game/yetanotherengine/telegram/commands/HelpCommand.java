@@ -27,6 +27,7 @@ public class HelpCommand {
         "/pass - Skip rest of a turn\n" +
         "/attack - Attack with your weapons\n" +
         "/spell - Cast a spell\n" +
+        "/standup - Stand up\n" +
         "/status - Show status of fight\n" +
         "/reset - Reset game\n" +
         "/help - This manual");

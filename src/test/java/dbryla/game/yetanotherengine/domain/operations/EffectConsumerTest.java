@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.domain.operations;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subject.Condition;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ class EffectConsumerTest {
   @Test
   void shouldReturnEmptyOptionalIfNoEffectIsActive() {
     Subject subject = mock(Subject.class);
-    when(subject.getActiveEffects()).thenReturn(Set.of());
+    when(subject.getConditions()).thenReturn(Set.of());
 
     OperationResult operationResult = effectConsumer.apply(subject);
 
@@ -40,7 +40,7 @@ class EffectConsumerTest {
   @Test
   void shouldReturnEmptyOptionalIfEffectIsStillActive() {
     Subject subject = mock(Subject.class);
-    when(subject.getActiveEffects()).thenReturn(Set.of(new ActiveEffect(Effect.BLIND, 2)));
+    when(subject.getConditions()).thenReturn(Set.of(new Condition(Effect.BLINDED, 2)));
 
     OperationResult operationResult = effectConsumer.apply(subject);
 
@@ -50,9 +50,9 @@ class EffectConsumerTest {
   @Test
   void shouldReturnSubjectIfEffectExpires() {
     Subject subject = mock(Subject.class);
-    ActiveEffect activeEffect = Effect.BLIND.activate(1);
-    when(subject.getActiveEffects()).thenReturn(Set.of(activeEffect));
-    when(subject.effectExpired(eq(Effect.BLIND))).thenReturn(subject);
+    Condition condition = Effect.BLINDED.activate(1);
+    when(subject.getConditions()).thenReturn(Set.of(condition));
+    when(subject.effectExpired(eq(Effect.BLINDED))).thenReturn(subject);
     when(eventFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
     OperationResult operationResult = effectConsumer.apply(subject);
@@ -63,13 +63,13 @@ class EffectConsumerTest {
   @Test
   void shouldSendEventIfEffectExpires() {
     Subject subject = mock(Subject.class);
-    ActiveEffect activeEffect = Effect.BLIND.activate(1);
-    when(subject.getActiveEffects()).thenReturn(Set.of(activeEffect));
-    when(subject.effectExpired(eq(Effect.BLIND))).thenReturn(subject);
+    Condition condition = Effect.BLINDED.activate(1);
+    when(subject.getConditions()).thenReturn(Set.of(condition));
+    when(subject.effectExpired(eq(Effect.BLINDED))).thenReturn(subject);
     when(eventFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
     effectConsumer.apply(subject);
 
-    verify(eventFactory).effectExpiredEvent(eq(subject), eq(Effect.BLIND));
+    verify(eventFactory).effectExpiredEvent(eq(subject), eq(Effect.BLINDED));
   }
 }

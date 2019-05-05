@@ -8,9 +8,9 @@ class HitRoll {
   private final int original;
   private int actual;
 
-  HitRoll(int original, int modifiers) {
+  HitRoll(int original, int modifier) {
     this.original = original;
-    this.actual = original + modifiers;
+    this.actual = original + modifier;
   }
 
   void addModifier(int modifier) {

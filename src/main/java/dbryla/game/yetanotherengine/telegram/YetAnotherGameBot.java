@@ -1,18 +1,6 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import dbryla.game.yetanotherengine.telegram.commands.AttackCommand;
-import dbryla.game.yetanotherengine.telegram.commands.CharacterCommand;
-import dbryla.game.yetanotherengine.telegram.commands.CreateCommand;
-import dbryla.game.yetanotherengine.telegram.commands.FightCommand;
-import dbryla.game.yetanotherengine.telegram.commands.HelpCommand;
-import dbryla.game.yetanotherengine.telegram.commands.JoinCommand;
-import dbryla.game.yetanotherengine.telegram.commands.MoveCommand;
-import dbryla.game.yetanotherengine.telegram.commands.PassCommand;
-import dbryla.game.yetanotherengine.telegram.commands.PositionCommand;
-import dbryla.game.yetanotherengine.telegram.commands.ResetCommand;
-import dbryla.game.yetanotherengine.telegram.commands.SpellCommand;
-import dbryla.game.yetanotherengine.telegram.commands.StartCommand;
-import dbryla.game.yetanotherengine.telegram.commands.StatusCommand;
+import dbryla.game.yetanotherengine.telegram.commands.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -41,6 +29,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private static final String POSITION_COMMAND = "/position";
   private static final String MOVE_COMMAND = "/move";
   private static final String PASS_COMMAND = "/pass";
+  private static final String STANDUP_COMMAND = "/standup";
 
   private final TelegramConfig telegramConfig;
   private final CallbackHandler callbackHandler;
@@ -59,6 +48,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private final PositionCommand positionCommand;
   private final MoveCommand moveCommand;
   private final PassCommand passCommand;
+  private final StandUpCommand standUpCommand;
 
 
   @Override
@@ -119,6 +109,9 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
     }
     if (commandText.startsWith(PASS_COMMAND)) {
       passCommand.execute(update);
+    }
+    if (commandText.startsWith(STANDUP_COMMAND)) {
+      standUpCommand.execute(update);
     }
   }
 

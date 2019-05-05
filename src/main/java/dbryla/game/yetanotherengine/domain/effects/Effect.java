@@ -1,14 +1,25 @@
 package dbryla.game.yetanotherengine.domain.effects;
 
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subject.Condition;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum Effect {
-  BLIND, BLESS, LUCKY, RELENTLESS_ENDURANCE, SAVAGE_ATTACK, MULTI_ATTACK;
+  BLESSED,
 
-  public ActiveEffect activate(int durationInTurns) {
-    return new ActiveEffect(this, durationInTurns);
+  BLINDED, CHARMED, DEAFENED, FRIGHTENED, GRAPPLED, INCAPACITATED, INVISIBLE,
+  PARALYZED, PETRIFIED, POISONED, PRONE, RESTRAINED, STUNNED, UNCONSCIOUS,
+
+  LUCKY, RELENTLESS_ENDURANCE, SAVAGE_ATTACK,
+
+  MULTI_ATTACK;
+
+  public Condition activate(int durationInTurns) {
+    return new Condition(this, durationInTurns);
+  }
+
+  public Condition activate(String source, int durationInTurns) {
+    return new Condition(this, durationInTurns, source);
   }
 
   @Override

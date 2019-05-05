@@ -46,7 +46,7 @@ class AttackOperationTest {
   void shouldReturnAttackedSubject() throws UnsupportedGameOperationException {
     Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Weapon.SHORTBOW), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
@@ -80,7 +80,7 @@ class AttackOperationTest {
   void shouldNotReturnChangesIfTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Weapon.SHORTBOW), eq(target))).thenReturn(failedHitRoll);
 
     OperationResult operationResult = operation.invoke(source, TEST_ACTION_DATA, target);
 
@@ -92,7 +92,7 @@ class AttackOperationTest {
     Subject source = givenSourceWithEquippedWeapon();
     int attackDamage = 5;
     Subject target = mock(Subject.class);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Weapon.SHORTBOW), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.getAttackDamage(any(), any(), any())).thenReturn(attackDamage);
     when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
@@ -107,7 +107,7 @@ class AttackOperationTest {
     Subject source = givenSourceWithEquippedWeapon();
     int attackDamage = 10;
     Subject target = mock(Subject.class);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Weapon.SHORTBOW), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.getAttackDamage(any(), any(), any())).thenReturn(attackDamage);
     when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
@@ -120,7 +120,7 @@ class AttackOperationTest {
   void shouldCreateSuccessAttackEventWhenTargetWasAttacked() throws UnsupportedGameOperationException {
     Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Weapon.SHORTBOW), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     operation.invoke(source, TEST_ACTION_DATA, target);
@@ -132,7 +132,7 @@ class AttackOperationTest {
   void shouldCreateFailAttackEventWhenTargetWasNotAttacked() throws UnsupportedGameOperationException {
     Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Weapon.SHORTBOW), eq(target))).thenReturn(failedHitRoll);
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 
@@ -143,7 +143,7 @@ class AttackOperationTest {
   void shouldNotChangeSourceIfAttacksWithEquippedWeapon() throws UnsupportedGameOperationException {
     Subject source = givenSourceWithEquippedWeapon();
     Subject target = mock(Subject.class);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(TEST_ACTION_DATA.getWeapon()), eq(target))).thenReturn(successHitRoll);
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 
@@ -157,7 +157,7 @@ class AttackOperationTest {
     when(source.getAbilities()).thenReturn(DEFAULT_ABILITIES);
     when(source.getEquippedWeapon()).thenReturn(Weapon.FISTS);
     Subject target = mock(Subject.class);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(TEST_ACTION_DATA.getWeapon()), eq(target))).thenReturn(successHitRoll);
 
     operation.invoke(source, TEST_ACTION_DATA, target);
 

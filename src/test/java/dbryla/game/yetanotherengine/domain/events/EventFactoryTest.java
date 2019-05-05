@@ -63,7 +63,7 @@ class EventFactoryTest {
     Subject attacker = mock(Subject.class);
     when(attacker.getName()).thenReturn("attacker");
 
-    Event event = eventFactory.effectExpiredEvent(attacker, Effect.BLIND);
+    Event event = eventFactory.effectExpiredEvent(attacker, Effect.BLINDED);
 
     assertThat(event.toString()).isEqualTo("attacker is no longer blinded.");
   }

@@ -1,10 +1,12 @@
 package dbryla.game.yetanotherengine.domain.spells;
 
+import dbryla.game.yetanotherengine.domain.IncorrectStateException;
+import dbryla.game.yetanotherengine.domain.Range;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.operations.DamageType;
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Condition;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -12,14 +14,14 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static dbryla.game.yetanotherengine.domain.battleground.Distance.*;
-import static dbryla.game.yetanotherengine.domain.effects.EffectLogic.CONCENTRATION;
+import static dbryla.game.yetanotherengine.domain.effects.FightEffectLogic.CONCENTRATION;
 import static dbryla.game.yetanotherengine.domain.spells.SpellConstants.ALL_TARGETS_WITHIN_RANGE;
 import static dbryla.game.yetanotherengine.domain.spells.SpellSaveType.*;
 import static dbryla.game.yetanotherengine.domain.spells.SpellType.*;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.WIZARD;
 
-public enum Spell {
+public enum Spell implements Range {
 
   SACRED_FLAME(CLERIC, 0, DEXTERITY_SAVING_THROW, 1, 8,
       1, SIXTY_FEET, DamageType.RADIANT),
@@ -36,8 +38,8 @@ public enum Spell {
   FIRE_BOLT(WIZARD, 0, 1, 10,
       "%s burns %s to dust with fire bolt.", THIRTY_FEET, ONE_HUNDRED_TWENTY_FEET, DamageType.FIRE),
 
-  BLESS(CLERIC, 0, Effect.BLESS, 3, true, THIRTY_FEET, CONCENTRATION),
-  COLOR_SPRAY(WIZARD, 1, Effect.BLIND, ALL_TARGETS_WITHIN_RANGE, false, CLOSE_RANGE, 1);
+  BLESS(CLERIC, 0, Effect.BLESSED, 3, true, THIRTY_FEET, CONCENTRATION),
+  COLOR_SPRAY(WIZARD, 1, Effect.BLINDED, ALL_TARGETS_WITHIN_RANGE, false, CLOSE_RANGE, 1);
 
   private final CharacterClass owner;
   private final int spellLevel;
@@ -173,7 +175,22 @@ public enum Spell {
     return maximumNumberOfTargets == ALL_TARGETS_WITHIN_RANGE;
   }
 
-  public ActiveEffect cast() {
+  public Condition cast() {
     return spellEffect.activate(this.spellEffectDurationInTurns);
+  }
+
+  @Override
+  public boolean isClose() {
+    return minRange == CLOSE_RANGE;
+  }
+
+  public Enum getDamageTypeOrEffect() {
+    switch (spellType) {
+      case EFFECT:
+        return spellEffect;
+      case DAMAGE:
+        return damageType;
+    }
+    throw new IncorrectStateException("Spell of type: " + spellType + " can't be mitigated.");
   }
 }

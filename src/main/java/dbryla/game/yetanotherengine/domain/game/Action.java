@@ -25,9 +25,16 @@ public class Action {
 
   public Action(String sourceName, OperationType operationType, ActionData actionData) {
     this.sourceName = sourceName;
-    this.targetNames = null;
+    this.targetNames = List.of();
     this.operationType = operationType;
     this.actionData = actionData;
+  }
+
+  public Action(String sourceName, OperationType operationType) {
+    this.sourceName = sourceName;
+    this.targetNames = List.of();
+    this.operationType = operationType;
+    this.actionData = null;
   }
 
 }

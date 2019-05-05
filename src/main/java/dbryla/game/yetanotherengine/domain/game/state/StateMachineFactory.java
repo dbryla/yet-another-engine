@@ -23,10 +23,7 @@ public class StateMachineFactory {
 
   private final StateStorage stateStorage;
   private final EventHub eventHub;
-  private final AttackOperation attackOperation;
-  private final SpellCastOperation spellCastOperation;
-  private final MoveOperation moveOperation;
-  private final SpecialAttackOperation specialAttackOperation;
+  private final OperationFactory operationFactory;
   private final DiceRollService diceRollService;
   private final EffectConsumer effectConsumer;
 
@@ -40,8 +37,7 @@ public class StateMachineFactory {
     Map<Affiliation, Long> affiliationMap = stateStorage.findAll(gameId).stream()
         .collect(Collectors.groupingBy(Subject::getAffiliation, Collectors.counting()));
     StepTracker stepTracker = new InMemoryStepTracker(subjectsForAction, affiliationMap);
-    return new DefaultStateMachine(gameId, stepTracker, stateStorage, eventHub, attackOperation,
-        spellCastOperation, moveOperation, specialAttackOperation, effectConsumer);
+    return new DefaultStateMachine(gameId, stepTracker, stateStorage, eventHub, effectConsumer, operationFactory);
   }
 
 }

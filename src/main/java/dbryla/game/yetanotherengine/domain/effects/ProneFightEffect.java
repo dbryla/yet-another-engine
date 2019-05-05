@@ -1,20 +1,20 @@
 package dbryla.game.yetanotherengine.domain.effects;
 
+import dbryla.game.yetanotherengine.domain.Range;
 import dbryla.game.yetanotherengine.domain.dice.AdvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.DisadvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.NoOpRollModifier;
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@Component
 @AllArgsConstructor
-public class BlindEffect implements EffectLogic {
+@Component
+public class ProneFightEffect implements FightEffectLogic {
 
-  private final AdvantageRollModifier advantageRollModifier;
-  private final DisadvantageRollModifier disadvantageRollModifier;
   private final NoOpRollModifier noOpRollModifier;
+  private final DisadvantageRollModifier disadvantageRollModifier;
+  private final AdvantageRollModifier advantageRollModifier;
 
   @Override
   public HitDiceRollModifier getSourceHitRollModifier() {
@@ -22,13 +22,12 @@ public class BlindEffect implements EffectLogic {
   }
 
   @Override
-  public HitDiceRollModifier getTargetHitRollModifier() {
-    return advantageRollModifier;
+  public HitDiceRollModifier getTargetHitRollModifier(Range range) {
+    return range.isClose() ? advantageRollModifier : disadvantageRollModifier;
   }
 
   @Override
   public HitDiceRollModifier getTargetSavingThrowModifier() {
     return noOpRollModifier;
   }
-
 }

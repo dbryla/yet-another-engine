@@ -5,11 +5,13 @@ import dbryla.game.yetanotherengine.domain.dice.AdvantageRollModifier;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.dice.HitDiceRollModifier;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
-import dbryla.game.yetanotherengine.domain.effects.EffectLogic;
-import dbryla.game.yetanotherengine.domain.effects.EffectsMapper;
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.effects.FightEffectLogic;
+import dbryla.game.yetanotherengine.domain.effects.FightEffectsMapper;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.Condition;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,7 +37,7 @@ class FightHelperTest {
   private DiceRollService diceRollService;
 
   @Mock
-  private EffectsMapper effectsMapper;
+  private FightEffectsMapper fightEffectsMapper;
 
   @Mock
   private AdvantageRollModifier advantageRollModifier;
@@ -44,11 +46,11 @@ class FightHelperTest {
   void shouldReturnHitRollIfNoEffectIsActive() {
     Subject source = mock(Subject.class);
     Subject target = mock(Subject.class);
-    when(source.getActiveEffects()).thenReturn(Set.of());
+    when(source.getConditions()).thenReturn(Set.of());
     when(source.getRace()).thenReturn(Race.HALF_ELF);
     when(diceRollService.k20()).thenReturn(13);
 
-    HitRoll result = fightHelper.getHitRoll(source, target);
+    HitRoll result = fightHelper.getHitRoll(source, Weapon.SHORTSWORD, target);
 
     assertThat(result.getActual()).isEqualTo(13);
   }
@@ -58,15 +60,15 @@ class FightHelperTest {
     HitDiceRollModifier hitDiceRollModifier = mock(HitDiceRollModifier.class);
     when(hitDiceRollModifier.apply(anyInt())).thenReturn(100);
     Effect effect = mock(Effect.class);
-    EffectLogic effectLogic = mock(EffectLogic.class);
-    when(effectsMapper.getLogic(eq(effect))).thenReturn(effectLogic);
-    when(effectLogic.getSourceHitRollModifier()).thenReturn(hitDiceRollModifier);
+    FightEffectLogic fightEffectLogic = mock(FightEffectLogic.class);
+    when(fightEffectsMapper.getLogic(eq(effect))).thenReturn(fightEffectLogic);
+    when(fightEffectLogic.getSourceHitRollModifier()).thenReturn(hitDiceRollModifier);
     Subject source = mock(Subject.class);
     when(source.getRace()).thenReturn(Race.HALF_ELF);
-    when(source.getActiveEffects()).thenReturn(Set.of(new ActiveEffect(effect, 1)));
+    when(source.getConditions()).thenReturn(Set.of(new Condition(effect, 1)));
     Subject target = mock(Subject.class);
 
-    HitRoll result = fightHelper.getHitRoll(source, target);
+    HitRoll result = fightHelper.getHitRoll(source, Weapon.SHORTSWORD, target);
 
     assertThat(result.getActual()).isEqualTo(100);
   }
@@ -76,16 +78,16 @@ class FightHelperTest {
     HitDiceRollModifier hitDiceRollModifier = mock(HitDiceRollModifier.class);
     when(hitDiceRollModifier.apply(anyInt())).thenReturn(100);
     Effect effect = mock(Effect.class);
-    EffectLogic effectLogic = mock(EffectLogic.class);
-    when(effectsMapper.getLogic(eq(effect))).thenReturn(effectLogic);
-    when(effectLogic.getTargetHitRollModifier()).thenReturn(hitDiceRollModifier);
+    FightEffectLogic fightEffectLogic = mock(FightEffectLogic.class);
+    when(fightEffectsMapper.getLogic(eq(effect))).thenReturn(fightEffectLogic);
+    when(fightEffectLogic.getTargetHitRollModifier(any())).thenReturn(hitDiceRollModifier);
     Subject source = mock(Subject.class);
     when(source.getRace()).thenReturn(Race.HALF_ELF);
-    when(source.getActiveEffects()).thenReturn(Set.of());
+    when(source.getConditions()).thenReturn(Set.of());
     Subject target = mock(Subject.class);
-    when(target.getActiveEffects()).thenReturn(Set.of(new ActiveEffect(effect, 1)));
+    when(target.getConditions()).thenReturn(Set.of(new Condition(effect, 1)));
 
-    HitRoll result = fightHelper.getHitRoll(source, target);
+    HitRoll result = fightHelper.getHitRoll(source, Weapon.SHORTSWORD, target);
 
     assertThat(result.getActual()).isGreaterThan(0);
   }
@@ -115,13 +117,13 @@ class FightHelperTest {
     Subject source = mock(Subject.class);
     when(source.getRace()).thenReturn(Race.LIGHTFOOT_HALFLING);
     Subject target = mock(Subject.class);
-    EffectLogic effectLogic = mock(EffectLogic.class);
-    when(effectsMapper.getLogic(LUCKY)).thenReturn(effectLogic);
+    FightEffectLogic fightEffectLogic = mock(FightEffectLogic.class);
+    when(fightEffectsMapper.getLogic(LUCKY)).thenReturn(fightEffectLogic);
     HitDiceRollModifier hitRollModifier = mock(HitDiceRollModifier.class);
-    when(effectLogic.getSourceHitRollModifier()).thenReturn(hitRollModifier);
+    when(fightEffectLogic.getSourceHitRollModifier()).thenReturn(hitRollModifier);
     when(hitRollModifier.apply(anyInt())).thenReturn(10);
 
-    HitRoll hitRoll = fightHelper.getHitRoll(source, target);
+    HitRoll hitRoll = fightHelper.getHitRoll(source, Weapon.SHORTSWORD, target);
 
     assertThat(hitRoll.getOriginal()).isEqualTo(10);
   }
@@ -146,7 +148,7 @@ class FightHelperTest {
     when(target.getRace()).thenReturn(Race.HILL_DWARF);
     when(target.getAbilities()).thenReturn(TestData.ABILITIES);
 
-    fightHelper.getConstitutionSavingThrow(target, DamageType.POISON);
+    fightHelper.getConstitutionSavingThrow(target, Spell.POISON_SPRAY);
 
     verify(advantageRollModifier).apply(anyInt());
   }

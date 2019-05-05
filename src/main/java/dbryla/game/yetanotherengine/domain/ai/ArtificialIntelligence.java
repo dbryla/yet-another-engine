@@ -15,9 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
-
 @Component
 public class ArtificialIntelligence {
 
@@ -93,7 +90,7 @@ public class ArtificialIntelligence {
         }
       }
       List<String> possibleTargets = game.getPossibleTargets(subject, Spell.BLESS);
-      if (spells.contains(Spell.BLESS) && allies.size() > 1 && possibleTargets.size() > 1 && subject.getActiveEffects().isEmpty()) {
+      if (spells.contains(Spell.BLESS) && allies.size() > 1 && possibleTargets.size() > 1 && subject.getConditions().isEmpty()) {
         return Optional.of(
             SubjectTurn.of(
                 new Action(subject.getName(), possibleTargets, OperationType.SPELL_CAST, new ActionData(Spell.BLESS))));
@@ -177,25 +174,21 @@ public class ArtificialIntelligence {
     if (!isMoving) {
       Game game = context.getGame();
       int newBattlegroundPosition = subject.getPosition().getBattlegroundLocation() - 1;
-      if (newBattlegroundPosition >= PLAYERS_BACK.getBattlegroundLocation()
-          && !positionService.wouldNeedToPassEnemies(subject, subject.getAffiliation().getDirection(), game)) {
+      if (game.canMoveToPosition(subject, newBattlegroundPosition)) {
         Optional<SubjectTurn> turn = tryToMoveAndExecuteAction(subject, context, newBattlegroundPosition);
         if (turn.isPresent()) {
           return turn.get();
         }
       }
       newBattlegroundPosition = subject.getPosition().getBattlegroundLocation() + 1;
-      if (newBattlegroundPosition <= Position.ENEMIES_BACK.getBattlegroundLocation()
-          && !positionService.wouldNeedToPassEnemies(subject, -1 * subject.getAffiliation().getDirection(), game)) {
+      if (game.canMoveToPosition(subject, newBattlegroundPosition)) {
         Optional<SubjectTurn> turn = tryToMoveAndExecuteAction(subject, context, newBattlegroundPosition);
         if (turn.isPresent()) {
           return turn.get();
         }
       }
       newBattlegroundPosition = subject.getPosition().getBattlegroundLocation() + (subject.getAffiliation().getDirection() * 2);
-      if (newBattlegroundPosition >= PLAYERS_BACK.getBattlegroundLocation()
-          && newBattlegroundPosition <= ENEMIES_BACK.getBattlegroundLocation()
-          && !game.areEnemiesOnCurrentPosition(subject)) {
+      if (game.canMoveToPosition(subject, newBattlegroundPosition)) {
         return SubjectTurn.of(
             new Action(subject.getName(), OperationType.MOVE, new ActionData(Position.valueOf(newBattlegroundPosition))));
       }

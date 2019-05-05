@@ -25,7 +25,7 @@ public class Subject {
   @Getter
   private final Position position;
   @Getter
-  private final Set<ActiveEffect> activeEffects;
+  private final Set<Condition> conditions;
   @Getter
   private final Weapon equippedWeapon;
 
@@ -36,7 +36,7 @@ public class Subject {
     this.subjectProperties = subjectProperties;
     this.currentHealthPoints = subjectProperties.getMaxHealthPoints();
     this.position = position;
-    this.activeEffects = new HashSet<>();
+    this.conditions = new HashSet<>();
     this.equippedWeapon = equippedWeapon;
   }
 
@@ -92,30 +92,30 @@ public class Subject {
   }
 
   public Subject of(int healthPoints) {
-    return new Subject(this.subjectProperties, healthPoints, this.position, this.activeEffects, this.equippedWeapon);
+    return new Subject(this.subjectProperties, healthPoints, this.position, this.conditions, this.equippedWeapon);
   }
 
-  public Subject of(ActiveEffect effect) {
-    Set<ActiveEffect> effects = new HashSet<>(this.getActiveEffects());
+  public Subject of(Condition effect) {
+    Set<Condition> effects = new HashSet<>(this.getConditions());
     effects.add(effect);
     return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, effects, this.equippedWeapon);
   }
 
   public Subject effectExpired(Effect effect) {
-    Set<ActiveEffect> activeEffects = new HashSet<>(this.getActiveEffects());
-    activeEffects.removeIf(activeEffect -> activeEffect.getEffect().equals(effect));
-    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, activeEffects, this.equippedWeapon);
+    Set<Condition> conditions = new HashSet<>(this.getConditions());
+    conditions.removeIf(activeEffect -> activeEffect.getEffect().equals(effect));
+    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, conditions, this.equippedWeapon);
   }
 
   public Subject of(Position newPosition) {
     if (this.position.equals(newPosition)) {
       return this;
     }
-    return new Subject(this.subjectProperties, this.currentHealthPoints, newPosition, this.activeEffects, this.equippedWeapon);
+    return new Subject(this.subjectProperties, this.currentHealthPoints, newPosition, this.conditions, this.equippedWeapon);
   }
 
   public Subject of(Weapon equippedWeapon) {
-    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, this.activeEffects, equippedWeapon);
+    return new Subject(this.subjectProperties, this.currentHealthPoints, this.position, this.conditions, equippedWeapon);
   }
 
   @Override

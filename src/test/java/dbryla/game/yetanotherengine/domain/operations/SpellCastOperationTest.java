@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.domain.operations;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subject.ActiveEffect;
+import dbryla.game.yetanotherengine.domain.subject.Condition;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +45,7 @@ class SpellCastOperationTest {
   @Test
   void shouldInvokeDmgSpell() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.FIRE_BOLT);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Spell.FIRE_BOLT), eq(target))).thenReturn(successHitRoll);
     when(fightHelper.dealDamage(eq(target), anyInt(), any())).thenReturn(Optional.of(target));
 
     OperationResult operationResult = spellCastOperation.invoke(source, actionData, target);
@@ -57,7 +57,7 @@ class SpellCastOperationTest {
   void shouldInvokeEffectSpell() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
-    when(target.of(any(ActiveEffect.class))).thenReturn(changedTarget);
+    when(target.of(any(Condition.class))).thenReturn(changedTarget);
 
     OperationResult operationResult = spellCastOperation.invoke(source, actionData, target);
 
@@ -74,18 +74,18 @@ class SpellCastOperationTest {
   @Test
   void shouldGetHitRollIfSpellIsTypeOfAttack() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.FIRE_BOLT);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(successHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Spell.FIRE_BOLT), eq(target))).thenReturn(successHitRoll);
 
     spellCastOperation.invoke(source, actionData, target);
 
-    verify(fightHelper).getHitRoll(eq(source), eq(target));
+    verify(fightHelper).getHitRoll(eq(source), eq(Spell.FIRE_BOLT), eq(target));
   }
 
   @Test
   void shouldNotGetHitRollIfSpellIsTypeOfIrresistible() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
-    when(target.of(any(ActiveEffect.class))).thenReturn(changedTarget);
+    when(target.of(any(Condition.class))).thenReturn(changedTarget);
 
     spellCastOperation.invoke(source, actionData, target);
 
@@ -96,7 +96,7 @@ class SpellCastOperationTest {
   void shouldCreateEventOnSuccessfulSpellCast() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
     Subject changedTarget = mock(Subject.class);
-    when(target.of(any(ActiveEffect.class))).thenReturn(changedTarget);
+    when(target.of(any(Condition.class))).thenReturn(changedTarget);
 
     spellCastOperation.invoke(source, actionData, target);
 
@@ -106,7 +106,7 @@ class SpellCastOperationTest {
   @Test
   void shouldCreateEventOnUnsuccessfulSpellCast() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.FIRE_BOLT);
-    when(fightHelper.getHitRoll(eq(source), eq(target))).thenReturn(failedHitRoll);
+    when(fightHelper.getHitRoll(eq(source), eq(Spell.FIRE_BOLT), eq(target))).thenReturn(failedHitRoll);
 
     spellCastOperation.invoke(source, actionData, target);
 

@@ -17,7 +17,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Builder
 @ToString
 public class MonsterDefinition {
   private String defaultName;

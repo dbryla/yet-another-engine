@@ -18,8 +18,7 @@ import java.util.stream.Collectors;
 
 import static dbryla.game.yetanotherengine.telegram.FightFactory.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -106,6 +105,7 @@ class FightFactoryTest {
     Subject subject = mock(Subject.class);
     when(subject.getPosition()).thenReturn(Position.PLAYERS_FRONT);
     when(game.areEnemiesOnCurrentPosition(any())).thenReturn(false);
+    when(game.canMoveToPosition(any(), anyInt())).thenReturn(true);
     when(game.isStarted()).thenReturn(true);
 
     Optional<Communicate> communicate = fightFactory.moveCommunicate(game, subject);

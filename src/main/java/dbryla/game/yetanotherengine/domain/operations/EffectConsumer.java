@@ -14,7 +14,7 @@ public class EffectConsumer {
 
   public OperationResult apply(Subject source) {
     OperationResult operationResult = new OperationResult();
-    source.getActiveEffects().forEach(
+    source.getConditions().forEach(
         activeEffect -> {
           if (activeEffect.getDurationInTurns() > 0) {
             activeEffect.decreaseDuration();

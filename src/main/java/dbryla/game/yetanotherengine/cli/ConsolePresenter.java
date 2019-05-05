@@ -93,11 +93,11 @@ public class ConsolePresenter {
     return spells;
   }
 
-  List<OperationType> showAvailableOperations(Game game, Subject subject) {
+  List<OperationType> showAvailableOperations(Game game, Subject subject, boolean stoodUp) {
     List<OperationType> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
     int actionNumber = 0;
-    if (isAbleToMove(subject)) {
+    if (isAbleToMove(subject) || stoodUp) {
       communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "move"));
       operations.add(OperationType.MOVE);
     } else {

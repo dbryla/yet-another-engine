@@ -79,7 +79,7 @@ class ConsolePresenterTest {
     when(game.getAvailableSpellsForCast(eq(subject))).thenReturn(List.of(Spell.SACRED_FLAME));
     when(subject.isSpellCaster()).thenReturn(true);
 
-    List<OperationType> operations = consolePresenter.showAvailableOperations(game, subject);
+    List<OperationType> operations = consolePresenter.showAvailableOperations(game, subject, false);
 
     assertThat(operations).contains(OperationType.ATTACK, OperationType.SPELL_CAST);
   }
@@ -91,7 +91,7 @@ class ConsolePresenterTest {
     Game game = mock(Game.class);
     when(game.getAvailableWeaponsForAttack(eq(subject))).thenReturn(List.of(Weapon.SHORTSWORD));
 
-    List<OperationType> operations = consolePresenter.showAvailableOperations(game, subject);
+    List<OperationType> operations = consolePresenter.showAvailableOperations(game, subject, false);
 
     assertThat(operations).contains(OperationType.ATTACK);
   }

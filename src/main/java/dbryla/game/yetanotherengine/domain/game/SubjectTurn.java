@@ -18,7 +18,9 @@ public class SubjectTurn {
   }
 
   public static SubjectTurn of(Action action) {
-    return new SubjectTurn(List.of(action), action.getSourceName());
+    SubjectTurn subjectTurn = new SubjectTurn(action.getSourceName());
+    subjectTurn.add(action);
+    return subjectTurn;
   }
 
   public SubjectTurn add(Action action) {

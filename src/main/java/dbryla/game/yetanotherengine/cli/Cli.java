@@ -87,25 +87,24 @@ public class Cli implements CommandLineRunner {
 
   private void handleNextMove(String subjectName, boolean isMoving) {
     Subject subject = game.getSubject(subjectName);
-    List<OperationType> availableOperations = presenter.showAvailableOperations(game, subject);
-    int option = inputProvider.cmdLineToOption();
-    OperationType operation = availableOperations.get(option);
+    OperationType operation = getOperation(subject, false);
+    SubjectTurn subjectTurn = new SubjectTurn(subjectName);
     if (PASS.equals(operation)) {
-      game.execute(new SubjectTurn(subjectName));
+      game.execute(subjectTurn);
       return;
     }
     if (STAND_UP.equals(operation)) {
-      game.execute(SubjectTurn.of(new Action(subjectName, STAND_UP)));
-      return;
+      game.execute(subjectTurn.add(new Action(subjectName, STAND_UP)));
+      operation = getOperation(subject, true);
     }
     ActionData actionData = getActionData(operation, subject);
     if (actionData.getPosition() == null) {
       int numberOfTargets = getAllowedNumberOfTargets(actionData);
       if (numberOfTargets == ALL_TARGETS_WITHIN_RANGE) {
-        game.execute(SubjectTurn.of(new Action(subjectName, game.getPossibleTargets(subject, actionData.getSpell()), operation, actionData)));
+        game.execute(subjectTurn.add(new Action(subjectName, game.getPossibleTargets(subject, actionData.getSpell()), operation, actionData)));
       } else {
         List<String> targets = pickTargets(subject, numberOfTargets, actionData);
-        game.execute(SubjectTurn.of(new Action(subjectName, targets, operation, actionData)));
+        game.execute(subjectTurn.add(new Action(subjectName, targets, operation, actionData)));
       }
     } else {
       if (!isMoving) {
@@ -113,9 +112,15 @@ public class Cli implements CommandLineRunner {
         System.out.println(subjectName + " moves to " + actionData.getPosition() + ".");
         handleNextMove(subjectName, true);
       } else {
-        game.execute(SubjectTurn.of(new Action(subjectName, operation, actionData)));
+        game.execute(subjectTurn.add(new Action(subjectName, operation, actionData)));
       }
     }
+  }
+
+  private OperationType getOperation(Subject subject, boolean stoodUp) {
+    List<OperationType> availableOperations = presenter.showAvailableOperations(game, subject, stoodUp);
+    int option = inputProvider.cmdLineToOption();
+    return availableOperations.get(option);
   }
 
   private List<String> pickTargets(Subject subject, int numberOfTargets, ActionData actionData) {

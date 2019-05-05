@@ -1,7 +1,9 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
+import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.Session;
 import lombok.AllArgsConstructor;
@@ -35,6 +37,9 @@ public class Commons {
   }
 
   public void executeTurn(Game game, Session session, SubjectTurn turn) {
+    if (session.isStandingUp()) {
+      turn.getActions().add(0, new Action(turn.getOwnerName(), OperationType.STAND_UP));
+    }
     game.execute(turn);
     session.cleanUpCallbackData();
   }
@@ -44,6 +49,12 @@ public class Commons {
         + " what do you want to do next: "
         + getMoveOrStandUpCommand(subject)
         + " /pass /attack"
+        + getSpellCommandIfApplicable(subject);
+  }
+
+  public String getPlayerTurnMessageAfterStandUp(Subject subject) {
+    return subject.getName()
+        + " what do you want to do next: /move /pass /attack"
         + getSpellCommandIfApplicable(subject);
   }
 

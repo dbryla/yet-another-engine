@@ -56,7 +56,7 @@ class BuildingFactoryITest {
                 .filter(Race::isPlayable)
                 .map(Race::getDisplayName)
                 .distinct()
-                .map(race -> Tuple.tuple(race, race.toUpperCase()))
+                .map(race -> Tuple.tuple(race, race.toUpperCase().replace("-", "_")))
                 .toArray(Tuple[]::new));
   }
 

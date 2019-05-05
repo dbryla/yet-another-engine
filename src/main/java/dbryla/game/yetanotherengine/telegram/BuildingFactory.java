@@ -40,7 +40,7 @@ public class BuildingFactory {
     ArrayList<String> races = new ArrayList<>(gameOptions.getAvailableRaceGroups());
     AtomicInteger counter = new AtomicInteger();
     Collection<List<InlineKeyboardButton>> values = races.stream()
-        .map(race -> new InlineKeyboardButton(race).setCallbackData(race.toUpperCase()))
+        .map(race -> new InlineKeyboardButton(race).setCallbackData(race.toUpperCase().replace("-", "_")))
         .collect(Collectors.groupingBy(b -> counter.getAndIncrement() / 3))
         .values();
     return new Communicate(RACE, new ArrayList<>(values));

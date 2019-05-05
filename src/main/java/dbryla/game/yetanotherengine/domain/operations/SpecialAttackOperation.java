@@ -55,7 +55,8 @@ public class SpecialAttackOperation implements Operation {
       }
       int savingThrow = fightHelper.getStrengthSavingThrow(changedTarget);
       if (savingThrow < 12) {
-        operationResult.add(source.of(PRONE.activate(FOREVER)), eventFactory.successKnockedProneEvent(source, changedTarget));
+        changedTarget = changedTarget.of(PRONE.activate(FOREVER));
+        operationResult.add(changedTarget, eventFactory.successKnockedProneEvent(source, changedTarget));
         operationResult.copyFrom(attackOperation.invoke(source, actionData.getSpecialAttack().getNestedActionData().get(1), changedTarget));
       }
     }

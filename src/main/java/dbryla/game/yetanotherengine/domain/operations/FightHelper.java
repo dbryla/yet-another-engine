@@ -66,14 +66,15 @@ class FightHelper {
     return hitRoll;
   }
 
-  int getAttackDamage(Subject source, Supplier<Integer> attackDamage, HitResult hitResult) {
+  int getAttackDamage(Subject source, Supplier<Integer> attackDamageSupplier, HitResult hitResult) {
+    int attackDamage = attackDamageSupplier.get();
     if (CRITICAL.equals(hitResult)) {
+      attackDamage += attackDamageSupplier.get();
       if (source.getRace().getRaceEffects().contains(SAVAGE_ATTACK)) {
-        return attackDamage.get() * 2 + attackDamage.get();
+        attackDamage += attackDamageSupplier.get();
       }
-      return attackDamage.get() * 2;
     }
-    return attackDamage.get();
+    return attackDamage;
   }
 
   int getConstitutionSavingThrow(Subject target, DamageType damageType) {

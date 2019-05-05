@@ -32,9 +32,9 @@ public class AttackOperation {
     if (!hitResult.isTargetHit()) {
       operationResult.add(eventFactory.failEvent(source, target, weapon.toString(), hitResult));
     } else {
-      int attackDamage = fightHelper.getAttackDamage(source, () -> weapon.rollAttackDamage(diceRollService), hitResult)
-          + getModifier(weapon, source.getAbilities())
-          + getClassModifier(source, weapon);
+      int attackDamage = fightHelper.getAttackDamage(source,
+          () -> weapon.rollAttackDamage(diceRollService) + getBonusDamage(source, weapon), hitResult)
+          + getModifier(weapon, source.getAbilities());
       if (attackDamage <= 0) {
         attackDamage = 1;
       }
@@ -46,7 +46,7 @@ public class AttackOperation {
     return operationResult;
   }
 
-  private int getClassModifier(Subject source, Weapon weapon) {
+  private int getBonusDamage(Subject source, Weapon weapon) {
     if (ROGUE.equals(source.getCharacterClass()) && (weapon.isFinesse() || weapon.isRanged())) {
       return diceRollService.k6();
     }

@@ -1,0 +1,182 @@
+{
+  "name": "",
+  "requiredLevel": 1,
+  "questText": "",
+  "events": [
+    {
+      "name": "FIND_LOCATION",
+      "text": "",
+      "options": [
+        {
+          "type": "ASK_AROUND",
+          "durationInMinutes": 10,
+          "outcome": [
+            {
+              "dc": 5,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "type": "GO_TO_TAVERN",
+          "durationInMinutes": 30,
+          "outcome": [
+            {
+              "dc": 5,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "type": "LOOK_AROUND",
+          "durationInMinutes": 120,
+          "outcome": [
+            {
+              "dc": 5,
+              "text": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "INVESTIGATE_BUILDING",
+      "text": "",
+      "options": [
+        {
+          "type": "NO_INVESTIGATION",
+          "outcome": [
+            {
+              "text": ""
+            }
+          ]
+        },
+        {
+          "type": "LOOK_AROUND",
+          "durationInMinutes": 10,
+          "outcome": [
+            {
+              "text": ""
+            },
+            {
+              "bonusOption": "OPEN_WINDOW",
+              "dc": 12,
+              "text": ""
+            },
+            {
+              "bonusOption": "BASEMENT_ENTRANCE",
+              "dc": 16,
+              "text": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ENTER_LOCATION",
+      "text": "",
+      "options": [
+        {
+          "type": "OPEN_DOOR",
+          "outcome": [
+            {
+              "text": ""
+            }
+          ]
+        }
+      ],
+      "bonusOptions": [
+        {
+          "name": "OPEN_WINDOW",
+          "type": "CLIMB",
+          "repeatable": true,
+          "outcome": [
+            {
+              "nextEvent": "SECOND_FLOOR",
+              "dc": 19,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "name": "BASEMENT_ENTRANCE",
+          "type": "OPEN_DOOR",
+          "properties": {
+            "locked": true
+          },
+          "outcome": [
+            {
+              "nextEvent": "BASEMENT",
+              "dc": 13,
+              "text": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "INVESTIGATE_FIRST_FLOOR",
+      "text": "",
+      "options": [
+        {
+          "name": "FIRST_DOORS_ON_LEFT",
+          "type": "OPEN_DOOR",
+          "properties": {
+            "blocked": true
+          },
+          "outcome": [
+            {
+              "text": "",
+              "dc": 12,
+              "nextEvent": "OLD_KITCHEN",
+              "makeNoise": true
+            }
+          ]
+        },
+        {
+          "name": "SECOND_DOORS_ON_LEFT",
+          "type": "ENTER_TRAP",
+          "outcome": [
+            {
+              "effect": "DARK",
+              "text": "",
+              "dc": 20,
+              "nextEvent": "BASEMENT",
+              "makeNoise": true
+            },
+            {
+              "text": "",
+              "dc": 10,
+              "nextEvent": "BASEMENT",
+              "makeNoise": true
+            },
+            {
+              "text": "",
+              "nextEvent": "OLD_PANTRY"
+            }
+          ]
+        },
+        {
+          "name": "FIRST_DOORS_ON_RIGHT",
+          "type": "OPEN_DOOR",
+          "outcome": [
+            {
+              "text": "",
+              "nextEvent": "OLD_LIVING_ROOM"
+            }
+          ]
+        },
+        {
+          "name": "SECOND_DOORS_ON_RIGHT",
+          "type": "OPEN_DOOR",
+          "outcome": [
+            {
+              "text": "",
+              "nextEvent": "OLD_LIBRARY"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

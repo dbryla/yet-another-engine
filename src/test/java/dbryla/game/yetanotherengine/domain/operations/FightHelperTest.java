@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static dbryla.game.yetanotherengine.domain.effects.Effect.LUCKY;
+import static dbryla.game.yetanotherengine.domain.operations.DamageType.POISON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -143,8 +144,9 @@ class FightHelperTest {
   }
 
   @Test
-  void shouldHadAdvantageAgainstPoisonAttackIfTargetIsDwarf() {
+  void shouldHadAdvantageAgainstPoisonAttackIfTargetHasAdvantage() {
     Subject target = mock(Subject.class);
+    when(target.getAdvantageOnSavingThrows()).thenReturn(Set.of(POISON));
     when(target.getRace()).thenReturn(Race.HILL_DWARF);
     when(target.getAbilities()).thenReturn(TestData.ABILITIES);
 
@@ -160,7 +162,7 @@ class FightHelperTest {
     when(target.getCurrentHealthPoints()).thenReturn(10);
     when(target.of(anyInt())).thenReturn(target);
 
-    fightHelper.dealDamage(target, 10, DamageType.POISON);
+    fightHelper.dealDamage(target, 10, POISON);
 
     verify(target).of(5);
   }

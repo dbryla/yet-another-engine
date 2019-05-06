@@ -19,7 +19,11 @@
       "numberOfHitDices": 2,
       "type": "Cultist",
       "monsterRace": "HUMANOID",
-      "preferredPosition": "ENEMIES_FRONT"
+      "preferredPosition": "ENEMIES_FRONT",
+      "advantageOnSavingThrowsAgainstEffects": [
+        "CHARMED",
+        "FRIGHTENED"
+      ]
     },
     {
       "abilities": {

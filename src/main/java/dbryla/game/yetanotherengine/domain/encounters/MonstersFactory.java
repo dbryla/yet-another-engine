@@ -78,6 +78,7 @@ public class MonstersFactory {
         .position(monsterDefinition.getPreferredPosition())
         .race(race)
         .specialAttacks(monsterDefinition.getSpecialAttacks())
+        .advantageOnSavingThrows(monsterDefinition.getAdvantageOnSavingThrowsAgainstEffects())
         .build();
   }
 

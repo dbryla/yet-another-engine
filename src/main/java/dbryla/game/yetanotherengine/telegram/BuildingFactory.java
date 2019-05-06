@@ -1,6 +1,8 @@
 package dbryla.game.yetanotherengine.telegram;
 
 import dbryla.game.yetanotherengine.domain.game.GameOptions;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.BuildingRaceTrait;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
@@ -25,6 +27,8 @@ public class BuildingFactory {
   public static final String ABILITIES = "Assign scores to your abilities: Str, Dex, Con, Int, Wis, Cha";
   public static final String WEAPONS = "Choose your weapon:";
   public static final String ARMOR = "Choose your armor:";
+  public static final String SPELLS = "Choose your spell:";
+  public static final String EXTRA_ABILITIES = "Choose which ability to improve:";
 
   private final GameOptions gameOptions;
 
@@ -98,4 +102,34 @@ public class BuildingFactory {
     return Optional.of(new Communicate(ARMOR, List.of(keyboardButtons)));
   }
 
+  Optional<Communicate> raceSpecialCommunicate(Race race) {
+    if (race.getBuildingRaceTrait() != null) {
+      if (BuildingRaceTrait.TWO_ADDITIONAL_ABILITY_POINTS.equals(race.getBuildingRaceTrait())) {
+        return extraAbilitiesCommunicate(null, null);
+      }
+      if (BuildingRaceTrait.WIZARD_CANTRIP.equals(race.getBuildingRaceTrait())) {
+        return Optional.of(
+            new Communicate(SPELLS, List.of(
+                Spell.of(CharacterClass.WIZARD, 0).stream()
+                    .map(spell -> new InlineKeyboardButton(spell.toString()).setCallbackData(spell.name()))
+                    .collect(Collectors.toList())
+            )));
+      }
+    }
+    return Optional.empty();
+  }
+
+  Optional<Communicate> extraAbilitiesCommunicate(Session session, String lastAbility) {
+    if (session != null && session.listOf(EXTRA_ABILITIES).size() == 2) {
+      return Optional.empty();
+    }
+    LinkedList<InlineKeyboardButton> abilities = new LinkedList<>();
+    String[] abilitiesNames = {"Str", "Dex", "Con", "Int", "Wis"};
+    for (int i = 0; i < 5; ++i) {
+      if (lastAbility == null || Integer.valueOf(lastAbility) != i) {
+        abilities.add(new InlineKeyboardButton(abilitiesNames[i]).setCallbackData(String.valueOf(i)));
+      }
+    }
+    return Optional.of(new Communicate(EXTRA_ABILITIES, List.of(abilities)));
+  }
 }

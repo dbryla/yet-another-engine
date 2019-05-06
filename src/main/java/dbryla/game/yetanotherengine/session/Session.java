@@ -10,8 +10,7 @@ import lombok.ToString;
 
 import java.util.*;
 
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.WEAPONS;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.*;
 import static dbryla.game.yetanotherengine.telegram.FightFactory.*;
 
 @ToString
@@ -52,20 +51,30 @@ public class Session {
   public void update(String key, String value) {
     if (key.equals(ABILITIES)) {
       data.putIfAbsent(ABILITIES, new LinkedList<>());
-      ((List) data.get(ABILITIES)).add(value);
+      listOf(ABILITIES).add(value);
+      return;
+    }
+    if (key.equals(EXTRA_ABILITIES)) {
+      data.putIfAbsent(EXTRA_ABILITIES, new LinkedList<>());
+      listOf(EXTRA_ABILITIES).add(value);
       return;
     }
     if (key.equals(TARGETS)) {
       data.putIfAbsent(TARGETS, new LinkedList<>());
-      ((List) data.get(TARGETS)).add(value);
+      listOf(TARGETS).add(value);
       return;
     }
     if (key.equals(WEAPONS)) {
       data.putIfAbsent(WEAPONS, new LinkedList<>());
-      ((List) data.get(WEAPONS)).add(value);
+      listOf(WEAPONS).add(value);
       return;
     }
     data.put(key, value);
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<String> listOf(String abilities) {
+    return (List<String>) data.get(abilities);
   }
 
   public Optional<Communicate> getNextCommunicate() {
@@ -84,15 +93,15 @@ public class Session {
   }
 
   public boolean areAllTargetsAcquired() {
-    return Spell.valueOf((String) data.get(SPELL)).getMaximumNumberOfTargets() == ((List) data.get(TARGETS)).size();
+    return Spell.valueOf((String) data.get(SPELL)).getMaximumNumberOfTargets() == (listOf(TARGETS)).size();
   }
 
   public List<String> getTargets() {
-    return (List<String>) data.get(TARGETS);
+    return listOf(TARGETS);
   }
 
   private void clearTargets() {
-    List list = (List) data.get(TARGETS);
+    List list = listOf(TARGETS);
     if (list != null) {
       list.clear();
     }

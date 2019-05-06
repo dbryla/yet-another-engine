@@ -1,23 +1,19 @@
 package dbryla.game.yetanotherengine.cli;
 
-import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
-
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
-import dbryla.game.yetanotherengine.domain.subject.Abilities;
-import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
-import dbryla.game.yetanotherengine.domain.subject.Race;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.*;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 
 @Component
 @Profile("cli")
@@ -69,10 +65,24 @@ class ConsoleCharacterBuilder {
     System.out.println("Do you want (0) manual or (1) automatic abilities assignment?");
     int playerChoice = inputProvider.cmdLineToOption();
     Abilities abilities = getAbilities(playerChoice);
+    abilities = modifyAbilitiesIfApplicable(race, abilities);
+    Optional<Spell> spell = getSpell(race);
     List<Weapon> weapons = getWeapons(characterClass, race);
     Armor shield = getShield(characterClass, weapons);
     Armor armor = getArmor(characterClass, race);
-    return subjectFactory.createNewSubject(playerName, race, characterClass, PLAYERS, abilities, weapons, armor, shield);
+    return subjectFactory.createNewSubject(playerName, race, characterClass, PLAYERS,
+        abilities, weapons, armor, shield, spell.map(List::of).orElse(List.of()));
+  }
+
+  private Abilities modifyAbilitiesIfApplicable(Race race, Abilities abilities) {
+    if (race.getBuildingRaceTrait() != null && BuildingRaceTrait.TWO_ADDITIONAL_ABILITY_POINTS.equals(race.getBuildingRaceTrait())) {
+      presenter.showAvailableAbilitiesToImprove(-1);
+      int firstChoice = inputProvider.cmdLineToOption();
+      presenter.showAvailableAbilitiesToImprove(firstChoice);
+      int secondChoice = inputProvider.cmdLineToOption();
+      return abilities.of(firstChoice, secondChoice);
+    }
+    return abilities;
   }
 
   private Abilities getAbilities(int playerChoice) {
@@ -81,6 +91,17 @@ class ConsoleCharacterBuilder {
     } else {
       return new Abilities(12, 12, 12, 12, 12, 12);
     }
+  }
+
+  private Optional<Spell> getSpell(Race race) {
+    if (race.getBuildingRaceTrait() != null && BuildingRaceTrait.WIZARD_CANTRIP.equals(race.getBuildingRaceTrait())) {
+      List<Spell> spells = presenter.showAvailableWizardCantrips();
+      if (!spells.isEmpty()) {
+        int option = inputProvider.cmdLineToOption();
+        return Optional.of(spells.get(option));
+      }
+    }
+    return Optional.empty();
   }
 
   private List<Weapon> getWeapons(CharacterClass characterClass, Race race) {

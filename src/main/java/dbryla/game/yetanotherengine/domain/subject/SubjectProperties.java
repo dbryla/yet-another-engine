@@ -8,6 +8,7 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +24,7 @@ class SubjectProperties {
   private final List<Spell> spells;
   private final int maxHealthPoints;
   private final Set<SpecialAttack> specialAttacks;
+  private final Set<? extends Enum> advantageOnSavingThrows;
 
   int getArmorClass(Weapon equippedWeapon) {
     Integer modifier = abilities.getDexterityModifier();
@@ -38,5 +40,12 @@ class SubjectProperties {
 
   boolean isSpellCaster() {
     return !spells.isEmpty() || characterClass.isSpellCaster();
+  }
+
+  Set<Enum> getAdvantageOnSavingThrows() {
+    Set<Enum> advantages = new HashSet<>();
+    advantages.addAll(advantageOnSavingThrows);
+    advantages.addAll(race.getAdvantageOnSavingThrows());
+    return advantages;
   }
 }

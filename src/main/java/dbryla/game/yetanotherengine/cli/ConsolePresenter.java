@@ -208,4 +208,30 @@ public class ConsolePresenter {
     return weapons;
   }
 
+  List<Spell> showAvailableWizardCantrips() {
+    List<Spell> spells = new LinkedList<>();
+    StringBuilder communicate = new StringBuilder("Choose spell:");
+    int i = 0;
+    for (Spell spell : Spell.of(CharacterClass.WIZARD, 0)) {
+      communicate.append(String.format(CHOICE_FORMAT, i++, spell.toString()));
+      spells.add(spell);
+    }
+    if (!spells.isEmpty()) {
+      System.out.println(communicate.toString());
+    }
+    return spells;
+  }
+
+  void showAvailableAbilitiesToImprove(int lastChoice) {
+    String[] abilitiesNames = {"Str", "Dex", "Con", "Int", "Wis"};
+    StringBuilder communicate = new StringBuilder("Choose which ability to improve: ");
+    int i = 0;
+    for (String ability : abilitiesNames) {
+      if (lastChoice == -1 || lastChoice != i) {
+        communicate.append(String.format(CHOICE_FORMAT, i, ability));
+      }
+      i++;
+    }
+    System.out.println(communicate.toString());
+  }
 }

@@ -58,7 +58,7 @@ class GameITest {
 
   private Subject initializedGame(String playerName, List<Weapon> weapons, List<Subject> enemies, Position playerPosition) {
     Subject subject = subjectFactory.createNewSubject(playerName, Race.HUMAN, CharacterClass.FIGHTER, PLAYERS,
-        TestData.ABILITIES, weapons, null, null).of(playerPosition);
+        TestData.ABILITIES, weapons, null, null, List.of()).of(playerPosition);
     game.createPlayerCharacter(subject);
     game.createNonPlayableCharacters(enemies);
     return subject;

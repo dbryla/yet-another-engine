@@ -82,6 +82,7 @@ class SubjectFactoryTest {
             new Abilities(10, 10, 10, 10, 10, 10),
             null,
             10,
+            Set.of(),
             Set.of()),
         Position.PLAYERS_FRONT);
 
@@ -114,7 +115,8 @@ class SubjectFactoryTest {
         abilities,
         List.of(weapon),
         armor,
-        null);
+        null,
+        List.of());
 
     assertThat(subject.getName()).isEqualTo(name);
     assertThat(subject.getAffiliation()).isEqualTo(affiliation);
@@ -143,7 +145,8 @@ class SubjectFactoryTest {
         abilities,
         List.of(weapon),
         armor,
-        null);
+        null,
+        List.of());
 
     assertThat(subject.getPosition()).isEqualTo(characterClass.getPreferredPosition());
   }

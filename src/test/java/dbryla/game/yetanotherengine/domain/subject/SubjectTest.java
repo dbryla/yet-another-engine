@@ -2,7 +2,10 @@ package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.domain.TestData;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
@@ -12,7 +15,7 @@ import static org.mockito.Mockito.mock;
 class SubjectTest {
 
   @Test
-  void shouldAddSpellAndAdjustAbilitiesForSubjectBasedOnHighElfTraits() {
+  void shouldAdjustAbilitiesForSubjectBasedOnHighElfTraits() {
     Subject subject = Subject.builder()
         .name("subject")
         .affiliation(Affiliation.PLAYERS)
@@ -21,22 +24,36 @@ class SubjectTest {
         .healthPoints(1)
         .build();
 
-    assertThat(subject.getSpells()).isNotEmpty();
     assertThat(subject.getAbilities().getDexterityModifier()).isEqualTo(1);
     assertThat(subject.getAbilities().getIntelligenceModifier()).isEqualTo(1);
   }
 
   @Test
-  void shouldAddExtraHealthPointsForSubjectBasedOnHillDwarfTraits() {
+  void shouldAddSpellForSubject() {
     Subject subject = Subject.builder()
         .name("subject")
         .affiliation(Affiliation.PLAYERS)
-        .race(Race.HILL_DWARF)
-        .characterClass(CLERIC)
+        .race(Race.HIGH_ELF)
         .abilities(TestData.ABILITIES)
+        .spells(List.of(Spell.FIRE_BOLT))
+        .healthPoints(1)
         .build();
 
-    assertThat(subject.getMaxHealthPoints()).isEqualTo(CLERIC.getDefaultHealthPoints() + 2);
+    assertThat(subject.getSpells()).isNotEmpty();
+  }
+
+  @Test
+  void shouldAddExtraHealthPointsForSubject() {
+    Subject subject = Subject.builder()
+        .name("subject")
+        .affiliation(Affiliation.PLAYERS)
+        .race(Race.HUMAN)
+        .characterClass(CLERIC)
+        .abilities(TestData.ABILITIES)
+        .additionalHealthPoints(1)
+        .build();
+
+    assertThat(subject.getMaxHealthPoints()).isEqualTo(CLERIC.getDefaultHealthPoints() + 1);
   }
 
   @Test

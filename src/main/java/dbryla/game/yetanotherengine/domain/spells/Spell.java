@@ -10,7 +10,8 @@ import dbryla.game.yetanotherengine.domain.subject.Condition;
 import lombok.Getter;
 
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static dbryla.game.yetanotherengine.domain.battleground.Distance.*;
@@ -154,8 +155,10 @@ public enum Spell implements Range {
     this.spellEffectDurationInTurns = durationInTurns;
   }
 
-  public static Optional<Spell> of(CharacterClass owner, int spellLevel) { // return random spell for now
-    return Arrays.stream(Spell.values()).filter(spell -> owner.equals(spell.owner) && spellLevel == spell.spellLevel).findFirst();
+  public static Set<Spell> of(CharacterClass owner, int spellLevel) {
+    return Arrays.stream(Spell.values())
+        .filter(spell -> owner.equals(spell.owner) && spellLevel == spell.spellLevel)
+        .collect(Collectors.toSet());
   }
 
   public int roll(DiceRollService diceRollService) {

@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
 import dbryla.game.yetanotherengine.domain.battleground.Position;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.operations.DamageType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
@@ -33,4 +34,5 @@ public class MonsterDefinition {
   private List<Spell> spells = new LinkedList<>();
   private Set<SpecialAttack> specialAttacks = new HashSet<>();
   private Set<DamageType> immunities = new HashSet<>();
+  private Set<Effect> advantageOnSavingThrowsAgainstEffects = new HashSet<>();
 }

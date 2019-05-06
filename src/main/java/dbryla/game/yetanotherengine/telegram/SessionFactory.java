@@ -46,6 +46,7 @@ public class SessionFactory {
         CharacterClass characterClass = CharacterClass.valueOf((String) session.getData().get(CLASS));
         try {
           Race race = Race.valueOf(callbackData);
+          buildingFactory.raceSpecialCommunicate(race).ifPresent(session::addLastCommunicate);
           session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
           session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
           buildingFactory.chooseArmorCommunicate(characterClass, race).ifPresent(session::addLastCommunicate);
@@ -55,6 +56,9 @@ public class SessionFactory {
       }
       if (messageText.contains(ABILITIES)) {
         buildingFactory.nextAbilityAssignment(session, callbackData).ifPresent(session::addNextCommunicate);
+      }
+      if (messageText.contains(EXTRA_ABILITIES)) {
+        buildingFactory.extraAbilitiesCommunicate(session, callbackData).ifPresent(session::addNextCommunicate);
       }
     }
   }

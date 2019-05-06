@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @ToString(exclude = {"strengthModifier", "dexterityModifier", "constitutionModifier",
@@ -100,4 +101,15 @@ public class Abilities {
         charisma + abilitiesModifiers.get(5));
   }
 
+  public Abilities of(int firstIndexOfAbilityToModify, int secondIndexOfAbilityToModify) {
+    List<Integer> abilitiesModifiers = new LinkedList<>();
+    for (int i = 0; i < 6; i++) {
+      if (i == firstIndexOfAbilityToModify || i == secondIndexOfAbilityToModify) {
+        abilitiesModifiers.add(1);
+      } else {
+        abilitiesModifiers.add(0);
+      }
+    }
+    return of(abilitiesModifiers);
+  }
 }

@@ -189,4 +189,8 @@ public class Subject {
   public int hashCode() {
     return this.subjectProperties.hashCode();
   }
+
+  public Set<Enum> getAdvantageOnSavingThrows() {
+    return subjectProperties.getAdvantageOnSavingThrows();
+  }
 }

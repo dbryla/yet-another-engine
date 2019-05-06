@@ -23,11 +23,13 @@ public class SubjectBuilder {
   private List<Weapon> weapons = new LinkedList<>();
   private Armor shield;
   private Armor armor;
-  private List<Spell> spells;
+  private List<Spell> spells = List.of();
   private int healthPoints;
   private Position position;
   private Weapon equippedWeapon = Weapon.FISTS;
   private Set<SpecialAttack> specialAttacks = new HashSet<>();
+  private int additionalHealthPoints;
+  private Set<? extends Enum> advantageOnSavingThrows = new HashSet<>();
 
   public SubjectBuilder name(String name) {
     this.name = name;
@@ -94,6 +96,16 @@ public class SubjectBuilder {
     return this;
   }
 
+  public SubjectBuilder additionalHealthPoints(int additionalHealthPoints) {
+    this.additionalHealthPoints = additionalHealthPoints;
+    return this;
+  }
+
+  public SubjectBuilder advantageOnSavingThrows(Set<? extends Enum> advantageOnSavingThrows) {
+    this.advantageOnSavingThrows = advantageOnSavingThrows;
+    return this;
+  }
+
   /**
    * Replaces default class health points
    */
@@ -109,16 +121,9 @@ public class SubjectBuilder {
     SubjectIdentifier id = new SubjectIdentifier(name, affiliation);
     Equipment equipment = new Equipment(weapons, shield, armor);
     abilities = abilities.of(race.getAbilitiesModifiers());
-    healthPoints = getHealthPoints() + race.getAdditionalHealthPoints();
-    CharacterClass cantripForClass = race.getCantripForClass();
-    if (spells == null) {
-      spells = new LinkedList<>();
-    }
-    if (cantripForClass != null) {
-      Spell.of(cantripForClass, 0).ifPresent(spells::add);
-    }
-    SubjectProperties subjectProperties
-        = new SubjectProperties(id, race, characterClass, equipment, abilities, spells, healthPoints, specialAttacks);
+    healthPoints = getHealthPoints();
+    SubjectProperties subjectProperties = new SubjectProperties(id, race, characterClass, equipment,
+        abilities, spells, healthPoints, specialAttacks, advantageOnSavingThrows);
     return new Subject(subjectProperties, healthPoints, position, new HashSet<>(), equippedWeapon);
   }
 
@@ -126,6 +131,6 @@ public class SubjectBuilder {
     if (healthPoints != 0) {
       return healthPoints;
     }
-    return characterClass.getDefaultHealthPoints() + abilities.getConstitutionModifier();
+    return characterClass.getDefaultHealthPoints() + abilities.getConstitutionModifier() + additionalHealthPoints;
   }
 }

@@ -94,7 +94,7 @@ class FightHelper {
     if (hasDisadvantage) {
       modifiers.add(disadvantageRollModifier);
     }
-    if (spell != null && target.getRace().getAdvantageOnSavingThrows().contains(spell.getDamageTypeOrEffect())) {
+    if (spell != null && target.getAdvantageOnSavingThrows().contains(spell.getDamageTypeOrEffect())) {
       modifiers.add(advantageRollModifier);
     }
     cancelOppositeModifiers(modifiers);

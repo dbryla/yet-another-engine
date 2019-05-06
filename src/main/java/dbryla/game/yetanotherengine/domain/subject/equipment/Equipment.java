@@ -2,7 +2,6 @@ package dbryla.game.yetanotherengine.domain.subject.equipment;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,12 +14,6 @@ public class Equipment {
   private final List<Weapon> weapons;
   private final Armor shield;
   private final Armor armor;
-
-  public Equipment(Weapon weapon) {
-    this.weapons = List.of(weapon);
-    this.shield = null;
-    this.armor = null;
-  }
 
   public int getArmorClass(Weapon equippedWeapon) {
     int ac = DEFAULT_ARMOR_CLASS;

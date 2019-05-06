@@ -1,20 +1,23 @@
 package dbryla.game.yetanotherengine.cli;
 
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
+
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
-import dbryla.game.yetanotherengine.domain.subject.*;
+import dbryla.game.yetanotherengine.domain.subject.Abilities;
+import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 
 @Component
 @Profile("cli")
@@ -67,7 +70,7 @@ class ConsoleCharacterBuilder {
     int playerChoice = inputProvider.cmdLineToOption();
     Abilities abilities = getAbilities(playerChoice);
     List<Weapon> weapons = getWeapons(characterClass, race);
-    Armor shield = getShield(characterClass);
+    Armor shield = getShield(characterClass, weapons);
     Armor armor = getArmor(characterClass, race);
     return subjectFactory.createNewSubject(playerName, race, characterClass, PLAYERS, abilities, weapons, armor, shield);
   }
@@ -88,8 +91,8 @@ class ConsoleCharacterBuilder {
     return List.of(availableWeapons.get(inputProvider.cmdLineToOption()), availableWeapons.get(inputProvider.cmdLineToOption()));
   }
 
-  private Armor getShield(CharacterClass characterClass) {
-    if (!characterClass.getArmorProficiencies().contains(Armor.SHIELD) ) {
+  private Armor getShield(CharacterClass characterClass, List<Weapon> weapons) {
+    if (!characterClass.getArmorProficiencies().contains(Armor.SHIELD) || weapons.stream().noneMatch(Weapon::isEligibleForShield)) {
       return null;
     }
     List<Armor> shield = presenter.showAvailableShield();

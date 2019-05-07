@@ -7,6 +7,7 @@ import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.telegram.callback.CallbackService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,10 +29,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CallbackHandlerTest {
+class CallbackServiceTest {
 
   @InjectMocks
-  private CallbackHandler callbackHandler;
+  private CallbackService callbackService;
 
   @Mock
   private SessionFactory sessionFactory;
@@ -62,7 +63,7 @@ class CallbackHandlerTest {
     givenUpdateWithTextAndData("message-text", "callback-data");
     when(sessionFactory.getGameOrCreate(any())).thenReturn(mock(Game.class));
 
-    callbackHandler.execute(update);
+    callbackService.execute(update);
 
     verify(sessionFactory).updateSession(any(), any(), eq("callback-data"));
   }
@@ -85,7 +86,7 @@ class CallbackHandlerTest {
     givenUpdateWithTextAndData(ABILITIES, "callback-data");
     when(session.getNextCommunicate()).thenReturn(Optional.of(new Communicate(ABILITIES, List.of())));
 
-    callbackHandler.execute(update);
+    callbackService.execute(update);
 
     verify(telegramClient).sendEditKeyboard(any(), any(), any());
   }
@@ -95,7 +96,7 @@ class CallbackHandlerTest {
     givenUpdateWithTextAndData(ABILITIES, "callback-data");
     when(session.getNextCommunicate()).thenReturn(Optional.of(new Communicate(WEAPONS, List.of())));
 
-    callbackHandler.execute(update);
+    callbackService.execute(update);
 
     verify(telegramClient).deleteMessage(any(), any());
     verify(telegramClient).sendReplyKeyboard(any(), any(), any());
@@ -109,7 +110,7 @@ class CallbackHandlerTest {
     when(game.getPossibleTargets(anyString(), eq(Spell.SACRED_FLAME))).thenReturn(List.of("target1", "target2"));
     when(fightFactory.targetCommunicate(any())).thenReturn(Optional.of(new Communicate(TARGETS, List.of())));
 
-    callbackHandler.execute(update);
+    callbackService.execute(update);
 
     verify(telegramClient).deleteMessage(any(), any());
     verify(telegramClient).sendReplyKeyboard(any(), any(), any());
@@ -120,7 +121,7 @@ class CallbackHandlerTest {
     givenUpdateWithTextAndData(WEAPON, "SHORTSWORD");
     when(fightFactory.targetCommunicate(any(), any(), any())).thenReturn(Optional.of(new Communicate(TARGETS, List.of())));
 
-    callbackHandler.execute(update);
+    callbackService.execute(update);
 
     verify(telegramClient).deleteMessage(any(), any());
     verify(telegramClient).sendReplyKeyboard(any(), any(), any());
@@ -133,7 +134,7 @@ class CallbackHandlerTest {
     when(session.getGenericData()).thenReturn(Map.of(SPELL, "SACRED_FLAME"));
     when(session.areAllTargetsAcquired()).thenReturn(true);
 
-    callbackHandler.execute(update);
+    callbackService.execute(update);
 
     ArgumentCaptor<SubjectTurn> captor = ArgumentCaptor.forClass(SubjectTurn.class);
     verify(commons).executeTurnAndDeleteMessage(any(), any(), captor.capture(), any(), any());
@@ -147,7 +148,7 @@ class CallbackHandlerTest {
     givenUpdateWithTextAndData(TARGETS, "target1");
     when(session.isSpellCasting()).thenReturn(false);
 
-    callbackHandler.execute(update);
+    callbackService.execute(update);
 
     ArgumentCaptor<SubjectTurn> captor = ArgumentCaptor.forClass(SubjectTurn.class);
     verify(commons).executeTurnAndDeleteMessage(any(), any(), captor.capture(), any(), any());
@@ -161,7 +162,7 @@ class CallbackHandlerTest {
     givenUpdateWithTextAndData(MOVE, "3");
     when(session.isMoving()).thenReturn(true);
 
-    callbackHandler.execute(update);
+    callbackService.execute(update);
 
     ArgumentCaptor<SubjectTurn> captor = ArgumentCaptor.forClass(SubjectTurn.class);
     verify(commons).executeTurnAndDeleteMessage(any(), any(), captor.capture(), any(), any());

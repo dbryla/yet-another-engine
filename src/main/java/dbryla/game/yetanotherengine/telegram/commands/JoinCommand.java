@@ -58,7 +58,7 @@ public class JoinCommand {
 
   void createNewSessionAndCharacter(Message message, String playerName, String sessionId) {
     Session session = sessionFactory.createCharacterCreationCommunicates(sessionId, playerName);
-    Communicate communicate = session.getNextCommunicate().get();
+    Communicate communicate = session.getNextCommunicate();
     telegramClient.sendReplyKeyboard(communicate, message.getChatId(), message.getMessageId());
   }
 }

@@ -1,25 +1,20 @@
 package dbryla.game.yetanotherengine.session;
 
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.EXTRA_ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.WEAPONS;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.SPELL;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.TARGETS;
-import static dbryla.game.yetanotherengine.telegram.FightFactory.WEAPON;
-
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
+import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.telegram.Communicate;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.*;
+
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.*;
+import static dbryla.game.yetanotherengine.telegram.FightFactory.*;
 
 @ToString
 public class Session {
@@ -42,6 +37,13 @@ public class Session {
   private boolean isStandingUp = false;
   @Getter(AccessLevel.PACKAGE)
   private SessionData data;
+
+  @Getter
+  private CharacterClass characterClass;
+  @Setter
+  @Getter
+  private Race race;
+  private List<String> abilities = new LinkedList<>();
 
   public Session(String playerName, List<Communicate> communicates, List<Integer> abilityScores) {
     this.data = SessionData.builder().playerName(playerName).communicates(communicates).build();
@@ -90,11 +92,11 @@ public class Session {
     return (List<String>) genericData.get(abilities);
   }
 
-  public Optional<Communicate> getNextCommunicate() {
+  public Communicate getNextCommunicate() {
     if (data.getCommunicates().isEmpty()) {
-      return Optional.empty();
+      return null;
     }
-    return Optional.ofNullable(data.getCommunicates().remove(0));
+    return data.getCommunicates().remove(0);
   }
 
   public void addNextCommunicate(Communicate communicate) {
@@ -132,5 +134,13 @@ public class Session {
 
   public String getPlayerName() {
     return data.getPlayerName();
+  }
+
+  public void setCharacterClass(String characterClass) {
+    this.characterClass = CharacterClass.valueOf(characterClass);
+  }
+
+  public void addAbility(String ability) {
+    abilities.add(ability);
   }
 }

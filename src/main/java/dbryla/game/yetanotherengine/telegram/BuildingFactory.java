@@ -17,22 +17,16 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.*;
+
 @AllArgsConstructor
 @Component
 @Profile("tg")
 public class BuildingFactory {
 
-  public static final String CLASS = "Choose a class:";
-  public static final String RACE = "Choose a race:";
-  public static final String ABILITIES = "Assign scores to your abilities: Str, Dex, Con, Int, Wis, Cha";
-  public static final String WEAPONS = "Choose your weapon:";
-  public static final String ARMOR = "Choose your armor:";
-  public static final String SPELLS = "Choose your spell:";
-  public static final String EXTRA_ABILITIES = "Choose which ability to improve:";
-
   private final GameOptions gameOptions;
 
-  Communicate chooseClassCommunicate() {
+  public Communicate chooseClassCommunicate() {
     ArrayList<CharacterClass> classes = new ArrayList<>(gameOptions.getAvailableClasses());
     List<InlineKeyboardButton> keyboardButtons = new LinkedList<>();
     classes.forEach(characterClass -> keyboardButtons.add(
@@ -40,7 +34,7 @@ public class BuildingFactory {
     return new Communicate(CLASS, List.of(keyboardButtons));
   }
 
-  Communicate chooseRaceGroupCommunicate() {
+  public Communicate chooseRaceGroupCommunicate() {
     ArrayList<String> races = new ArrayList<>(gameOptions.getAvailableRaceGroups());
     AtomicInteger counter = new AtomicInteger();
     Collection<List<InlineKeyboardButton>> values = races.stream()
@@ -50,7 +44,7 @@ public class BuildingFactory {
     return new Communicate(RACE, new ArrayList<>(values));
   }
 
-  Communicate chooseRaceCommunicate(String raceGroup) {
+  public Communicate chooseRaceCommunicate(String raceGroup) {
     List<InlineKeyboardButton> values = gameOptions.getAvailableRaces()
         .stream()
         .filter(race -> raceGroup.equalsIgnoreCase(race.getDisplayName()))
@@ -59,7 +53,7 @@ public class BuildingFactory {
     return new Communicate(RACE, List.of(values));
   }
 
-  Communicate assignAbilitiesCommunicate(List<Integer> scores) {
+  public Communicate assignAbilitiesCommunicate(List<Integer> scores) {
     List<List<InlineKeyboardButton>> keyboardButtons = createKeyboardButtons(scores);
     return new Communicate(ABILITIES, keyboardButtons);
   }
@@ -73,7 +67,7 @@ public class BuildingFactory {
     return List.of(keyboardButtons);
   }
 
-  Optional<Communicate> nextAbilityAssignment(Session session, String lastScore) {
+  public Optional<Communicate> nextAbilityAssignment(Session session, String lastScore) {
     session.getAbilityScores().remove(Integer.valueOf(lastScore));
     if (session.getAbilityScores().isEmpty()) {
       return Optional.empty();
@@ -81,7 +75,7 @@ public class BuildingFactory {
     return Optional.of(new Communicate(ABILITIES, createKeyboardButtons(session.getAbilityScores())));
   }
 
-  Communicate chooseWeaponCommunicate(CharacterClass characterClass, Race race) {
+  public Communicate chooseWeaponCommunicate(CharacterClass characterClass, Race race) {
     Set<Weapon> availableWeapons = gameOptions.getAvailableWeapons(characterClass, race);
     AtomicInteger counter = new AtomicInteger();
     Collection<List<InlineKeyboardButton>> values = availableWeapons.stream()
@@ -91,7 +85,7 @@ public class BuildingFactory {
     return new Communicate(WEAPONS, new ArrayList<>(values));
   }
 
-  Optional<Communicate> chooseArmorCommunicate(CharacterClass characterClass, Race race) {
+  public Optional<Communicate> chooseArmorCommunicate(CharacterClass characterClass, Race race) {
     Set<Armor> availableArmors = gameOptions.getAvailableArmors(characterClass, race);
     if (availableArmors.isEmpty()) {
       return Optional.empty();
@@ -102,7 +96,7 @@ public class BuildingFactory {
     return Optional.of(new Communicate(ARMOR, List.of(keyboardButtons)));
   }
 
-  Optional<Communicate> raceSpecialCommunicate(Race race) {
+  public Optional<Communicate> raceSpecialCommunicate(Race race) {
     if (race.getBuildingRaceTrait() != null) {
       if (BuildingRaceTrait.TWO_ADDITIONAL_ABILITY_POINTS.equals(race.getBuildingRaceTrait())) {
         return extraAbilitiesCommunicate(null, null);
@@ -119,7 +113,7 @@ public class BuildingFactory {
     return Optional.empty();
   }
 
-  Optional<Communicate> extraAbilitiesCommunicate(Session session, String lastAbility) {
+  public Optional<Communicate> extraAbilitiesCommunicate(Session session, String lastAbility) {
     if (session != null && session.listOf(EXTRA_ABILITIES).size() == 2) {
       return Optional.empty();
     }

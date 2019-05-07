@@ -45,11 +45,11 @@ public class TelegramClient extends DefaultAbsSender {
     sendMessage(keyboardFactory.replyKeyboard(communicate, chatId, messageId));
   }
 
-  void sendEditKeyboard(Communicate communicate, Long chatId, Integer messageId) {
+  public void sendEditKeyboard(Communicate communicate, Long chatId, Integer messageId) {
     sendMessage(keyboardFactory.editKeyboard(communicate, chatId, messageId));
   }
 
-  void deleteMessage(Long chatId, Integer messageId) {
+  public void deleteMessage(Long chatId, Integer messageId) {
     sendMessage(new DeleteMessage(chatId, messageId));
   }
 }

@@ -1,5 +1,6 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import dbryla.game.yetanotherengine.telegram.callback.CallbackService;
 import dbryla.game.yetanotherengine.telegram.commands.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
   private static final String STANDUP_COMMAND = "/standup";
 
   private final TelegramConfig telegramConfig;
-  private final CallbackHandler callbackHandler;
+  private final CallbackService callbackService;
   private final Commons commons;
 
   private final StartCommand startCommand;
@@ -59,7 +60,7 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
       return;
     }
     if (isCallback(update)) {
-      callbackHandler.execute(update);
+      callbackService.execute(update);
       return;
     }
     if (isRegularMessage(update)) {

@@ -11,27 +11,25 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.*;
+
 @Component
 public class FightFactory {
 
-  public static final String TARGETS = "Choose your target";
-  public static final String SPELL = "Choose spell to cast";
-  public static final String WEAPON = "Choose weapon to attack with";
-  static final String MOVE = "Where do you want to move?";
 
-  Optional<Communicate> targetCommunicate(Game game, String playerName, Weapon weapon) {
+  public Optional<Communicate> targetCommunicate(Game game, String playerName, Weapon weapon) {
     Subject subject = game.getSubject(playerName);
     List<String> possibleTargets = game.getPossibleTargets(subject, weapon);
     return targetCommunicate(possibleTargets, List.of());
   }
 
-  Optional<Communicate> targetCommunicate(Game game, String playerName, Spell spell, List<String> ignore) {
+  public Optional<Communicate> targetCommunicate(Game game, String playerName, Spell spell, List<String> ignore) {
     Subject subject = game.getSubject(playerName);
     List<String> possibleTargets = game.getPossibleTargets(subject, spell);
     return targetCommunicate(possibleTargets, ignore);
   }
 
-  Optional<Communicate> targetCommunicate(List<String> possibleTargets) {
+  public Optional<Communicate> targetCommunicate(List<String> possibleTargets) {
     return targetCommunicate(possibleTargets, List.of());
   }
 

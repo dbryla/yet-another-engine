@@ -9,6 +9,7 @@ import dbryla.game.yetanotherengine.session.Session;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 import static dbryla.game.yetanotherengine.domain.effects.Effect.PRONE;
@@ -31,7 +32,7 @@ public class Commons {
     return game != null && game.getNextSubjectName().isPresent() && playerName.equals(game.getNextSubjectName().get());
   }
 
-  void executeTurnAndDeleteMessage(Game game, Session session, SubjectTurn turn, Long chatId, Integer messageId) {
+  public void executeTurnAndDeleteMessage(Game game, Session session, SubjectTurn turn, Long chatId, Integer messageId) {
     executeTurn(game, session, turn);
     telegramClient.deleteMessage(chatId, messageId);
   }
@@ -44,7 +45,7 @@ public class Commons {
     session.cleanUpCallbackData();
   }
 
-  String getPlayerTurnMessage(Subject subject) {
+  public String getPlayerTurnMessage(Subject subject) {
     return subject.getName()
         + " what do you want to do next: "
         + getMoveOrStandUpCommand(subject)
@@ -65,4 +66,9 @@ public class Commons {
   private String getMoveOrStandUpCommand(Subject subject) {
     return subject.getConditions().stream().anyMatch(condition -> PRONE.equals(condition.getEffect())) ? "/standup" : "/move";
   }
+
+  public Integer getOriginalMessageId(Update update) {
+    return update.getCallbackQuery().getMessage().getReplyToMessage().getMessageId();
+  }
+
 }

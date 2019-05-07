@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
-import dbryla.game.yetanotherengine.session.SessionStorage;
+import dbryla.game.yetanotherengine.telegram.session.GameStorage;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -14,12 +14,12 @@ class ResetCommandTest extends CommandTestSetup {
   private ResetCommand resetCommand;
 
   @Mock
-  private SessionStorage sessionStorage;
+  private GameStorage gameStorage;
 
   @Test
   void shouldClearGame() {
     resetCommand.execute(update);
 
-    verify(sessionStorage).clearGame(any());
+    verify(gameStorage).clearGame(any());
   }
 }

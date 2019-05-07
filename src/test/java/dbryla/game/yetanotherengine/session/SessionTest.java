@@ -21,7 +21,7 @@ class SessionTest {
 
     session.update(ABILITIES, "1");
 
-    assertThat(((List) session.getData().get(ABILITIES))).contains("1");
+    assertThat(((List) session.getGenericData().get(ABILITIES))).contains("1");
   }
 
   @Test
@@ -32,7 +32,7 @@ class SessionTest {
     session.update(ABILITIES, "2");
     session.update(ABILITIES, "3");
 
-    assertThat(((List) session.getData().get(ABILITIES))).contains("1", "2", "3");
+    assertThat(((List) session.getGenericData().get(ABILITIES))).contains("1", "2", "3");
   }
 
   @Test
@@ -61,8 +61,8 @@ class SessionTest {
 
     session.update(WEAPONS, "SHORTSWORD");
 
-    assertThat(session.getData().get(WEAPONS)).isNotNull();
-    assertThat(((List) session.getData().get(WEAPONS))).contains("SHORTSWORD");
+    assertThat(session.getGenericData().get(WEAPONS)).isNotNull();
+    assertThat(((List) session.getGenericData().get(WEAPONS))).contains("SHORTSWORD");
   }
 
   @Test
@@ -73,8 +73,8 @@ class SessionTest {
     session.update(WEAPONS, "SHORTBOW");
     session.update(WEAPONS, "LONGBOW");
 
-    assertThat(session.getData().get(WEAPONS)).isNotNull();
-    assertThat(((List) session.getData().get(WEAPONS))).contains("SHORTSWORD", "SHORTBOW", "LONGBOW");
+    assertThat(session.getGenericData().get(WEAPONS)).isNotNull();
+    assertThat(((List) session.getGenericData().get(WEAPONS))).contains("SHORTSWORD", "SHORTBOW", "LONGBOW");
   }
 
   @Test

@@ -1,5 +1,10 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.EXTRA_ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.RACE;
+
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameFactory;
 import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
@@ -8,14 +13,12 @@ import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.session.SessionStorage;
+import dbryla.game.yetanotherengine.telegram.session.GameStorage;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.*;
 
 @Component
 @Profile("tg")
@@ -25,6 +28,7 @@ public class SessionFactory {
   private final BuildingFactory buildingFactory;
   private final AbilityScoresSupplier abilityScoresSupplier;
   private final SessionStorage sessionStorage;
+  private final GameStorage gameStorage;
   private final GameFactory gameFactory;
 
   public Session createCharacterCreationCommunicates(String sessionId, String playerName) {
@@ -43,7 +47,7 @@ public class SessionFactory {
     if (session != null) {
       session.update(messageText, callbackData);
       if (messageText.contains(RACE)) {
-        CharacterClass characterClass = CharacterClass.valueOf((String) session.getData().get(CLASS));
+        CharacterClass characterClass = CharacterClass.valueOf((String) session.getGenericData().get(CLASS));
         try {
           Race race = Race.valueOf(callbackData);
           buildingFactory.raceSpecialCommunicate(race).ifPresent(session::addLastCommunicate);
@@ -74,16 +78,16 @@ public class SessionFactory {
   }
 
   public Game getGameOrCreate(Long chatId) {
-    Game game = sessionStorage.get(chatId);
+    Game game = gameStorage.get(chatId);
     if (game == null) {
-      sessionStorage.put(chatId, gameFactory.newGame(chatId));
-      game = sessionStorage.get(chatId);
+      gameStorage.put(chatId, gameFactory.newGame(chatId));
+      game = gameStorage.get(chatId);
     }
     return game;
   }
 
   public Game getGame(Long chatId) {
-    return sessionStorage.get(chatId);
+    return gameStorage.get(chatId);
   }
 
 }

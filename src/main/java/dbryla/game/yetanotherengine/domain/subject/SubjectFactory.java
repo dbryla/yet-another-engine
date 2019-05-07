@@ -1,5 +1,14 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ARMOR;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.EXTRA_ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.RACE;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.SPELLS;
+import static dbryla.game.yetanotherengine.telegram.BuildingFactory.WEAPONS;
+
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
@@ -7,16 +16,12 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.*;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @AllArgsConstructor
@@ -32,8 +37,8 @@ public class SubjectFactory {
   }
 
   public Subject fromSession(Session session) {
-    CharacterClass characterClass = CharacterClass.valueOf((String) session.getData().get(CLASS));
-    Race race = Race.valueOf((String) session.getData().get(RACE));
+    CharacterClass characterClass = CharacterClass.valueOf((String) session.getGenericData().get(CLASS));
+    Race race = Race.valueOf((String) session.getGenericData().get(RACE));
     List<String> abilitiesScores = session.listOf(ABILITIES);
     Abilities abilities = new Abilities(
         Integer.valueOf(abilitiesScores.get(0)),
@@ -60,7 +65,7 @@ public class SubjectFactory {
   }
 
   private Armor getArmor(Session session) {
-    String name = (String) session.getData().get(ARMOR);
+    String name = (String) session.getGenericData().get(ARMOR);
     if (name != null) {
       return Armor.valueOf(name);
     }
@@ -69,7 +74,7 @@ public class SubjectFactory {
 
   private Optional<Spell> getSpell(Session session) {
     try {
-      String spellName = (String) session.getData().get(SPELLS);
+      String spellName = (String) session.getGenericData().get(SPELLS);
       if (spellName != null) {
         return Optional.of(Spell.valueOf(spellName));
       }

@@ -130,7 +130,7 @@ class CallbackHandlerTest {
   void shouldExecuteTurnWithSpellCastOnGivenTarget() {
     givenUpdateWithTextAndData(TARGETS, "target1");
     when(session.isSpellCasting()).thenReturn(true);
-    when(session.getData()).thenReturn(Map.of(SPELL, "SACRED_FLAME"));
+    when(session.getGenericData()).thenReturn(Map.of(SPELL, "SACRED_FLAME"));
     when(session.areAllTargetsAcquired()).thenReturn(true);
 
     callbackHandler.execute(update);

@@ -59,7 +59,7 @@ public class FightFactory {
   }
 
   public Optional<Communicate> moveCommunicate(Game game, Subject subject) {
-    int battlegroundLocation = subject.getPosition().getBattlegroundLocation(); // fixme check if player joined first
+    int battlegroundLocation = subject.getPosition().getBattlegroundLocation();
     List<InlineKeyboardButton> positions = new ArrayList<>();
     int backPosition = battlegroundLocation - 1;
     if (game.canMoveToPosition(subject, backPosition)) {

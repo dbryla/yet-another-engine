@@ -28,6 +28,7 @@ class MoveCommandTest extends CommandTestSetup {
     when(message.getMessageId()).thenReturn(messageId);
     Subject subject = mock(Subject.class);
     Game game = mock(Game.class);
+    when(game.getSubject(any())).thenReturn(subject);
     when(sessionFactory.getSession(any())).thenReturn(new Session("player", subject));
     when(sessionFactory.getGame(eq(chatId))).thenReturn(game);
     when(fightFactory.moveCommunicate(any(), any())).thenReturn(Optional.of(new Communicate(null, null)));
@@ -46,6 +47,7 @@ class MoveCommandTest extends CommandTestSetup {
     when(message.getFrom()).thenReturn(user);
     Subject subject = mock(Subject.class);
     Game game = mock(Game.class);
+    when(game.getSubject(any())).thenReturn(subject);
     when(sessionFactory.getSession(any())).thenReturn(new Session("player", subject));
     when(sessionFactory.getGame(eq(chatId))).thenReturn(game);
 

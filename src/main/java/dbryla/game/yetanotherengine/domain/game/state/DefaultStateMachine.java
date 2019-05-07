@@ -43,7 +43,7 @@ public class DefaultStateMachine implements StateMachine {
       verifySource(subjectTurn, subject);
       List<Event> events = subjectTurn.getActions()
           .stream()
-          .flatMap(action -> invokeOperation(action).stream())
+          .flatMap(action -> invokeOperation(action, subject.getName()).stream())
           .collect(Collectors.toList());
       stepTracker.moveToNextSubject();
       events.addAll(apply(effectConsumer.apply(subject)));
@@ -51,8 +51,8 @@ public class DefaultStateMachine implements StateMachine {
     });
   }
 
-  private List<Event> invokeOperation(Action action) {
-    Subject subject = getNextSubject().get();
+  private List<Event> invokeOperation(Action action, String subjectName) {
+    Subject subject = stateStorage.findByIdAndName(gameId, subjectName).get();
     try {
       return apply(operationFactory.getOperation(action.getOperationType()).invoke(subject, action.getActionData(), getTargets(action)));
     } catch (UnsupportedGameOperationException e) {

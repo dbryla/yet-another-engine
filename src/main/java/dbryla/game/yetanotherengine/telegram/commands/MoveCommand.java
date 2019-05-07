@@ -32,6 +32,10 @@ public class MoveCommand {
       return;
     }
     Subject subject = game.getSubject(session.getPlayerName());
+    if (subject == null) {
+      telegramClient.sendTextMessage(chatId, "Please create character and join game first.");
+      return;
+    }
     fightFactory.moveCommunicate(game, subject)
         .ifPresentOrElse(communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, update.getMessage().getMessageId()),
             () -> telegramClient.sendTextMessage(chatId, "You are unable to move right now."));

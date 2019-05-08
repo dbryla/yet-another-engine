@@ -7,14 +7,11 @@ import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.session.SessionStorage;
 import dbryla.game.yetanotherengine.telegram.session.GameStorage;
+import java.util.LinkedList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import static dbryla.game.yetanotherengine.telegram.CommunicateText.EXTRA_ABILITIES;
 
 @Component
 @Profile("tg")
@@ -37,15 +34,6 @@ public class SessionFactory {
         abilityScores);
     sessionStorage.put(sessionId, session);
     return session;
-  }
-
-  public void updateSession(String messageText, Session session, String callbackData) {
-    if (session != null) {
-      session.update(messageText, callbackData);
-      if (messageText.contains(EXTRA_ABILITIES)) {
-        buildingFactory.extraAbilitiesCommunicate(session, callbackData).ifPresent(session::addNextCommunicate);
-      }
-    }
   }
 
   public Session createSession(String sessionId, String playerName, Subject subject) {

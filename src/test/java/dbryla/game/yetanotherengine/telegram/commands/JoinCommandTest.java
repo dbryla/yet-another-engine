@@ -1,5 +1,12 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.Game;
@@ -7,14 +14,10 @@ import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.Communicate;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class JoinCommandTest extends CommandTestSetup {
 
@@ -69,7 +72,7 @@ class JoinCommandTest extends CommandTestSetup {
   void shouldJoinWithCreatingNewCharacterIfNoSessionAndCharacterExist() {
     Session session = mock(Session.class);
     when(sessionFactory.createCharacterCreationCommunicates(any(), any())).thenReturn(session);
-    when(session.getNextCommunicate()).thenReturn(Optional.of(mock(Communicate.class)));
+    when(session.getNextCommunicate()).thenReturn(mock(Communicate.class));
 
     joinCommand.execute(update);
 

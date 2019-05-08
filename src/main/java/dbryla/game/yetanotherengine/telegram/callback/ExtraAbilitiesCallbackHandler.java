@@ -1,7 +1,5 @@
 package dbryla.game.yetanotherengine.telegram.callback;
 
-import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
-import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.BuildingFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
@@ -13,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 @Profile("tg")
-public class RaceCallbackHandler implements CallbackHandler {
+public class ExtraAbilitiesCallbackHandler implements CallbackHandler {
 
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
@@ -22,17 +20,9 @@ public class RaceCallbackHandler implements CallbackHandler {
   @Override
   public void execute(Callback callback) {
     Session session = sessionFactory.getSession(callback.getSessionId());
-    CharacterClass characterClass = session.getCharacterClass();
-    try {
-      Race race = Race.valueOf(callback.getData());
-      session.setRace(race);
-      buildingFactory.raceSpecialCommunicate(race).ifPresent(session::addLastCommunicate);
-      session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
-      session.addLastCommunicate(buildingFactory.chooseWeaponCommunicate(characterClass, race));
-      buildingFactory.chooseArmorCommunicate(characterClass, race).ifPresent(session::addLastCommunicate);
-    } catch (IllegalArgumentException e) {
-      session.addNextCommunicate(buildingFactory.chooseRaceCommunicate(callback.getData()));
-    }
+    int index = Integer.parseInt(callback.getData());
+    session.addAbilityToImprove(index);
+    buildingFactory.extraAbilitiesCommunicate(session, callback.getData()).ifPresent(session::addNextCommunicate);
     telegramClient.deleteMessage(callback.getChatId(), callback.getMessageId());
     telegramClient.sendReplyKeyboard(session.getNextCommunicate(), callback.getChatId(), callback.getOriginalMessageId());
   }

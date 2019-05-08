@@ -1,5 +1,7 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
+
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
@@ -7,16 +9,10 @@ import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
+import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
-import static dbryla.game.yetanotherengine.telegram.CommunicateText.*;
 
 @Component
 @AllArgsConstructor
@@ -32,52 +28,32 @@ public class SubjectFactory {
   }
 
   public Subject fromSession(Session session) {
-    CharacterClass characterClass = CharacterClass.valueOf((String) session.getGenericData().get(CLASS));
-    Race race = Race.valueOf((String) session.getGenericData().get(RACE));
-    List<String> abilitiesScores = session.listOf(ABILITIES);
+
+    List<Integer> abilitiesScores = session.getAbilities();
     Abilities abilities = new Abilities(
-        Integer.valueOf(abilitiesScores.get(0)),
-        Integer.valueOf(abilitiesScores.get(1)),
-        Integer.valueOf(abilitiesScores.get(2)),
-        Integer.valueOf(abilitiesScores.get(3)),
-        Integer.valueOf(abilitiesScores.get(4)),
-        Integer.valueOf(abilitiesScores.get(5)));
+        abilitiesScores.get(0),
+        abilitiesScores.get(1),
+        abilitiesScores.get(2),
+        abilitiesScores.get(3),
+        abilitiesScores.get(4),
+        abilitiesScores.get(5));
     abilities = modifyAbilitiesIfApplicable(session, abilities);
-    List<Weapon> weapons = session.listOf(WEAPONS).stream().map(Weapon::valueOf).collect(Collectors.toList());
-    Armor armor = getArmor(session);
-    Optional<Spell> spell = getSpell(session);
-    return createNewSubject(session.getPlayerName(), race, characterClass, PLAYERS,
-        abilities, weapons, armor, getShield(characterClass, weapons), spell.map(List::of).orElse(List.of()));
+    List<Weapon> weapons = session.getWeapons();
+
+    CharacterClass characterClass = session.getCharacterClass();
+    return createNewSubject(session.getPlayerName(), session.getRace(), characterClass, PLAYERS,
+        abilities, weapons, session.getArmor(), getShield(characterClass, weapons), session.getSpells());
   }
 
   private Abilities modifyAbilitiesIfApplicable(Session session, Abilities abilities) {
-    List<String> abilitiesScoresModifiers = session.listOf(EXTRA_ABILITIES);
-    if (abilitiesScoresModifiers == null || abilitiesScoresModifiers.isEmpty()) {
+    List<Integer> abilitiesScoresModifiers = session.getAbilitiesToImprove();
+    if (abilitiesScoresModifiers.isEmpty()) {
       return abilities;
     }
-    abilities = abilities.of(Integer.valueOf(abilitiesScoresModifiers.get(0)), Integer.valueOf(abilitiesScoresModifiers.get(1)));
+    abilities = abilities.of(abilitiesScoresModifiers.get(0), abilitiesScoresModifiers.get(1));
     return abilities;
   }
 
-  private Armor getArmor(Session session) {
-    String name = (String) session.getGenericData().get(ARMOR);
-    if (name != null) {
-      return Armor.valueOf(name);
-    }
-    return null;
-  }
-
-  private Optional<Spell> getSpell(Session session) {
-    try {
-      String spellName = (String) session.getGenericData().get(SPELLS);
-      if (spellName != null) {
-        return Optional.of(Spell.valueOf(spellName));
-      }
-    } catch (IllegalArgumentException e) {
-      return Optional.empty();
-    }
-    return Optional.empty();
-  }
 
   private Armor getShield(CharacterClass characterClass, List<Weapon> weapons) {
     return characterClass.getArmorProficiencies().contains(Armor.SHIELD)

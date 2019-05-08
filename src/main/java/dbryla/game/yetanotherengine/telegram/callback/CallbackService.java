@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Profile("tg")
 public class CallbackService {
 
-  private final CallbackFactory callbackFactory;
+  private final CallbackHandlerFactory callbackHandlerFactory;
   private final Commons commons;
 
   public void execute(Update update) {
@@ -26,6 +26,15 @@ public class CallbackService {
       log.trace("Aborting handling callback. Not the owner of original command.");
       return;
     }
-    callbackFactory.getCallbackHandler(messageText).execute(update);
+    callbackHandlerFactory.getCallbackHandler(messageText)
+        .execute(
+            new Callback(
+                messageId,
+                playerName,
+                update.getCallbackQuery().getMessage().getChatId(),
+                sessionId,
+                update.getCallbackQuery().getData(),
+                commons.getOriginalMessageId(update))
+        );
   }
 }

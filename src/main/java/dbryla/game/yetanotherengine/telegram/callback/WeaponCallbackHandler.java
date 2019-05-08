@@ -11,11 +11,12 @@ import dbryla.game.yetanotherengine.telegram.FightFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
 import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 @AllArgsConstructor
+@Profile("tg")
 public class WeaponCallbackHandler implements CallbackHandler {
 
   private final Commons commons;
@@ -24,19 +25,16 @@ public class WeaponCallbackHandler implements CallbackHandler {
   private final FightFactory fightFactory;
 
   @Override
-  public void execute(Update update) {
-    Long chatId = update.getCallbackQuery().getMessage().getChatId();
-    Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-    String sessionId = commons.getSessionId(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getFrom());
-    Session session = sessionFactory.getSession(sessionId);
-    Game game = sessionFactory.getGame(chatId);
-    String playerName = commons.getCharacterName(update.getCallbackQuery().getFrom());
-    telegramClient.deleteMessage(chatId, messageId);
-    fightFactory.targetCommunicate(game, playerName, session.getWeapon())
+  public void execute(Callback callback) {
+    Session session = sessionFactory.getSession(callback.getSessionId());
+    Game game = sessionFactory.getGame(callback.getChatId());
+    session.setWeapon(callback.getData());
+    telegramClient.deleteMessage(callback.getChatId(), callback.getMessageId());
+    fightFactory.targetCommunicate(game, callback.getPlayerName(), session.getWeapon())
         .ifPresentOrElse(
-            communicate -> telegramClient.sendReplyKeyboard(communicate, chatId, commons.getOriginalMessageId(update)),
+            communicate -> telegramClient.sendReplyKeyboard(communicate, callback.getChatId(), callback.getOriginalMessageId()),
             () -> commons.executeTurn(game, session,
-                SubjectTurn.of(new Action(playerName, game.getPossibleTargets(playerName, session.getWeapon()).get(0),
+                SubjectTurn.of(new Action(callback.getPlayerName(), game.getPossibleTargets(callback.getPlayerName(), session.getWeapon()).get(0),
                     OperationType.ATTACK, new ActionData(session.getWeapon())))));
   }
 }

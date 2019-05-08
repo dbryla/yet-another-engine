@@ -1,5 +1,13 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.ARMOR;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.CLASS;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.EXTRA_ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.RACE;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.SPELLS;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.WEAPONS;
+
 import dbryla.game.yetanotherengine.domain.game.GameOptions;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.BuildingRaceTrait;
@@ -8,16 +16,18 @@ import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.Session;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import static dbryla.game.yetanotherengine.telegram.CommunicateText.*;
 
 @AllArgsConstructor
 @Component
@@ -114,7 +124,7 @@ public class BuildingFactory {
   }
 
   public Optional<Communicate> extraAbilitiesCommunicate(Session session, String lastAbility) {
-    if (session != null && session.listOf(EXTRA_ABILITIES).size() == 2) {
+    if (session != null && session.getAbilitiesToImprove().size() == 2) {
       return Optional.empty();
     }
     LinkedList<InlineKeyboardButton> abilities = new LinkedList<>();

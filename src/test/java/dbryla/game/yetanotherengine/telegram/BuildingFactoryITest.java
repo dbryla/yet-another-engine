@@ -1,12 +1,6 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.ARMOR;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.CLASS;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.EXTRA_ABILITIES;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.RACE;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.SPELLS;
-import static dbryla.game.yetanotherengine.telegram.BuildingFactory.WEAPONS;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dbryla.game.yetanotherengine.domain.spells.Spell;
@@ -200,7 +194,7 @@ class BuildingFactoryITest {
   @Test
   void shouldReturnExtraAbilitiesCommunicateWithoutDexterity() {
     Session session = new Session(null, null);
-    session.update(EXTRA_ABILITIES, "1");
+    session.addAbilityToImprove(1);
 
     Optional<Communicate> communicate = buildingFactory.extraAbilitiesCommunicate(session, "1");
 

@@ -10,16 +10,17 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 @Profile("tg")
-public class ClassCallbackHandler implements CallbackHandler {
+public class ArmorCallbackHandler implements CallbackHandler {
 
   private final SessionFactory sessionFactory;
   private final TelegramClient telegramClient;
+  private final CharacterCreationCallbackHandler characterCreationCallbackHandler;
 
   @Override
   public void execute(Callback callback) {
     Session session = sessionFactory.getSession(callback.getSessionId());
-    session.setCharacterClass(callback.getData());
+    session.setArmor(callback.getData());
     telegramClient.deleteMessage(callback.getChatId(), callback.getMessageId());
-    telegramClient.sendReplyKeyboard(session.getNextCommunicate(), callback.getChatId(), callback.getOriginalMessageId());
+    characterCreationCallbackHandler.execute(callback);
   }
 }

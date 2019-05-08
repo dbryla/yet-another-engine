@@ -10,14 +10,14 @@ import dbryla.game.yetanotherengine.session.Session;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Update;
-
 import java.util.List;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component
+@Profile("tg")
 public class MoveCallbackHandler implements CallbackHandler {
 
   private final Commons commons;
@@ -25,27 +25,22 @@ public class MoveCallbackHandler implements CallbackHandler {
   private final TelegramClient telegramClient;
 
   @Override
-  public void execute(Update update) {
-    Long chatId = update.getCallbackQuery().getMessage().getChatId();
-    Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-    String sessionId = commons.getSessionId(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getFrom());
-    Session session = sessionFactory.getSession(sessionId);
-    Game game = sessionFactory.getGame(chatId);
-    String playerName = commons.getCharacterName(update.getCallbackQuery().getFrom());
-    String callbackData = update.getCallbackQuery().getData();
+  public void execute(Callback callback) {
+    Session session = sessionFactory.getSession(callback.getSessionId());
+    Game game = sessionFactory.getGame(callback.getChatId());
+    Position newPosition = Position.valueOf(Integer.valueOf(callback.getData()));
     if (!session.isMoving()) {
-      Position newPosition = Position.valueOf(Integer.valueOf(callbackData));
       game.moveSubject(session.getPlayerName(), newPosition);
-      telegramClient.sendTextMessage(chatId, session.getPlayerName() + " moves to " + newPosition + ".");
-      if (commons.isNextUser(playerName, game)) {
+      telegramClient.sendTextMessage(callback.getChatId(), session.getPlayerName() + " moves to " + newPosition + ".");
+      if (commons.isNextUser(callback.getPlayerName(), game)) {
         session.setMoving(true);
-        telegramClient.sendTextMessage(chatId, commons.getPlayerTurnMessage(session.getSubject()));
+        telegramClient.sendTextMessage(callback.getChatId(), commons.getPlayerTurnMessage(session.getSubject()));
       }
-      telegramClient.deleteMessage(chatId, messageId);
+      telegramClient.deleteMessage(callback.getChatId(), callback.getMessageId());
     } else {
       SubjectTurn turn = SubjectTurn.of(
-          new Action(playerName, List.of(), OperationType.MOVE, new ActionData(Position.valueOf(Integer.valueOf(callbackData)))));
-      commons.executeTurnAndDeleteMessage(game, session, turn, chatId, messageId);
+          new Action(callback.getPlayerName(), List.of(), OperationType.MOVE, new ActionData(newPosition)));
+      commons.executeTurnAndDeleteMessage(game, session, turn, callback.getChatId(), callback.getMessageId());
     }
   }
 }

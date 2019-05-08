@@ -161,6 +161,9 @@ class FightHelper {
     if (targetRace.getResistances().contains(damageType) || isPetrified(target)) {
       attackDamage = attackDamage / 2;
     }
+    if (targetRace.getVulnerabilities().contains(damageType)) {
+      attackDamage = attackDamage * 2;
+    }
     int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
     if (remainingHealthPoints == 0 && targetRace.getRaceEffects().contains(RELENTLESS_ENDURANCE)) {
       return Optional.of(target.of(1));

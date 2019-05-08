@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import static dbryla.game.yetanotherengine.domain.effects.Effect.*;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.SLEEP;
 import static dbryla.game.yetanotherengine.domain.operations.DamageType.*;
 import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.*;
 
@@ -71,7 +72,7 @@ public enum Race {
   HUMANOID,
   GOBLINOID,
   BEAST,
-  UNDEAD(Set.of(POISON, POISONED));
+  UNDEAD(Set.of(POISON, POISONED, EXHAUSTION), Set.of(BLUDGEONING));
 
   private final String displayName;
   private final List<Integer> abilitiesModifiers;
@@ -80,6 +81,7 @@ public enum Race {
   private final BuildingRaceTrait buildingRaceTrait;
   private final Set<Effect> raceEffects;
   private final Set<DamageType> resistances;
+  private final Set<DamageType> vulnerabilities;
   private final Set<? extends Enum> advantageOnSavingThrows;
   private final Set<? extends Enum> immunities;
   private final boolean playable;
@@ -94,6 +96,7 @@ public enum Race {
     this.buildingRaceTrait = buildingRaceTrait;
     this.raceEffects = raceEffects;
     this.resistances = resistances;
+    this.vulnerabilities = Set.of();
     this.advantageOnSavingThrows = advantageOnSavingThrows;
     this.immunities = immunities;
     this.playable = true;
@@ -108,11 +111,12 @@ public enum Race {
     this.raceEffects = Set.of();
     this.immunities = Set.of();
     this.resistances = Set.of();
+    this.vulnerabilities = Set.of();
     this.advantageOnSavingThrows = Set.of();
     this.playable = false;
   }
 
-  Race(Set<? extends Enum> immunities) {
+  Race(Set<? extends Enum> immunities, Set<DamageType> vulnerabilities) {
     this.displayName = null;
     this.abilitiesModifiers = List.of(0, 0, 0, 0, 0, 0);
     this.weaponProficiencies = Set.of();
@@ -122,6 +126,7 @@ public enum Race {
     this.immunities = immunities;
     this.resistances = Set.of();
     this.advantageOnSavingThrows = Set.of();
+    this.vulnerabilities = vulnerabilities;
     this.playable = false;
   }
 

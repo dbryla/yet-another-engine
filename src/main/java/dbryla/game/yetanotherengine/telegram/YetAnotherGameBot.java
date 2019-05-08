@@ -64,14 +64,20 @@ public class YetAnotherGameBot extends TelegramLongPollingBot {
       return;
     }
     if (isRegularMessage(update)) {
-      log.trace("Update: {} no:{} [{}]", update.getMessage().getText(), update.getMessage().getMessageId(),
-          commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
+      log.trace("[{}] Message: {} Session: {} Player: {}",
+          update.getMessage().getMessageId(),
+          update.getMessage().getText(),
+          commons.getSessionId(update.getMessage(), update.getMessage().getFrom()),
+          commons.getCharacterName(update.getMessage().getFrom()));
     }
   }
 
   private void handleCommand(Update update, String commandText) {
-    log.trace("Command: {} no:{} [{}]", commandText, update.getMessage().getMessageId(),
-        commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
+    log.trace("[{}] Command: {} Session: {} Player: {}",
+        update.getMessage().getMessageId(),
+        commandText,
+        commons.getSessionId(update.getMessage(), update.getMessage().getFrom()),
+        commons.getCharacterName(update.getMessage().getFrom()));
     if (commandText.startsWith(START_COMMAND)) {
       startCommand.execute(update);
     }

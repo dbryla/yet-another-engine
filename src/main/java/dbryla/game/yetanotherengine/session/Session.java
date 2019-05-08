@@ -7,11 +7,12 @@ import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.telegram.Communicate;
-import java.util.LinkedList;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @ToString
 public class Session {
@@ -73,7 +74,6 @@ public class Session {
     this.playerName = playerName;
     this.subject = subject;
   }
-
 
   public Communicate getNextCommunicate() {
     if (communicates.isEmpty()) {

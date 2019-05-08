@@ -17,24 +17,24 @@ public class CallbackService {
   private final Commons commons;
 
   public void execute(Update update) {
+    Callback callback = new Callback(
+        update.getCallbackQuery().getMessage().getMessageId(),
+        commons.getCharacterName(update.getCallbackQuery().getFrom()),
+        update.getCallbackQuery().getMessage().getChatId(),
+        commons.getSessionId(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getFrom()),
+        update.getCallbackQuery().getData(),
+        commons.getOriginalMessageId(update));
     String messageText = update.getCallbackQuery().getMessage().getText();
-    Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
-    String sessionId = commons.getSessionId(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getFrom());
-    log.trace("Callback: {} no:{} [{}]", messageText, messageId, sessionId);
-    String playerName = commons.getCharacterName(update.getCallbackQuery().getFrom());
-    if (!playerName.equals(commons.getCharacterName(update.getCallbackQuery().getMessage().getReplyToMessage().getFrom()))) {
-      log.trace("Aborting handling callback. Not the owner of original command.");
+    log.trace("[{}] Callback: {}:{} Session: {} Player: {}",
+        callback.getMessageId(),
+        messageText,
+        callback.getData(),
+        callback.getSessionId(),
+        callback.getPlayerName());
+    if (!callback.getPlayerName().equals(commons.getCharacterName(update.getCallbackQuery().getMessage().getReplyToMessage().getFrom()))) {
+      log.trace("[{}] Aborting handling callback. Not the owner of original command.", callback.getMessageId());
       return;
     }
-    callbackHandlerFactory.getCallbackHandler(messageText)
-        .execute(
-            new Callback(
-                messageId,
-                playerName,
-                update.getCallbackQuery().getMessage().getChatId(),
-                sessionId,
-                update.getCallbackQuery().getData(),
-                commons.getOriginalMessageId(update))
-        );
+    callbackHandlerFactory.getCallbackHandler(messageText).execute(callback);
   }
 }

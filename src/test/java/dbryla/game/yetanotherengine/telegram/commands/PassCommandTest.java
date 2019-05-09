@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 
@@ -15,7 +15,7 @@ class PassCommandTest extends CommandTestSetup {
 
   @Test
   void shouldExecutePassIfGameHasStarted() {
-    when(sessionFactory.getSession(any())).thenReturn(mock(Session.class));
+    when(sessionFactory.getFightSession(any())).thenReturn(mock(FightSession.class));
     Game game = mock(Game.class);
     when(sessionFactory.getGame(any())).thenReturn(game);
     when(game.isStarted()).thenReturn(true);
@@ -28,7 +28,7 @@ class PassCommandTest extends CommandTestSetup {
 
   @Test
   void shouldIgnoreCommandIfNoGameHasStarted() {
-    when(sessionFactory.getSession(any())).thenReturn(mock(Session.class));
+    when(sessionFactory.getFightSession(any())).thenReturn(mock(FightSession.class));
     Game game = mock(Game.class);
     when(sessionFactory.getGame(any())).thenReturn(game);
     when(game.isStarted()).thenReturn(false);

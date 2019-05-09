@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.telegram.callback;
 
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
@@ -36,8 +36,8 @@ class WeaponCallbackHandlerTest {
   @Test
   void shouldHandleWeaponCallbackRemoveMessageAndAskForTarget() {
     Callback callback = new Callback(0, "player", 0L, "", "LONGSWORD", 0);
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
     when(fightFactory.targetCommunicate(any(), any(), any())).thenReturn(Optional.of(new Communicate(TARGETS, List.of())));
 
     weaponCallbackHandler.execute(callback);

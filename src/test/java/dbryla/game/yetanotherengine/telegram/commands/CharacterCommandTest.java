@@ -4,7 +4,7 @@ import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -32,8 +32,8 @@ class CharacterCommandTest extends CommandTestSetup {
     when(characterRepository.findByName(any())).thenReturn(Optional.of(playerCharacter));
     Subject subject = mock(Subject.class);
     when(subjectFactory.fromCharacter(eq(playerCharacter))).thenReturn(subject);
-    Session session = mock(Session.class);
-    when(sessionFactory.createSession(any(), any(), eq(subject))).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.createFightSession(any(), any(), eq(subject))).thenReturn(session);
 
     characterCommand.execute(update);
 
@@ -56,8 +56,8 @@ class CharacterCommandTest extends CommandTestSetup {
 
   @Test
   void shouldReturnExistingCharacterFromSession() {
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
 
     characterCommand.execute(update);
 

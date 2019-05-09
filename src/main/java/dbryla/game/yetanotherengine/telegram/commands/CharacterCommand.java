@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.telegram.commands;
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -29,11 +29,11 @@ public class CharacterCommand {
     Long chatId = update.getMessage().getChatId();
     String playerName = commons.getCharacterName(message.getFrom());
     String sessionId = commons.getSessionId(message, message.getFrom());
-    Session existingSession = sessionFactory.getSession(sessionId);
+    FightSession existingSession = sessionFactory.getFightSession(sessionId);
     if (existingSession == null) {
       characterRepository.findByName(playerName)
           .map(subjectFactory::fromCharacter)
-          .map(subject -> sessionFactory.createSession(sessionId, playerName, subject))
+          .map(subject -> sessionFactory.createFightSession(sessionId, playerName, subject))
           .ifPresentOrElse(
               session -> telegramClient.sendTextMessage(chatId, playerName + ": Your character.\n" + session.getSubject()),
               () -> telegramClient.sendTextMessage(chatId, playerName + ": No existing character."));

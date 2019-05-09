@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine.telegram.commands;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -26,7 +26,7 @@ public class MoveCommand {
     Long chatId = update.getMessage().getChatId();
     Game game = sessionFactory.getGame(chatId);
     String sessionId = commons.getSessionId(update.getMessage(), update.getMessage().getFrom());
-    Session session = sessionFactory.getSession(sessionId);
+    FightSession session = sessionFactory.getFightSession(sessionId);
     if (game == null || session == null) {
       telegramClient.sendTextMessage(chatId, "Move command can be only executed after joining game.");
       return;

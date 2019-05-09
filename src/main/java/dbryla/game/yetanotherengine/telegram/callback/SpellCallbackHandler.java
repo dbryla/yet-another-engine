@@ -6,7 +6,7 @@ import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
@@ -30,7 +30,7 @@ public class SpellCallbackHandler implements CallbackHandler {
 
   @Override
   public void execute(Callback callback) {
-    Session session = sessionFactory.getSession(callback.getSessionId());
+    FightSession session = sessionFactory.getFightSession(callback.getSessionId());
     Spell spell = Spell.valueOf(callback.getData());
     telegramClient.deleteMessage(callback.getChatId(), callback.getMessageId());
     Game game = sessionFactory.getGame(callback.getChatId());

@@ -13,23 +13,23 @@ class InMemorySessionStorageTest {
   @Test
   void shouldStoreSession() {
     String sessionId = UUID.randomUUID().toString();
-    Session session = mock(Session.class);
+    FightSession session = mock(FightSession.class);
 
     sessionStorage.put(sessionId, session);
 
-    assertThat(sessionStorage.get(sessionId)).isEqualTo(session);
+    assertThat(sessionStorage.getFightSession(sessionId)).isEqualTo(session);
   }
 
   @Test
   void shouldOverwriteSession() {
     String sessionId = UUID.randomUUID().toString();
-    Session oldSession = mock(Session.class);
+    FightSession oldSession = mock(FightSession.class);
     sessionStorage.put(sessionId, oldSession);
-    Session newSession = mock(Session.class);
+    FightSession newSession = mock(FightSession.class);
 
     sessionStorage.put(sessionId, newSession);
 
-    assertThat(sessionStorage.get(sessionId)).isEqualTo(newSession);
+    assertThat(sessionStorage.getFightSession(sessionId)).isEqualTo(newSession);
   }
 
 }

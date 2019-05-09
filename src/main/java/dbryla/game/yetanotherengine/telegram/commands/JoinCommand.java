@@ -5,7 +5,7 @@ import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
@@ -35,14 +35,14 @@ public class JoinCommand {
     if (game != null && game.isStarted()) {
       telegramClient.sendTextMessage(message.getChatId(), "Can't join during the battle!");
     } else {
-      if (sessionFactory.getSession(sessionId) == null) {
+      if (sessionFactory.getFightSession(sessionId) == null) {
         characterRepository.findByName(playerName)
             .ifPresentOrElse(
                 character -> createNewSession(message, playerName, sessionId, character),
                 () -> createNewSessionAndCharacter(message, playerName, sessionId));
       } else {
         game = sessionFactory.getGameOrCreate(message.getChatId());
-        game.createPlayerCharacter(sessionFactory.getSession(sessionId).getSubject());
+        game.createPlayerCharacter(sessionFactory.getFightSession(sessionId).getSubject());
         telegramClient.sendTextMessage(message.getChatId(), playerName + ": You've joined next battle!");
       }
     }
@@ -50,14 +50,14 @@ public class JoinCommand {
 
   private void createNewSession(Message message, String playerName, String sessionId, PlayerCharacter character) {
     Subject subject = subjectFactory.fromCharacter(character);
-    sessionFactory.createSession(sessionId, playerName, subject);
+    sessionFactory.createFightSession(sessionId, playerName, subject);
     Game game = sessionFactory.getGameOrCreate(message.getChatId());
     game.createPlayerCharacter(subject);
     telegramClient.sendTextMessage(message.getChatId(), playerName + ": Joining with existing character.\n" + subject);
   }
 
   void createNewSessionAndCharacter(Message message, String playerName, String sessionId) {
-    Session session = sessionFactory.createCharacterCreationCommunicates(sessionId, playerName);
+    BuildSession session = sessionFactory.createBuildSession(sessionId, playerName);
     Communicate communicate = session.getNextCommunicate();
     telegramClient.sendReplyKeyboard(communicate, message.getChatId(), message.getMessageId());
   }

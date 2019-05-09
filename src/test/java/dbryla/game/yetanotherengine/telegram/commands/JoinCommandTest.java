@@ -12,7 +12,8 @@ import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -57,8 +58,8 @@ class JoinCommandTest extends CommandTestSetup {
 
   @Test
   void shouldJoinWithExistingSession() {
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
     Game game = mock(Game.class);
     when(sessionFactory.getGameOrCreate(message.getChatId())).thenReturn(game);
 
@@ -70,13 +71,13 @@ class JoinCommandTest extends CommandTestSetup {
 
   @Test
   void shouldJoinWithCreatingNewCharacterIfNoSessionAndCharacterExist() {
-    Session session = mock(Session.class);
-    when(sessionFactory.createCharacterCreationCommunicates(any(), any())).thenReturn(session);
+    BuildSession session = mock(BuildSession.class);
+    when(sessionFactory.createBuildSession(any(), any())).thenReturn(session);
     when(session.getNextCommunicate()).thenReturn(mock(Communicate.class));
 
     joinCommand.execute(update);
 
     verify(characterRepository).findByName(any());
-    verify(sessionFactory).createCharacterCreationCommunicates(any(), any());
+    verify(sessionFactory).createBuildSession(any(), any());
   }
 }

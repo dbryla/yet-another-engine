@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine.telegram.commands;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ public class PassCommand {
   public void execute(Update update) {
     Long chatId = update.getMessage().getChatId();
     Game game = sessionFactory.getGame(chatId);
-    Session session = sessionFactory.getSession(commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
+    FightSession session = sessionFactory.getFightSession(commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
     String playerName = session.getPlayerName();
     if (game.isStarted() && !game.isEnded() && commons.isNextUser(playerName, game)) {
       commons.executeTurn(game, session, new SubjectTurn(playerName));

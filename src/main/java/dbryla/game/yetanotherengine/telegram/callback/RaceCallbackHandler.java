@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine.telegram.callback;
 
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.telegram.BuildingFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -21,7 +21,7 @@ public class RaceCallbackHandler implements CallbackHandler {
 
   @Override
   public void execute(Callback callback) {
-    Session session = sessionFactory.getSession(callback.getSessionId());
+    BuildSession session = sessionFactory.getBuildSession(callback.getSessionId());
     CharacterClass characterClass = session.getCharacterClass();
     try {
       Race race = Race.valueOf(callback.getData());

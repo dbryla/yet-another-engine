@@ -4,7 +4,8 @@ import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameFactory;
 import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.session.SessionStorage;
 import dbryla.game.yetanotherengine.telegram.session.GameStorage;
 import java.util.LinkedList;
@@ -24,9 +25,9 @@ public class SessionFactory {
   private final GameStorage gameStorage;
   private final GameFactory gameFactory;
 
-  public Session createCharacterCreationCommunicates(String sessionId, String playerName) {
+  public BuildSession createBuildSession(String sessionId, String playerName) {
     List<Integer> abilityScores = abilityScoresSupplier.get();
-    Session session = new Session(playerName,
+    BuildSession session = new BuildSession(playerName,
         new LinkedList<>(List.of(
             buildingFactory.chooseClassCommunicate(),
             buildingFactory.chooseRaceGroupCommunicate(),
@@ -36,14 +37,18 @@ public class SessionFactory {
     return session;
   }
 
-  public Session createSession(String sessionId, String playerName, Subject subject) {
-    Session session = new Session(playerName, subject);
+  public FightSession createFightSession(String sessionId, String playerName, Subject subject) {
+    FightSession session = new FightSession(playerName, subject);
     sessionStorage.put(sessionId, session);
     return session;
   }
 
-  public Session getSession(String sessionId) {
-    return sessionStorage.get(sessionId);
+  public FightSession getFightSession(String sessionId) {
+    return sessionStorage.getFightSession(sessionId);
+  }
+
+  public BuildSession getBuildSession(String sessionId) {
+    return sessionStorage.getBuildSession(sessionId);
   }
 
   public Game getGameOrCreate(Long chatId) {

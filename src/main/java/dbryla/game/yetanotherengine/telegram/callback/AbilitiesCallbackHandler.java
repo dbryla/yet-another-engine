@@ -2,7 +2,7 @@ package dbryla.game.yetanotherengine.telegram.callback;
 
 import static dbryla.game.yetanotherengine.telegram.CommunicateText.ABILITIES;
 
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.telegram.BuildingFactory;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
@@ -22,7 +22,7 @@ public class AbilitiesCallbackHandler implements CallbackHandler {
 
   @Override
   public void execute(Callback callback) {
-    Session session = sessionFactory.getSession(callback.getSessionId());
+    BuildSession session = sessionFactory.getBuildSession(callback.getSessionId());
     session.addAbility(callback.getData());
     buildingFactory.nextAbilityAssignment(session, callback.getData()).ifPresent(session::addNextCommunicate);
     Communicate communicate = session.getNextCommunicate();

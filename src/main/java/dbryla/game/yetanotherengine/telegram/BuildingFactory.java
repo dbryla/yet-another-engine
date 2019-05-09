@@ -15,7 +15,7 @@ import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -77,7 +77,7 @@ public class BuildingFactory {
     return List.of(keyboardButtons);
   }
 
-  public Optional<Communicate> nextAbilityAssignment(Session session, String lastScore) {
+  public Optional<Communicate> nextAbilityAssignment(BuildSession session, String lastScore) {
     session.getAbilityScores().remove(Integer.valueOf(lastScore));
     if (session.getAbilityScores().isEmpty()) {
       return Optional.empty();
@@ -123,7 +123,7 @@ public class BuildingFactory {
     return Optional.empty();
   }
 
-  public Optional<Communicate> extraAbilitiesCommunicate(Session session, String lastAbility) {
+  public Optional<Communicate> extraAbilitiesCommunicate(BuildSession session, String lastAbility) {
     if (session != null && session.getAbilitiesToImprove().size() == 2) {
       return Optional.empty();
     }

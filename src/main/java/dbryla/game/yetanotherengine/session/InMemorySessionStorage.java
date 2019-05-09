@@ -7,16 +7,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class InMemorySessionStorage implements SessionStorage {
 
-  private Map<String, Session> sessions = new ConcurrentHashMap<>();
+  private Map<String, FightSession> fightSessions = new ConcurrentHashMap<>();
+  private Map<String, BuildSession> buildSessions = new ConcurrentHashMap<>();
 
   @Override
-  public void put(String sessionId, Session session) {
-    sessions.put(sessionId, session);
+  public void put(String sessionId, FightSession session) {
+    fightSessions.put(sessionId, session);
   }
 
   @Override
-  public Session get(String sessionId) {
-    return sessions.get(sessionId);
+  public FightSession getFightSession(String sessionId) {
+    return fightSessions.get(sessionId);
+  }
+
+  @Override
+  public void put(String sessionId, BuildSession session) {
+    buildSessions.put(sessionId, session);
+  }
+
+  @Override
+  public BuildSession getBuildSession(String sessionId) {
+    return buildSessions.get(sessionId);
   }
 
 }

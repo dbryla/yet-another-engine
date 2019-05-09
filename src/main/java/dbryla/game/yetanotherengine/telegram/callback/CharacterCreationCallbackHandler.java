@@ -4,7 +4,7 @@ import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
 import lombok.AllArgsConstructor;
@@ -23,9 +23,9 @@ public class CharacterCreationCallbackHandler implements CallbackHandler {
 
   @Override
   public void execute(Callback callback) {
-    Session session = sessionFactory.getSession(callback.getSessionId());
+    BuildSession session = sessionFactory.getBuildSession(callback.getSessionId());
     Subject subject = subjectFactory.fromSession(session);
-    session.setSubject(subject);
+    sessionFactory.createFightSession(callback.getSessionId(), callback.getPlayerName(), subject);
     Game game = sessionFactory.getGameOrCreate(callback.getChatId());
     game.createPlayerCharacter(subject);
     telegramClient.sendTextMessage(callback.getChatId(), session.getPlayerName() + ": Your character has been created.\n" + subject);

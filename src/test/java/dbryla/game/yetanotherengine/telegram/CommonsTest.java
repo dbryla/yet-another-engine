@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.telegram;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -73,7 +73,7 @@ class CommonsTest {
     int messageId = 2;
     Game game = mock(Game.class);
     SubjectTurn turn = mock(SubjectTurn.class);
-    Session session = mock(Session.class);
+    FightSession session = mock(FightSession.class);
 
     commons.executeTurnAndDeleteMessage(game, session, turn, chatId, messageId);
 
@@ -86,7 +86,7 @@ class CommonsTest {
     int messageId = 2;
     Game game = mock(Game.class);
     SubjectTurn turn = mock(SubjectTurn.class);
-    Session session = mock(Session.class);
+    FightSession session = mock(FightSession.class);
 
     commons.executeTurnAndDeleteMessage(game, session, turn, chatId, messageId);
 
@@ -99,7 +99,7 @@ class CommonsTest {
     int messageId = 2;
     Game game = mock(Game.class);
     SubjectTurn turn = mock(SubjectTurn.class);
-    Session session = mock(Session.class);
+    FightSession session = mock(FightSession.class);
 
     commons.executeTurnAndDeleteMessage(game, session, turn, chatId, messageId);
 

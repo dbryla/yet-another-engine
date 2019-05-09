@@ -1,18 +1,18 @@
 package dbryla.game.yetanotherengine.telegram;
 
+import static dbryla.game.yetanotherengine.domain.effects.Effect.PRONE;
+
 import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-
-import static dbryla.game.yetanotherengine.domain.effects.Effect.PRONE;
 
 @Component
 @AllArgsConstructor
@@ -32,12 +32,12 @@ public class Commons {
     return game != null && game.getNextSubjectName().isPresent() && playerName.equals(game.getNextSubjectName().get());
   }
 
-  public void executeTurnAndDeleteMessage(Game game, Session session, SubjectTurn turn, Long chatId, Integer messageId) {
+  public void executeTurnAndDeleteMessage(Game game, FightSession session, SubjectTurn turn, Long chatId, Integer messageId) {
     executeTurn(game, session, turn);
     telegramClient.deleteMessage(chatId, messageId);
   }
 
-  public void executeTurn(Game game, Session session, SubjectTurn turn) {
+  public void executeTurn(Game game, FightSession session, SubjectTurn turn) {
     if (session.isStandingUp()) {
       turn.getActions().add(0, new Action(turn.getOwnerName(), OperationType.STAND_UP));
     }

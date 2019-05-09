@@ -1,6 +1,12 @@
 package dbryla.game.yetanotherengine.telegram;
 
-import static dbryla.game.yetanotherengine.telegram.CommunicateText.*;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.ARMOR;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.CLASS;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.EXTRA_ABILITIES;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.RACE;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.SPELLS;
+import static dbryla.game.yetanotherengine.telegram.CommunicateText.WEAPONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dbryla.game.yetanotherengine.domain.spells.Spell;
@@ -8,7 +14,7 @@ import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -99,7 +105,7 @@ class BuildingFactoryITest {
   @Test
   void shouldReturnNextAbilityAssignmentIfThereIsScoreUnassigned() {
     List<Integer> scores = new LinkedList<>(List.of(1, 2));
-    Session session = new Session(null, null, scores);
+    BuildSession session = new BuildSession(null, null, scores);
 
     Optional<Communicate> communicate = buildingFactory.nextAbilityAssignment(session, "2");
 
@@ -114,7 +120,7 @@ class BuildingFactoryITest {
   @Test
   void shouldNotReturnNextAbilityAssignmentIfAllScoresAreAssigned() {
     List<Integer> scores = new LinkedList<>(List.of(1));
-    Session session = new Session(null, null, scores);
+    BuildSession session = new BuildSession(null, null, scores);
 
     Optional<Communicate> communicate = buildingFactory.nextAbilityAssignment(session, "1");
 
@@ -193,7 +199,7 @@ class BuildingFactoryITest {
 
   @Test
   void shouldReturnExtraAbilitiesCommunicateWithoutDexterity() {
-    Session session = new Session(null, null);
+    BuildSession session = new BuildSession(null, null, List.of());
     session.addAbilityToImprove(1);
 
     Optional<Communicate> communicate = buildingFactory.extraAbilitiesCommunicate(session, "1");

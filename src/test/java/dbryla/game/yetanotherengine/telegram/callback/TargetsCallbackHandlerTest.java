@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.telegram.callback;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import org.junit.jupiter.api.Test;
@@ -32,8 +32,8 @@ class TargetsCallbackHandlerTest {
   @Test
   void shouldExecuteTurnWithSpellCastOnGivenTarget() {
     Callback callback = new Callback(0, "player", 0L, "", "target1", 0);
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
     when(session.isSpellCasting()).thenReturn(true);
     when(session.getSpell()).thenReturn(Spell.SACRED_FLAME);
     when(session.areAllTargetsAcquired()).thenReturn(true);
@@ -50,8 +50,8 @@ class TargetsCallbackHandlerTest {
   @Test
   void shouldExecuteTurnWithAttackOnGivenTarget() {
     Callback callback = new Callback(0, "player", 0L, "", "target1", 0);
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
     when(session.isSpellCasting()).thenReturn(false);
 
     targetsCallbackHandler.execute(callback);

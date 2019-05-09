@@ -1,6 +1,6 @@
 package dbryla.game.yetanotherengine.telegram.callback;
 
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.telegram.BuildingFactory;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -19,7 +19,7 @@ public class ExtraAbilitiesCallbackHandler implements CallbackHandler {
 
   @Override
   public void execute(Callback callback) {
-    Session session = sessionFactory.getSession(callback.getSessionId());
+    BuildSession session = sessionFactory.getBuildSession(callback.getSessionId());
     int index = Integer.parseInt(callback.getData());
     session.addAbilityToImprove(index);
     buildingFactory.extraAbilitiesCommunicate(session, callback.getData()).ifPresent(session::addNextCommunicate);

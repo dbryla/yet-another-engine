@@ -8,7 +8,7 @@ import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.BuildSession;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -27,8 +27,7 @@ public class SubjectFactory {
     return new Subject(subjectProperties, characterClass.getPreferredPosition());
   }
 
-  public Subject fromSession(Session session) {
-
+  public Subject fromSession(BuildSession session) {
     List<Integer> abilitiesScores = session.getAbilities();
     Abilities abilities = new Abilities(
         abilitiesScores.get(0),
@@ -45,7 +44,7 @@ public class SubjectFactory {
         abilities, weapons, session.getArmor(), getShield(characterClass, weapons), session.getSpells());
   }
 
-  private Abilities modifyAbilitiesIfApplicable(Session session, Abilities abilities) {
+  private Abilities modifyAbilitiesIfApplicable(BuildSession session, Abilities abilities) {
     List<Integer> abilitiesScoresModifiers = session.getAbilitiesToImprove();
     if (abilitiesScoresModifiers.isEmpty()) {
       return abilities;

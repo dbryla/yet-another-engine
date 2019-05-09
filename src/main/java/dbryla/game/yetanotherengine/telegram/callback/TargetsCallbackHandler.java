@@ -6,7 +6,7 @@ import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import dbryla.game.yetanotherengine.telegram.FightFactory;
@@ -29,7 +29,7 @@ public class TargetsCallbackHandler implements CallbackHandler {
 
   @Override
   public void execute(Callback callback) {
-    Session session = sessionFactory.getSession(callback.getSessionId());
+    FightSession session = sessionFactory.getFightSession(callback.getSessionId());
     session.addTarget(callback.getData());
     Game game = sessionFactory.getGame(callback.getChatId());
     if (session.isSpellCasting()) {
@@ -41,7 +41,7 @@ public class TargetsCallbackHandler implements CallbackHandler {
     }
   }
 
-  private void handleSpellOnTarget(Session session, String playerName, Integer messageId, Long chatId, Game game) {
+  private void handleSpellOnTarget(FightSession session, String playerName, Integer messageId, Long chatId, Game game) {
     Spell spell = session.getSpell();
     if (session.areAllTargetsAcquired()) {
       SubjectTurn turn = SubjectTurn.of(new Action(playerName, session.getTargets(), OperationType.SPELL_CAST, new ActionData(spell)));

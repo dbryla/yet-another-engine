@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.*;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
@@ -21,7 +21,7 @@ public class SpellCommand {
   public void execute(Update update) {
     Long chatId = update.getMessage().getChatId();
     Game game = sessionFactory.getGame(chatId);
-    Session session = sessionFactory.getSession(commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
+    FightSession session = sessionFactory.getFightSession(commons.getSessionId(update.getMessage(), update.getMessage().getFrom()));
     String playerName = session.getPlayerName();
     if (game.isStarted() && !game.isEnded() && commons.isNextUser(playerName, game)) {
       Communicate communicate = fightFactory.spellCommunicate(game, game.getSubject(playerName));

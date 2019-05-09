@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.telegram.commands;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.session.Session;
+import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,8 +22,8 @@ class AttackCommandTest extends CommandTestSetup {
     Game game = mock(Game.class);
     when(game.isStarted()).thenReturn(false);
     when(sessionFactory.getGame(any())).thenReturn(game);
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
 
     attackCommand.execute(update);
 
@@ -36,8 +36,8 @@ class AttackCommandTest extends CommandTestSetup {
     when(game.isStarted()).thenReturn(true);
     when(game.isEnded()).thenReturn(true);
     when(sessionFactory.getGame(any())).thenReturn(game);
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
 
     attackCommand.execute(update);
 
@@ -50,8 +50,8 @@ class AttackCommandTest extends CommandTestSetup {
     when(game.isStarted()).thenReturn(true);
     when(game.isEnded()).thenReturn(false);
     when(sessionFactory.getGame(any())).thenReturn(game);
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
     when(commons.isNextUser(any(), any())).thenReturn(false);
 
     attackCommand.execute(update);
@@ -65,8 +65,8 @@ class AttackCommandTest extends CommandTestSetup {
     when(game.isStarted()).thenReturn(true);
     when(game.isEnded()).thenReturn(false);
     when(sessionFactory.getGame(any())).thenReturn(game);
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
     when(commons.isNextUser(any(), any())).thenReturn(true);
     when(fightFactory.weaponCommunicate(any(), any())).thenReturn(new Communicate(null, List.of()));
 
@@ -81,8 +81,8 @@ class AttackCommandTest extends CommandTestSetup {
     when(game.isStarted()).thenReturn(true);
     when(game.isEnded()).thenReturn(false);
     when(sessionFactory.getGame(any())).thenReturn(game);
-    Session session = mock(Session.class);
-    when(sessionFactory.getSession(any())).thenReturn(session);
+    FightSession session = mock(FightSession.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(session);
     when(commons.isNextUser(any(), any())).thenReturn(true);
     Communicate communicate = new Communicate(null, List.of(List.of(mock(InlineKeyboardButton.class))));
     when(fightFactory.weaponCommunicate(any(), any())).thenReturn(communicate);

@@ -1,11 +1,11 @@
 {
-  "name": "",
+  "name": "Finding dark power necklace",
   "requiredLevel": 1,
-  "questText": "",
+  "questText": "You need to find necklace, which may do evil in wrong hands. They say that necklace is kept by cultists in haunted house",
   "events": [
     {
       "name": "FIND_LOCATION",
-      "text": "",
+      "text": "It would be nice to find location of the house.",
       "options": [
         {
           "type": "ASK_AROUND",
@@ -13,7 +13,7 @@
           "outcome": [
             {
               "dc": 5,
-              "text": ""
+              "text": "The folks told you were is the haunted house."
             }
           ]
         },
@@ -23,7 +23,7 @@
           "outcome": [
             {
               "dc": 5,
-              "text": ""
+              "text": "Barman told you were is the house."
             }
           ]
         },
@@ -33,7 +33,7 @@
           "outcome": [
             {
               "dc": 5,
-              "text": ""
+              "text": "You found on your own the haunted house."
             }
           ]
         }
@@ -41,13 +41,13 @@
     },
     {
       "name": "INVESTIGATE_BUILDING",
-      "text": "",
+      "text": "You have arrived to the front of old building - the haunted house.",
       "options": [
         {
           "type": "NO_INVESTIGATION",
           "outcome": [
             {
-              "text": ""
+              "text": "You see a big door in front."
             }
           ]
         },
@@ -56,17 +56,17 @@
           "durationInMinutes": 10,
           "outcome": [
             {
-              "text": ""
+              "text": "You see a big door in front."
             },
             {
               "bonusOption": "OPEN_WINDOW",
               "dc": 12,
-              "text": ""
+              "text": "You see an open window on the side of the building."
             },
             {
               "bonusOption": "BASEMENT_ENTRANCE",
               "dc": 16,
-              "text": ""
+              "text": "You have found basement entrance behind old sacks and barrels."
             }
           ]
         }

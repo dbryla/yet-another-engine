@@ -16,4 +16,8 @@ public class Option {
   private List<Outcome> outcome;
   private boolean repeatable;
   private Map<String, Object> properties;
+
+  public String getName() {
+    return name != null ? name : type.name();
+  }
 }

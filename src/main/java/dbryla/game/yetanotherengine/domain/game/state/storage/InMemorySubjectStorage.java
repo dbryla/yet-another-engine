@@ -6,7 +6,7 @@ import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.springframework.stereotype.Component;
 
 @Component
-public class InMemoryStateStorage implements StateStorage {
+public class InMemorySubjectStorage implements SubjectStorage {
 
   private final Map<Long, Map<String, Subject>> storage = new HashMap<>();
 

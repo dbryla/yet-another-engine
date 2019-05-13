@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
+import dbryla.game.yetanotherengine.domain.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -44,12 +44,15 @@ public enum HitResult {
       return HitResult.MISS;
     }
     if (target.getEquipment().getArmor().isPresent()
-        && hitRoll.getActual() < 10 - negativeDexterityModifier(target) + target.getEquipment().getArmor().get().getArmorClass()) {
+        && hitRoll.getActual()
+        < 10 - negativeDexterityModifier(target)
+        + target.getEquipment().getArmor().get().getArmorClass()) {
       return HitResult.ARMOR;
     }
     if (target.getEquipment().getShield().isPresent()
         && target.getEquippedWeapon().isEligibleForShield()
-        && hitRoll.getActual() < 10 - negativeDexterityModifier(target)
+        && hitRoll.getActual()
+        < 10 - negativeDexterityModifier(target)
         + target.getEquipment().getArmor().map(Armor::getArmorClass).orElse(0)
         + target.getEquipment().getShield().get().getArmorClass()) {
       return HitResult.SHIELD;

@@ -4,6 +4,7 @@ import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import dbryla.game.yetanotherengine.session.FightSession;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,7 +31,7 @@ class CharacterCommandTest extends CommandTestSetup {
   void shouldReturnExistingCharacterFromDatabase() {
     PlayerCharacter playerCharacter = mock(PlayerCharacter.class);
     when(characterRepository.findByName(any())).thenReturn(Optional.of(playerCharacter));
-    Subject subject = mock(Subject.class);
+    SubjectProperties subject = mock(SubjectProperties.class);
     when(subjectFactory.fromCharacter(eq(playerCharacter))).thenReturn(subject);
     FightSession session = mock(FightSession.class);
     when(sessionFactory.createFightSession(any(), any(), eq(subject))).thenReturn(session);
@@ -45,7 +46,7 @@ class CharacterCommandTest extends CommandTestSetup {
   void shouldReturnCommunicateAboutNoCharacter() {
     PlayerCharacter playerCharacter = mock(PlayerCharacter.class);
     when(characterRepository.findByName(any())).thenReturn(Optional.of(playerCharacter));
-    Subject subject = mock(Subject.class);
+    SubjectProperties subject = mock(SubjectProperties.class);
     when(subjectFactory.fromCharacter(eq(playerCharacter))).thenReturn(subject);
 
     characterCommand.execute(update);
@@ -62,7 +63,7 @@ class CharacterCommandTest extends CommandTestSetup {
     characterCommand.execute(update);
 
     verifyZeroInteractions(characterRepository);
-    verify(session).getSubject();
+    verify(session).getSubjectProperties();
     verify(telegramClient).sendTextMessage(anyLong(), contains("Your character."));
   }
 }

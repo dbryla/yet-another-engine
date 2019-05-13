@@ -2,7 +2,10 @@ package dbryla.game.yetanotherengine.domain.encounters;
 
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -65,21 +68,23 @@ public class MonstersFactory {
   }
 
   private Subject buildMonster(MonsterDefinition monsterDefinition, String monsterName, Race race) {
-    return Subject.builder()
+    int monsterHealthPoints = getMonsterHealthPoints(monsterDefinition);
+    SubjectProperties subjectProperties = SubjectProperties.builder()
         .name(monsterName)
         .affiliation(ENEMIES)
-        .healthPoints(getMonsterHealthPoints(monsterDefinition))
+        .healthPoints(monsterHealthPoints)
         .abilities(monsterDefinition.getAbilities())
         .armor(monsterDefinition.getArmor())
         .weapons(monsterDefinition.getWeapons())
-        .equippedWeapon(monsterDefinition.getWeapons().get(0))
         .shield(monsterDefinition.getShield())
         .spells(monsterDefinition.getSpells())
-        .position(monsterDefinition.getPreferredPosition())
         .race(race)
         .specialAttacks(monsterDefinition.getSpecialAttacks())
         .advantageOnSavingThrows(monsterDefinition.getAdvantageOnSavingThrowsAgainstEffects())
         .build();
+    State state = new State(monsterName, monsterHealthPoints, monsterHealthPoints,
+        monsterDefinition.getPreferredPosition(), Set.of(), monsterDefinition.getWeapons().get(0));
+    return new Subject(subjectProperties, state);
   }
 
   private String getMonsterName(MonsterDefinition monsterDefinition, int i, int monstersNumber) {

@@ -14,8 +14,9 @@ import static org.mockito.Mockito.when;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -106,13 +107,13 @@ class FightFactoryTest {
   @Test
   void shouldReturnCommunicateWithMove() {
     Game game = mock(Game.class);
-    Subject subject = mock(Subject.class);
-    when(subject.getPosition()).thenReturn(Position.PLAYERS_FRONT);
+    State subjectState = mock(State.class);
+    when(subjectState.getPosition()).thenReturn(Position.PLAYERS_FRONT);
     when(game.areEnemiesOnCurrentPosition(any())).thenReturn(false);
     when(game.canMoveToPosition(any(), anyInt())).thenReturn(true);
     when(game.isStarted()).thenReturn(true);
 
-    Optional<Communicate> communicate = fightFactory.moveCommunicate(game, subject);
+    Optional<Communicate> communicate = fightFactory.moveCommunicate(game, new Subject(null, subjectState));
 
     assertThat(communicate).isPresent();
     assertThat(communicate.get().getText()).isEqualTo(MOVE);

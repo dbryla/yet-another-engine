@@ -1,8 +1,8 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.domain.battleground.Position;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.commons.text.WordUtils;
@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType.LIGHT;
+import static dbryla.game.yetanotherengine.domain.equipment.ArmorType.LIGHT;
 
 @AllArgsConstructor
 @Getter

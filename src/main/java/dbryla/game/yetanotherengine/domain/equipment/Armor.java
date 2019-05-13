@@ -1,4 +1,4 @@
-package dbryla.game.yetanotherengine.domain.subject.equipment;
+package dbryla.game.yetanotherengine.domain.equipment;
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;

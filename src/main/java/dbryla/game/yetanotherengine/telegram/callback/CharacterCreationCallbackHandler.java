@@ -2,8 +2,8 @@ package dbryla.game.yetanotherengine.telegram.callback;
 
 import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.domain.game.Game;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
 import dbryla.game.yetanotherengine.telegram.TelegramClient;
@@ -24,12 +24,12 @@ public class CharacterCreationCallbackHandler implements CallbackHandler {
   @Override
   public void execute(Callback callback) {
     BuildSession session = sessionFactory.getBuildSession(callback.getSessionId());
-    Subject subject = subjectFactory.fromSession(session);
-    sessionFactory.createFightSession(callback.getSessionId(), callback.getPlayerName(), subject);
+    SubjectProperties subjectProperties = subjectFactory.fromSession(session);
+    sessionFactory.createFightSession(callback.getSessionId(), callback.getPlayerName(), subjectProperties);
     Game game = sessionFactory.getGameOrCreate(callback.getChatId());
-    game.createPlayerCharacter(subject);
-    telegramClient.sendTextMessage(callback.getChatId(), session.getPlayerName() + ": Your character has been created.\n" + subject);
+    game.createPlayerCharacter(subjectFactory.createNewSubject(subjectProperties));
+    telegramClient.sendTextMessage(callback.getChatId(), session.getPlayerName() + ": Your character has been created.\n" + subjectProperties);
     characterRepository.findByName(session.getPlayerName()).ifPresent(characterRepository::delete);
-    characterRepository.save(subjectFactory.toCharacter(subject));
+    characterRepository.save(subjectFactory.toCharacter(subjectProperties));
   }
 }

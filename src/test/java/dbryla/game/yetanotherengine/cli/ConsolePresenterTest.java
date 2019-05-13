@@ -16,8 +16,9 @@ import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -50,12 +51,12 @@ class ConsolePresenterTest {
 
   @Test
   void shouldReturnAvailableSpellsForSubject() {
-    Subject subject = mock(Subject.class);
+    SubjectProperties subject = mock(SubjectProperties.class);
     Game game = mock(Game.class);
     when(game.getPossibleTargets(any(Subject.class), any(Spell.class))).thenReturn(List.of(""));
     when(subject.getCharacterClass()).thenReturn(WIZARD);
 
-    List<Spell> spells = consolePresenter.showAvailableSpells(game, subject);
+    List<Spell> spells = consolePresenter.showAvailableSpells(game, new Subject(subject, null));
 
     assertThat(spells)
         .contains(Arrays.stream(Spell.values()).filter(spell -> spell.forClass(WIZARD)).toArray(Spell[]::new));
@@ -73,6 +74,7 @@ class ConsolePresenterTest {
   @Test
   void shouldReturnAvailableOperationsForSubject() {
     Subject subject = mock(Subject.class);
+    when(subject.isAbleToMove()).thenReturn(true);
     Game game = mock(Game.class);
     when(game.getAvailableWeaponsForAttack(eq(subject))).thenReturn(List.of(Weapon.SHORTSWORD));
     when(game.getAvailableSpellsForCast(eq(subject))).thenReturn(List.of(Spell.SACRED_FLAME));
@@ -87,6 +89,7 @@ class ConsolePresenterTest {
   @Test
   void shouldReturnAvailableOperationsForFighter() {
     Subject subject = mock(Subject.class);
+    when(subject.isSpellCaster()).thenReturn(false);
     Game game = mock(Game.class);
     when(game.getAvailableWeaponsForAttack(eq(subject))).thenReturn(List.of(Weapon.SHORTSWORD));
 

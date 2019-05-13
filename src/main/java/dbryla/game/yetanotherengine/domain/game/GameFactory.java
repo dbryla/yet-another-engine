@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.domain.game;
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
-import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.game.state.storage.SubjectStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class GameFactory {
 
-  private final StateStorage stateStorage;
+  private final SubjectStorage subjectStorage;
   private final ArtificialIntelligence artificialIntelligence;
   private final StateMachineFactory stateMachineFactory;
   private final EventHub eventHub;
 
   public Game newGame(Long gameId) {
-    return new Game(gameId, stateStorage, stateMachineFactory, artificialIntelligence, eventHub);
+    return new Game(gameId, subjectStorage, stateMachineFactory, artificialIntelligence, eventHub);
   }
 
 }

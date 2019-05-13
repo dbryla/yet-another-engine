@@ -1,4 +1,4 @@
-package dbryla.game.yetanotherengine.domain.subject.equipment;
+package dbryla.game.yetanotherengine.domain.equipment;
 
 public enum WeaponProperties {
   FINESSE, LIGHT, TWO_HANDED;

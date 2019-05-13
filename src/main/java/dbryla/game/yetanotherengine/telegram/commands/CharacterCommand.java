@@ -35,11 +35,10 @@ public class CharacterCommand {
           .map(subjectFactory::fromCharacter)
           .map(subject -> sessionFactory.createFightSession(sessionId, playerName, subject))
           .ifPresentOrElse(
-              session -> telegramClient.sendTextMessage(chatId, playerName + ": Your character.\n" + session.getSubject()),
+              session -> telegramClient.sendTextMessage(chatId, playerName + ": Your character.\n" + session.getSubjectProperties()),
               () -> telegramClient.sendTextMessage(chatId, playerName + ": No existing character."));
     } else {
-      Subject subject = existingSession.getSubject();
-      telegramClient.sendTextMessage(chatId, playerName + ": Your character.\n" + subject);
+      telegramClient.sendTextMessage(chatId, playerName + ": Your character.\n" + existingSession.getSubjectProperties());
     }
   }
 }

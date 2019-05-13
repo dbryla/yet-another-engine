@@ -3,11 +3,10 @@ package dbryla.game.yetanotherengine.domain.subject;
 import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
-import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.equipment.Equipment;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
 import dbryla.game.yetanotherengine.session.BuildSession;
 import java.util.List;
 import java.util.Set;
@@ -18,16 +17,14 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class SubjectFactory {
 
-  public Subject fromCharacter(PlayerCharacter character) {
-    SubjectIdentifier id = new SubjectIdentifier(character.getName(), character.getAffiliation());
+  public SubjectProperties fromCharacter(PlayerCharacter character) {
     Equipment equipment = new Equipment(character.getWeapons(), character.getShield(), character.getArmor());
     CharacterClass characterClass = character.getCharacterClass();
-    SubjectProperties subjectProperties = new SubjectProperties(id, character.getRace(), characterClass,
+    return new SubjectProperties(character.getName(), character.getAffiliation(), character.getRace(), characterClass,
         equipment, character.getAbilities(), character.getSpells(), character.getMaxHealthPoints(), Set.of(), Set.of());
-    return new Subject(subjectProperties, characterClass.getPreferredPosition());
   }
 
-  public Subject fromSession(BuildSession session) {
+  public SubjectProperties fromSession(BuildSession session) {
     List<Integer> abilitiesScores = session.getAbilities();
     Abilities abilities = new Abilities(
         abilitiesScores.get(0),
@@ -40,7 +37,7 @@ public class SubjectFactory {
     List<Weapon> weapons = session.getWeapons();
 
     CharacterClass characterClass = session.getCharacterClass();
-    return createNewSubject(session.getPlayerName(), session.getRace(), characterClass, PLAYERS,
+    return createNewSubjectProperties(session.getPlayerName(), session.getRace(), characterClass, PLAYERS,
         abilities, weapons, session.getArmor(), getShield(characterClass, weapons), session.getSpells());
   }
 
@@ -60,9 +57,15 @@ public class SubjectFactory {
         ? Armor.SHIELD : null;
   }
 
-  public Subject createNewSubject(String playerName, Race race, CharacterClass characterClass, Affiliation affiliation,
-                                  Abilities abilities, List<Weapon> weapons, Armor armor, Armor shield, List<Spell> spells) {
-    return Subject.builder()
+  public Subject createNewSubject(SubjectProperties subjectProperties) {
+    return new Subject(subjectProperties,
+        new State(subjectProperties.getName(), subjectProperties.getMaxHealthPoints(), subjectProperties.getMaxHealthPoints(),
+            subjectProperties.getCharacterClass().getPreferredPosition(), Set.of(), Weapon.FISTS));
+  }
+
+  public SubjectProperties createNewSubjectProperties(String playerName, Race race, CharacterClass characterClass, Affiliation affiliation,
+      Abilities abilities, List<Weapon> weapons, Armor armor, Armor shield, List<Spell> spells) {
+    return SubjectProperties.builder()
         .name(playerName)
         .race(race)
         .characterClass(characterClass)
@@ -71,7 +74,6 @@ public class SubjectFactory {
         .weapons(weapons)
         .armor(armor)
         .shield(shield)
-        .position(characterClass.getPreferredPosition())
         .spells(spells)
         .additionalHealthPoints(shouldGetAdditionalHealthPoint(race) ? 1 : 0)
         .build();
@@ -81,7 +83,7 @@ public class SubjectFactory {
     return race.getBuildingRaceTrait() != null && BuildingRaceTrait.ADDITIONAL_HEALTH_POINT.equals(race.getBuildingRaceTrait());
   }
 
-  public PlayerCharacter toCharacter(Subject subject) {
+  public PlayerCharacter toCharacter(SubjectProperties subject) {
     return PlayerCharacter.builder()
         .name(subject.getName())
         .affiliation(subject.getAffiliation())

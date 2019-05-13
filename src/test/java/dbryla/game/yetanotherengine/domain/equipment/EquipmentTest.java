@@ -1,6 +1,6 @@
-package dbryla.game.yetanotherengine.domain.subject.equipment;
+package dbryla.game.yetanotherengine.domain.equipment;
 
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Equipment.DEFAULT_ARMOR_CLASS;
+import static dbryla.game.yetanotherengine.domain.equipment.Equipment.DEFAULT_ARMOR_CLASS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;

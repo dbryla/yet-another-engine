@@ -12,11 +12,11 @@ import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.CLERIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-class SubjectTest {
+class SubjectPropertiesTest {
 
   @Test
   void shouldAdjustAbilitiesForSubjectBasedOnHighElfTraits() {
-    Subject subject = Subject.builder()
+    SubjectProperties subject = SubjectProperties.builder()
         .name("subject")
         .affiliation(Affiliation.PLAYERS)
         .race(Race.HIGH_ELF)
@@ -30,7 +30,7 @@ class SubjectTest {
 
   @Test
   void shouldAddSpellForSubject() {
-    Subject subject = Subject.builder()
+    SubjectProperties subject = SubjectProperties.builder()
         .name("subject")
         .affiliation(Affiliation.PLAYERS)
         .race(Race.HIGH_ELF)
@@ -44,7 +44,7 @@ class SubjectTest {
 
   @Test
   void shouldAddExtraHealthPointsForSubject() {
-    Subject subject = Subject.builder()
+    SubjectProperties subject = SubjectProperties.builder()
         .name("subject")
         .affiliation(Affiliation.PLAYERS)
         .race(Race.HUMAN)
@@ -56,12 +56,4 @@ class SubjectTest {
     assertThat(subject.getMaxHealthPoints()).isEqualTo(CLERIC.getDefaultHealthPoints() + 1);
   }
 
-  @Test
-  void shouldMoveTargetToNewPosition() {
-    Subject subject = new Subject(mock(SubjectProperties.class), Position.PLAYERS_FRONT);
-
-    Subject movedSubject = subject.of(PLAYERS_BACK);
-
-    assertThat(movedSubject.getPosition()).isEqualTo(PLAYERS_BACK);
-  }
 }

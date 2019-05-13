@@ -2,15 +2,16 @@ package dbryla.game.yetanotherengine.cli;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameOptions;
-import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.game.state.storage.SubjectStorage;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -29,16 +30,16 @@ import static dbryla.game.yetanotherengine.domain.effects.Effect.PRONE;
 public class ConsolePresenter {
 
   private static final String CHOICE_FORMAT = " (%d) %s";
-  private final StateStorage stateStorage;
+  private final SubjectStorage subjectStorage;
   private final GameOptions gameOptions;
   private final AbilityScoresSupplier abilityScoresSupplier;
 
   void showStatus(Long gameId) {
-    stateStorage.findAll(gameId).stream()
+    subjectStorage.findAll(gameId).stream()
         .collect(Collectors.groupingBy(Subject::getAffiliation))
         .forEach((team, subjects) ->
             subjects.stream()
-                .filter(subject -> subject.getCurrentHealthPoints() > 0)
+                .filter(Subject::isAlive)
                 .map(subject -> String.format("%s(%d)", subject.getName(), subject.getCurrentHealthPoints()))
                 .reduce((left, right) -> left + " " + right)
                 .ifPresent(status -> System.out.print("| " + status + " |")));
@@ -97,7 +98,7 @@ public class ConsolePresenter {
     List<OperationType> operations = new LinkedList<>();
     StringBuilder communicate = new StringBuilder("Which action you pick:");
     int actionNumber = 0;
-    if (isAbleToMove(subject) || stoodUp) {
+    if (subject.isAbleToMove() || stoodUp) {
       communicate.append(String.format(CHOICE_FORMAT, actionNumber++, "move"));
       operations.add(OperationType.MOVE);
     } else {
@@ -118,10 +119,6 @@ public class ConsolePresenter {
     }
     System.out.println(communicate.toString());
     return operations;
-  }
-
-  private boolean isAbleToMove(Subject subject) {
-    return subject.getConditions().stream().noneMatch(condition -> PRONE.equals(condition.getEffect()));
   }
 
   List<String> showAvailableEnemyTargets(Game game) {

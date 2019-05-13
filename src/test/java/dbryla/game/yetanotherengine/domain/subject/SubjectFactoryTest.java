@@ -1,21 +1,18 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
-import dbryla.game.yetanotherengine.domain.battleground.Position;
-import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.equipment.Equipment;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Set;
-
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.FIGHTER;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class SubjectFactoryTest {
@@ -36,7 +33,7 @@ class SubjectFactoryTest {
         .abilities(new Abilities(10, 10, 10, 10, 10, 10))
         .build();
 
-    Subject subject = subjectFactory.fromCharacter(playerCharacter);
+    SubjectProperties subject = subjectFactory.fromCharacter(playerCharacter);
 
     assertThat(subject.getName()).isEqualTo(playerCharacter.getName());
     assertThat(subject.getAffiliation()).isEqualTo(playerCharacter.getAffiliation());
@@ -49,42 +46,21 @@ class SubjectFactoryTest {
   }
 
   @Test
-  void shouldCreateSubjectFromPlayerCharacterWithPreferredClassPosition() {
-    PlayerCharacter playerCharacter = PlayerCharacter.builder()
-        .name("player")
-        .affiliation(Affiliation.PLAYERS)
-        .characterClass(FIGHTER)
-        .race(Race.HIGH_ELF)
-        .maxHealthPoints(10)
-        .weapons(List.of(Weapon.SHORTSWORD))
-        .armor(Armor.LEATHER)
-        .abilities(new Abilities(10, 10, 10, 10, 10, 10))
-        .build();
-
-    Subject subject = subjectFactory.fromCharacter(playerCharacter);
-
-    assertThat(subject.getPosition()).isEqualTo(FIGHTER.getPreferredPosition());
-  }
-
-  @Test
   void shouldCreatePlayerCharacterFromSubject() {
-    Subject subject = new Subject(
-        new SubjectProperties(
-            new SubjectIdentifier(
-                "player",
-                Affiliation.PLAYERS),
-            Race.HIGH_ELF,
-            FIGHTER,
-            new Equipment(
-                List.of(Weapon.SHORTSWORD),
-                null,
-                Armor.LEATHER),
-            new Abilities(10, 10, 10, 10, 10, 10),
+    SubjectProperties subject = new SubjectProperties(
+        "player",
+        Affiliation.PLAYERS,
+        Race.HIGH_ELF,
+        FIGHTER,
+        new Equipment(
+            List.of(Weapon.SHORTSWORD),
             null,
-            10,
-            Set.of(),
-            Set.of()),
-        Position.PLAYERS_FRONT);
+            Armor.LEATHER),
+        new Abilities(10, 10, 10, 10, 10, 10),
+        null,
+        10,
+        Set.of(),
+        Set.of());
 
     PlayerCharacter playerCharacter = subjectFactory.toCharacter(subject);
 
@@ -99,7 +75,7 @@ class SubjectFactoryTest {
   }
 
   @Test
-  void shouldCreateNewSubjectWithAdjustedProperties() {
+  void shouldCreateNewSubjectPropertiesWithAdjustedProperties() {
     String name = "player";
     Race race = Race.HIGH_ELF;
     CharacterClass characterClass = CharacterClass.WIZARD;
@@ -108,7 +84,7 @@ class SubjectFactoryTest {
     Weapon weapon = Weapon.SHORTSWORD;
     Armor armor = Armor.LEATHER;
 
-    Subject subject = subjectFactory.createNewSubject(name,
+    SubjectProperties subject = subjectFactory.createNewSubjectProperties(name,
         race,
         characterClass,
         affiliation,
@@ -130,24 +106,23 @@ class SubjectFactoryTest {
 
   @Test
   void shouldCreateNewSubjectWithPreferredClassPosition() {
-    String name = "player";
-    Race race = Race.HIGH_ELF;
-    CharacterClass characterClass = CharacterClass.WIZARD;
-    Affiliation affiliation = Affiliation.PLAYERS;
-    Abilities abilities = new Abilities(10, 10, 10, 10, 10, 10);
-    Weapon weapon = Weapon.SHORTSWORD;
-    Armor armor = Armor.LEATHER;
-
-    Subject subject = subjectFactory.createNewSubject(name,
-        race,
-        characterClass,
-        affiliation,
-        abilities,
-        List.of(weapon),
-        armor,
+    SubjectProperties subjectProperties = new SubjectProperties(
+        "player",
+        Affiliation.PLAYERS,
+        Race.HIGH_ELF,
+        FIGHTER,
+        new Equipment(
+            List.of(Weapon.SHORTSWORD),
+            null,
+            Armor.LEATHER),
+        new Abilities(10, 10, 10, 10, 10, 10),
         null,
-        List.of());
+        10,
+        Set.of(),
+        Set.of());
 
-    assertThat(subject.getPosition()).isEqualTo(characterClass.getPreferredPosition());
+    Subject subject = subjectFactory.createNewSubject(subjectProperties);
+
+    assertThat(subject.getPosition()).isEqualTo(FIGHTER.getPreferredPosition());
   }
 }

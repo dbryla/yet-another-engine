@@ -27,7 +27,7 @@ public class StandUpCommand {
     if (game.isStarted() && !game.isEnded() && commons.isNextUser(playerName, game)) {
       session.setStandingUp(true);
       session.setMoving(true);
-      telegramClient.sendTextMessage(chatId, commons.getPlayerTurnMessageAfterStandUp(session.getSubject()));
+      telegramClient.sendTextMessage(chatId, commons.getPlayerTurnMessageAfterStandUp(session.getSubjectProperties()));
     }
   }
 }

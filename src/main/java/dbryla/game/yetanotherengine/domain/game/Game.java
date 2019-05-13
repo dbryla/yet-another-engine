@@ -1,39 +1,43 @@
 package dbryla.game.yetanotherengine.domain.game;
 
+import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
+import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.CHARMED;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.FRIGHTENED;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.GRAPPLED;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.RESTRAINED;
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
+
 import dbryla.game.yetanotherengine.domain.ai.ArtificialIntelligence;
 import dbryla.game.yetanotherengine.domain.battleground.Position;
-import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachine;
 import dbryla.game.yetanotherengine.domain.game.state.StateMachineFactory;
-import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.game.state.storage.SubjectStorage;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static dbryla.game.yetanotherengine.domain.battleground.Position.ENEMIES_BACK;
-import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_BACK;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.*;
-import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
-import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class Game {
 
-  private static final Set<Effect> INCAPACITATED = Set.of(Effect.INCAPACITATED, PARALYZED, PETRIFIED, STUNNED, UNCONSCIOUS);
   @Getter
   private final Long id;
-  private final StateStorage stateStorage;
+  private final SubjectStorage subjectStorage;
   private final StateMachineFactory stateMachineFactory;
   private final ArtificialIntelligence artificialIntelligence;
   private final EventHub eventHub;
@@ -41,25 +45,29 @@ public class Game {
   private StateMachine stateMachine;
 
   public void createPlayerCharacter(Subject subject) {
-    stateStorage.save(id, subject);
+    subjectStorage.save(id, subject);
   }
 
   public void createNonPlayableCharacters(List<Subject> subjects) {
     subjects.forEach(subject -> {
-      stateStorage.save(id, subject);
+      subjectStorage.save(id, subject);
       artificialIntelligence.initSubject(this, subject);
     });
   }
 
   public List<String> getAllAliveAllyNames(Subject source) {
-    return stateStorage.findAll(id).stream()
-        .filter(subject -> source.getAffiliation().equals(subject.getAffiliation()) && !subject.isTerminated())
-        .map(Subject::getName)
+    return subjectStorage.findAll(id).stream()
+        .filter(subject -> areAllies(source, subject) && subject.isAlive())
+        .map(this::getSubjectName)
         .collect(Collectors.toUnmodifiableList());
   }
 
+  private boolean areAllies(Subject source, Subject subject) {
+    return source.getAffiliation().equals(subject.getAffiliation());
+  }
+
   public List<Subject> getAllSubjects() {
-    return stateStorage.findAll(id);
+    return subjectStorage.findAll(id);
   }
 
   public boolean isStarted() {
@@ -75,9 +83,9 @@ public class Game {
   }
 
   public List<String> getAllAliveEnemyNames() {
-    return stateStorage.findAll(id).stream()
-        .filter(subject -> ENEMIES.equals(subject.getAffiliation()) && !subject.isTerminated())
-        .map(Subject::getName)
+    return subjectStorage.findAll(id).stream()
+        .filter(subject -> ENEMIES.equals(subject.getAffiliation()) && subject.isAlive())
+        .map(this::getSubjectName)
         .collect(Collectors.toUnmodifiableList());
   }
 
@@ -86,22 +94,17 @@ public class Game {
       if (stateMachine.getNextSubject().isPresent()) {
         Subject subject = stateMachine.getNextSubject().get();
         if (PLAYERS.equals(subject.getAffiliation())) {
-          if (cantMove(subject)) {
-            execute(new SubjectTurn(subject.getName()));
+          if (subject.cantMove()) {
+            execute(new SubjectTurn(getSubjectName(subject)));
             return;
           }
           eventHub.notifySubjectAboutNextMove(id, subject);
           return;
         } else {
-          stateMachine.execute(artificialIntelligence.action(subject.getName()));
+          stateMachine.execute(artificialIntelligence.action(getSubjectName(subject)));
         }
       }
     }
-  }
-
-  private boolean cantMove(Subject subject) {
-    return subject.getConditions().stream()
-        .anyMatch(condition -> INCAPACITATED.contains(condition.getEffect()));
   }
 
   public void execute(SubjectTurn subjectTurn) {
@@ -113,15 +116,19 @@ public class Game {
     if (stateMachine == null) {
       return Optional.empty();
     }
-    return stateMachine.getNextSubject().map(Subject::getName);
+    return stateMachine.getNextSubject().map(this::getSubjectName);
+  }
+
+  private String getSubjectName(Subject subject) {
+    return subject.getName();
   }
 
   public Subject getSubject(String subjectName) {
-    return stateStorage.findByIdAndName(id, subjectName).orElse(null);
+    return subjectStorage.findByIdAndName(id, subjectName).orElse(null);
   }
 
   public void cleanup() {
-    stateStorage.deleteAll(id);
+    subjectStorage.deleteAll(id);
   }
 
   public boolean isEnded() {
@@ -129,18 +136,18 @@ public class Game {
   }
 
   public int getPlayersNumber() {
-    return (int) stateStorage.findAll(id).stream().filter(subject -> PLAYERS.equals(subject.getAffiliation())).count();
+    return (int) subjectStorage.findAll(id).stream().filter(subject -> PLAYERS.equals(subject.getAffiliation())).count();
   }
 
   public Map<Position, List<Subject>> getSubjectsPositionsMap() {
-    return stateStorage.findAll(id)
+    return subjectStorage.findAll(id)
         .stream()
         .filter(subject -> !subject.isTerminated())
         .collect(Collectors.groupingBy(Subject::getPosition));
   }
 
   public void moveSubject(String playerName, Position newPosition) {
-    stateStorage.findByIdAndName(id, playerName).ifPresent(subject -> stateStorage.save(id, subject.of(newPosition)));
+    subjectStorage.findByIdAndName(id, playerName).ifPresent(subject -> subjectStorage.save(id, subject.of(subject.newState(newPosition))));
   }
 
   public List<String> getPossibleTargets(String subjectName, Weapon weapon) {
@@ -173,7 +180,7 @@ public class Game {
             .filter(target -> targetsAffiliation.equals(target.getAffiliation())
                 && !target.isTerminated()
                 && isNotCharmed(source, target))
-            .map(Subject::getName))
+            .map(this::getSubjectName))
         .flatMap(Function.identity())
         .collect(Collectors.toList());
   }
@@ -198,10 +205,10 @@ public class Game {
   }
 
   public boolean areEnemiesOnCurrentPosition(Subject subject) {
-    return getSubjectsPositionsMap()
+    return !getSubjectsPositionsMap()
         .getOrDefault(subject.getPosition(), List.of())
         .stream()
-        .anyMatch(anySubject -> anySubject.getAffiliation().equals(getEnemyAffiliation(subject.getAffiliation())));
+        .allMatch(anySubject -> areAllies(subject, anySubject));
   }
 
   public List<Weapon> getAvailableWeaponsForAttack(Subject subject) {
@@ -236,7 +243,7 @@ public class Game {
         .stream()
         .filter(entry -> isAheadOfSubject(subject, entry.getKey()))
         .flatMap(entry -> entry.getValue().stream())
-        .map(Subject::getName)
+        .map(this::getSubjectName)
         .collect(Collectors.toSet());
 
     return subject.getConditions()

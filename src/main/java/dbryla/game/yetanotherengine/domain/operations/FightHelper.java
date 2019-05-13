@@ -10,7 +10,9 @@ import dbryla.game.yetanotherengine.domain.effects.FightEffectsMapper;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -121,15 +123,12 @@ class FightHelper {
     if (noSaveThrowOnStrengthOrDexterity(target)) {
       return 0;
     }
-    return applyRulesToSavingThrow(target, spell, isRestrained(target)) + target.getAbilities().getDexterityModifier();
+    return applyRulesToSavingThrow(target, spell, target.isRestrained())
+        + target.getAbilities().getDexterityModifier();
   }
 
   private boolean noSaveThrowOnStrengthOrDexterity(Subject target) {
     return target.getConditions().stream().anyMatch(condition -> NO_SAVE_THROW_ON_STRENGTH_AND_DEXTERITY.contains(condition.getEffect()));
-  }
-
-  private boolean isRestrained(Subject target) {
-    return target.getConditions().stream().anyMatch(condition -> RESTRAINED.equals(condition.getEffect()));
   }
 
   int getStrengthSavingThrow(Subject target) {
@@ -153,12 +152,12 @@ class FightHelper {
     return 0;
   }
 
-  Optional<Subject> dealDamage(Subject target, int attackDamage, DamageType damageType) {
+  Optional<State> dealDamage(Subject target, int attackDamage, DamageType damageType) {
     Race targetRace = target.getRace();
-    if (targetRace.getImmunities().contains(damageType) || (isPetrified(target) && Set.of(POISON, DISEASE).contains(damageType))) {
+    if (targetRace.getImmunities().contains(damageType) || (target.isPetrified() && Set.of(POISON, DISEASE).contains(damageType))) {
       return Optional.empty();
     }
-    if (targetRace.getResistances().contains(damageType) || isPetrified(target)) {
+    if (targetRace.getResistances().contains(damageType) || target.isPetrified()) {
       attackDamage = attackDamage / 2;
     }
     if (targetRace.getVulnerabilities().contains(damageType)) {
@@ -166,12 +165,9 @@ class FightHelper {
     }
     int remainingHealthPoints = target.getCurrentHealthPoints() - attackDamage;
     if (remainingHealthPoints == 0 && targetRace.getRaceEffects().contains(RELENTLESS_ENDURANCE)) {
-      return Optional.of(target.of(1));
+      return Optional.of(target.withHealthPoints(1));
     }
-    return Optional.of(target.of(remainingHealthPoints));
+    return Optional.of(target.withHealthPoints(remainingHealthPoints));
   }
 
-  private boolean isPetrified(Subject target) {
-    return target.getConditions().stream().anyMatch(condition -> PETRIFIED.equals(condition.getEffect()));
-  }
 }

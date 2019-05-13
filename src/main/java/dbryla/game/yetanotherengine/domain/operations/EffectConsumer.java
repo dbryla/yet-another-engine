@@ -20,7 +20,7 @@ public class EffectConsumer {
             activeEffect.decreaseDuration();
             if (activeEffect.getDurationInTurns() == 0) {
               operationResult.add(
-                  source.effectExpired(activeEffect.getEffect()),
+                  source.withoutEffect(activeEffect.getEffect()),
                   eventFactory.effectExpiredEvent(source, activeEffect.getEffect()));
             }
           }

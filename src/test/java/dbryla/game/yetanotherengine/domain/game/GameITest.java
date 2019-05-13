@@ -8,7 +8,8 @@ import dbryla.game.yetanotherengine.domain.subject.CharacterClass;
 import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +58,17 @@ class GameITest {
   }
 
   private Subject initializedGame(String playerName, List<Weapon> weapons, List<Subject> enemies, Position playerPosition) {
-    Subject subject = subjectFactory.createNewSubject(playerName, Race.HUMAN, CharacterClass.FIGHTER, PLAYERS,
-        TestData.ABILITIES, weapons, null, null, List.of()).of(playerPosition);
+    Subject subject = subjectFactory.createNewSubject(
+        SubjectProperties
+            .builder()
+            .name(playerName)
+            .affiliation(PLAYERS)
+            .race(Race.HUMAN)
+            .characterClass(CharacterClass.FIGHTER)
+            .weapons(weapons)
+            .abilities(TestData.ABILITIES)
+            .build());
+    subject = subject.of(subject.newState(playerPosition));
     game.createPlayerCharacter(subject);
     game.createNonPlayableCharacters(enemies);
     return subject;

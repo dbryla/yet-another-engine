@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.domain.game.state.storage;
 
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,12 +15,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class InMemoryStateStorageTest {
+class InMemorySubjectStorageTest {
 
   private final Long gameId = 123L;
   private final String subjectName = "name";
 
-  private final InMemoryStateStorage inMemoryStateStorage = new InMemoryStateStorage();
+  private final InMemorySubjectStorage inMemoryStateStorage = new InMemorySubjectStorage();
 
   @Mock
   private Subject subject;

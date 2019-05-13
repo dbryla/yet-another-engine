@@ -1,10 +1,10 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
-import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
+import dbryla.game.yetanotherengine.domain.equipment.Armor;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Equipment;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Equipment;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,9 +14,10 @@ import java.util.Set;
 
 @AllArgsConstructor
 @Getter
-class SubjectProperties {
+public class SubjectProperties {
 
-  private final SubjectIdentifier id;
+  private final String name;
+  private final Affiliation affiliation;
   private final Race race;
   private final CharacterClass characterClass;
   private final Equipment equipment;
@@ -38,14 +39,40 @@ class SubjectProperties {
     return equipment.getArmorClass(equippedWeapon) + modifier;
   }
 
-  boolean isSpellCaster() {
+  public boolean isSpellCaster() {
     return !spells.isEmpty() || characterClass.isSpellCaster();
   }
 
-  Set<Enum> getAdvantageOnSavingThrows() {
+  public Set<Enum> getAdvantageOnSavingThrows() {
     Set<Enum> advantages = new HashSet<>();
     advantages.addAll(advantageOnSavingThrows);
     advantages.addAll(race.getAdvantageOnSavingThrows());
     return advantages;
   }
+
+  @Override
+  public String toString() {
+    StringBuilder stringBuilder = new StringBuilder(this.getRace() + " " + this.getCharacterClass() + "\n"
+        + "HP:" + this.getMaxHealthPoints() + " AC:" + this.getArmorClass(Weapon.FISTS) + "\n"
+        + this.getAbilities() + "\n"
+        + "Equipment:\n");
+    this
+        .getEquipment()
+        .getWeapons()
+        .stream()
+        .map(Weapon::toString)
+        .forEach(weapon -> stringBuilder.append("- ").append(weapon).append("\n"));
+    this.getEquipment().getArmor().map(Armor::toString).ifPresent(armor -> stringBuilder.append("- ").append(armor).append("\n"));
+    this.getEquipment().getShield().map(Armor::toString).ifPresent(shield -> stringBuilder.append("- ").append(shield).append("\n"));
+    if (this.getSpells() != null && !this.getSpells().isEmpty()) {
+      stringBuilder.append("Additional spells:\n");
+      this.getSpells().forEach(spell -> stringBuilder.append("- ").append(spell).append("\n"));
+    }
+    return stringBuilder.toString();
+  }
+
+  public static PropertiesBuilder builder() {
+    return new PropertiesBuilder();
+  }
+
 }

@@ -1,25 +1,33 @@
 package dbryla.game.yetanotherengine.domain.game.state.storage;
 
-import dbryla.game.yetanotherengine.domain.game.state.SubjectIdentifier;
-import dbryla.game.yetanotherengine.domain.subject.Affiliation;
+import dbryla.game.yetanotherengine.domain.TestData;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.ENEMIES;
+import static dbryla.game.yetanotherengine.domain.subject.Affiliation.PLAYERS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class InMemoryStepTrackerTest {
 
-  private static final SubjectIdentifier SUBJECT_1 = new SubjectIdentifier("subject1", Affiliation.PLAYERS);
-  private static final SubjectIdentifier SUBJECT_2 = new SubjectIdentifier("subject2", Affiliation.ENEMIES);
+  private static final String SUBJECT_1 = "subject1";
+  private static final String SUBJECT_2 = "subject2";
 
   @Test
   void shouldHasNoActionsToTrackIfOnlySubjectsWithTheSameAffiliationLeft() {
     StepTracker stepTracker = new InMemoryStepTracker(
         new LinkedList<>(List.of(SUBJECT_1, SUBJECT_2)),
-        new HashMap<>(Map.of(SUBJECT_1.getAffiliation(), 1L, SUBJECT_2.getAffiliation(), 1L)));
+        new HashMap<>(Map.of(PLAYERS, 1L, ENEMIES, 1L)));
+    Subject subject = mock(Subject.class);
+    when(subject.getName()).thenReturn(SUBJECT_1);
+    when(subject.getAffiliation()).thenReturn(PLAYERS);
 
-    stepTracker.removeSubject(SUBJECT_1);
+    stepTracker.removeSubject(subject);
 
     assertThat(stepTracker.hasNoActionsToTrack()).isTrue();
   }
@@ -40,7 +48,7 @@ class InMemoryStepTrackerTest {
 
     Optional<String> nextSubjectName = stepTracker.getNextSubjectName();
     assertThat(nextSubjectName.isPresent()).isTrue();
-    assertThat(nextSubjectName.get()).isEqualTo(SUBJECT_1.getName());
+    assertThat(nextSubjectName.get()).isEqualTo(SUBJECT_1);
   }
 
 }

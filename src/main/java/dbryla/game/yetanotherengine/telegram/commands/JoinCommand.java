@@ -5,6 +5,7 @@ import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.Communicate;
@@ -42,17 +43,17 @@ public class JoinCommand {
                 () -> createNewSessionAndCharacter(message, playerName, sessionId));
       } else {
         game = sessionFactory.getGameOrCreate(message.getChatId());
-        game.createPlayerCharacter(sessionFactory.getFightSession(sessionId).getSubject());
+        game.createPlayerCharacter(subjectFactory.createNewSubject(sessionFactory.getFightSession(sessionId).getSubjectProperties()));
         telegramClient.sendTextMessage(message.getChatId(), playerName + ": You've joined next battle!");
       }
     }
   }
 
   private void createNewSession(Message message, String playerName, String sessionId, PlayerCharacter character) {
-    Subject subject = subjectFactory.fromCharacter(character);
+    SubjectProperties subject = subjectFactory.fromCharacter(character);
     sessionFactory.createFightSession(sessionId, playerName, subject);
     Game game = sessionFactory.getGameOrCreate(message.getChatId());
-    game.createPlayerCharacter(subject);
+    game.createPlayerCharacter(subjectFactory.createNewSubject(subject));
     telegramClient.sendTextMessage(message.getChatId(), playerName + ": Joining with existing character.\n" + subject);
   }
 

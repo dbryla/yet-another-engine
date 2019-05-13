@@ -4,11 +4,13 @@ import dbryla.game.yetanotherengine.domain.IncorrectStateException;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
-import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.game.state.storage.SubjectStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.operations.*;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +30,7 @@ import static org.mockito.Mockito.*;
 class DefaultStateMachineTest {
 
   @Mock
-  private StateStorage stateStorage;
+  private SubjectStorage subjectStorage;
 
   @Mock
   private StepTracker stepTracker;
@@ -50,7 +52,7 @@ class DefaultStateMachineTest {
 
   @BeforeEach
   void setUp() {
-    stateMachine = new DefaultStateMachine(GAME_ID, stepTracker, stateStorage, eventHub, effectConsumer, operationFactory);
+    stateMachine = new DefaultStateMachine(GAME_ID, stepTracker, subjectStorage, eventHub, effectConsumer, operationFactory);
   }
 
   @Test
@@ -58,7 +60,7 @@ class DefaultStateMachineTest {
     Subject subject = givenSubjectOne();
     Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
-    when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+    when(subjectStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
     Operation attackOperation = mock(Operation.class);
     when(operationFactory.getOperation(OperationType.ATTACK)).thenReturn(attackOperation);
 
@@ -72,7 +74,7 @@ class DefaultStateMachineTest {
     Subject subject = givenSubjectOne();
     Action action = new Action(SUBJECT_2_NAME, "", null, TEST_ACTION_DATA);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
-    when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+    when(subjectStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
 
     assertThrows(IncorrectStateException.class, () -> stateMachine.execute(SubjectTurn.of(action)));
   }
@@ -86,13 +88,15 @@ class DefaultStateMachineTest {
   @Test
   void shouldRemoveSubjectIfWasTerminated() throws UnsupportedGameOperationException {
     Subject subject = givenSubjectOne();
-    when(subject.isTerminated()).thenReturn(true);
     Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
     Operation attackOperation = mock(Operation.class);
     when(operationFactory.getOperation(OperationType.ATTACK)).thenReturn(attackOperation);
-    when(attackOperation.invoke(eq(subject), eq(TEST_ACTION_DATA))).thenReturn(new OperationResult(List.of(subject), List.of()));
+    State newState = mock(State.class);
+    when(newState.getSubjectName()).thenReturn(SUBJECT_1_NAME);
+    when(newState.isTerminated()).thenReturn(true);
+    when(attackOperation.invoke(eq(subject), eq(TEST_ACTION_DATA))).thenReturn(new OperationResult(List.of(newState), List.of()));
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
-    when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+    when(subjectStorage.findByIdAndName(any(), any())).thenReturn(Optional.of(subject));
 
     stateMachine.execute(SubjectTurn.of(action));
 
@@ -105,8 +109,8 @@ class DefaultStateMachineTest {
     Subject subject2 = mock(Subject.class);
     Action action = new Action(SUBJECT_1_NAME, Collections.emptyList(), OperationType.ATTACK, TEST_ACTION_DATA);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
-    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject1));
-    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_2_NAME))).thenReturn(Optional.of(subject2));
+    lenient().when(subjectStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject1));
+    lenient().when(subjectStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_2_NAME))).thenReturn(Optional.of(subject2));
     when(operationFactory.getOperation(OperationType.ATTACK)).thenReturn(mock(Operation.class));
 
     stateMachine.execute(SubjectTurn.of(action));
@@ -123,9 +127,9 @@ class DefaultStateMachineTest {
     Subject target2 = mock(Subject.class);
     when(stepTracker.getNextSubjectName()).thenReturn(Optional.of(SUBJECT_1_NAME));
     Action action = new Action(SUBJECT_1_NAME, List.of(target1Name, target2Name), OperationType.ATTACK, TEST_ACTION_DATA);
-    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
-    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(target1Name))).thenReturn(Optional.of(target1));
-    lenient().when(stateStorage.findByIdAndName(eq(GAME_ID), eq(target2Name))).thenReturn(Optional.of(target2));
+    lenient().when(subjectStorage.findByIdAndName(eq(GAME_ID), eq(SUBJECT_1_NAME))).thenReturn(Optional.of(subject));
+    lenient().when(subjectStorage.findByIdAndName(eq(GAME_ID), eq(target1Name))).thenReturn(Optional.of(target1));
+    lenient().when(subjectStorage.findByIdAndName(eq(GAME_ID), eq(target2Name))).thenReturn(Optional.of(target2));
     Operation attackOperation = mock(Operation.class);
     when(operationFactory.getOperation(OperationType.ATTACK)).thenReturn(attackOperation);
 

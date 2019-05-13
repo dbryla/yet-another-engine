@@ -2,6 +2,7 @@ package dbryla.game.yetanotherengine.telegram.commands;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Communicate;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,8 @@ class MoveCommandTest extends CommandTestSetup {
     Subject subject = mock(Subject.class);
     Game game = mock(Game.class);
     when(game.getSubject(any())).thenReturn(subject);
-    when(sessionFactory.getFightSession(any())).thenReturn(new FightSession("player", subject));
+    SubjectProperties subjectProperties = mock(SubjectProperties.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(new FightSession("player", subjectProperties));
     when(sessionFactory.getGame(eq(chatId))).thenReturn(game);
     when(fightFactory.moveCommunicate(any(), any())).thenReturn(Optional.of(new Communicate(null, null)));
 
@@ -48,7 +50,8 @@ class MoveCommandTest extends CommandTestSetup {
     Subject subject = mock(Subject.class);
     Game game = mock(Game.class);
     when(game.getSubject(any())).thenReturn(subject);
-    when(sessionFactory.getFightSession(any())).thenReturn(new FightSession("player", subject));
+    SubjectProperties subjectProperties = mock(SubjectProperties.class);
+    when(sessionFactory.getFightSession(any())).thenReturn(new FightSession("player", subjectProperties));
     when(sessionFactory.getGame(eq(chatId))).thenReturn(game);
 
     moveCommand.execute(update);

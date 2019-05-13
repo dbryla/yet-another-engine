@@ -3,6 +3,7 @@ package dbryla.game.yetanotherengine.domain.operations;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -35,29 +36,30 @@ public class SpecialAttackOperation implements Operation {
       throws UnsupportedGameOperationException {
     ActionData attackData = actionData.getSpecialAttack().getNestedActionData().get(0);
     OperationResult operationResult = attackOperation.invoke(source, attackData, target);
-    int indexOfTarget = operationResult.getChangedSubjects().indexOf(target);
-    if (indexOfTarget != -1 && operationResult.getChangedSubjects().get(indexOfTarget).getCurrentHealthPoints() <= 0) {
+    if (!operationResult.getChangedSubjects().isEmpty() && operationResult.getChangedSubjects().get(0).getCurrentHealthPoints() <= 0) {
       return operationResult;
     }
-    operationResult.copyFrom(attackOperation.invoke(source.of(Effect.MULTI_ATTACK.activate(1)), attackData, target));
+    operationResult.copyFrom(
+        attackOperation.invoke(source.of(source.withCondition(Effect.MULTI_ATTACK.activate(1))), attackData, target));
     return operationResult;
   }
 
   private OperationResult handlePounce(Subject source, Subject target, ActionData actionData) throws UnsupportedGameOperationException {
     OperationResult operationResult = moveOperation.invoke(source, new ActionData(target.getPosition()));
-    Subject movedSource = operationResult.getChangedSubjects().get(0);
-    operationResult.copyFrom(attackOperation.invoke(movedSource, actionData.getSpecialAttack().getNestedActionData().get(0), target));
-    int indexOfTarget = operationResult.getChangedSubjects().indexOf(target);
-    if (indexOfTarget != -1) {
-      Subject changedTarget = operationResult.getChangedSubjects().get(indexOfTarget);
-      if (changedTarget.getCurrentHealthPoints() <= 0) {
+    State movedSource = operationResult.getChangedSubjects().get(0);
+    operationResult.copyFrom(
+        attackOperation.invoke(source.of(movedSource), actionData.getSpecialAttack().getNestedActionData().get(0), target));
+    if (!operationResult.getChangedSubjects().isEmpty()) {
+      State changedTargetState = operationResult.getChangedSubjects().get(0);
+      if (changedTargetState.getCurrentHealthPoints() <= 0) {
         return operationResult;
       }
-      int savingThrow = fightHelper.getStrengthSavingThrow(changedTarget);
+      int savingThrow = fightHelper.getStrengthSavingThrow(target.of(changedTargetState));
       if (savingThrow < 12) {
-        changedTarget = changedTarget.of(PRONE.activate(FOREVER));
-        operationResult.add(changedTarget, eventFactory.successKnockedProneEvent(source, changedTarget));
-        operationResult.copyFrom(attackOperation.invoke(source, actionData.getSpecialAttack().getNestedActionData().get(1), changedTarget));
+        changedTargetState = changedTargetState.of(PRONE.activate(FOREVER));
+        operationResult.add(changedTargetState, eventFactory.successKnockedProneEvent(source, target));
+        operationResult.copyFrom(
+            attackOperation.invoke(source, actionData.getSpecialAttack().getNestedActionData().get(1), target.of(changedTargetState)));
       }
     }
     return operationResult;

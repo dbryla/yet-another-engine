@@ -6,6 +6,7 @@ import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Commons;
 import dbryla.game.yetanotherengine.telegram.SessionFactory;
@@ -34,7 +35,8 @@ public class MoveCallbackHandler implements CallbackHandler {
       telegramClient.sendTextMessage(callback.getChatId(), session.getPlayerName() + " moves to " + newPosition + ".");
       if (commons.isNextUser(callback.getPlayerName(), game)) {
         session.setMoving(true);
-        telegramClient.sendTextMessage(callback.getChatId(), commons.getPlayerTurnMessage(session.getSubject()));
+        Subject subject = game.getSubject(callback.getPlayerName());
+        telegramClient.sendTextMessage(callback.getChatId(), commons.getPlayerTurnMessage(subject));
       }
       telegramClient.deleteMessage(callback.getChatId(), callback.getMessageId());
     } else {

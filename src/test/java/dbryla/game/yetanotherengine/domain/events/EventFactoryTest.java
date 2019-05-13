@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import dbryla.game.yetanotherengine.domain.operations.HitResult;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.operations.HitResult;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
+import dbryla.game.yetanotherengine.domain.subject.HealthState;
 import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,9 +24,9 @@ class EventFactoryTest {
   void shouldReturnSuccessAttackEventMessage() {
     Subject attacker = mock(Subject.class);
     when(attacker.getName()).thenReturn("attacker");
-    Subject target = mock(Subject.class);
-    when(target.getName()).thenReturn("target");
-    when(target.getSubjectState()).thenReturn(State.HEAVILY_WOUNDED);
+    State target = mock(State.class);
+    when(target.getSubjectName()).thenReturn("target");
+    when(target.getHealthState()).thenReturn(HealthState.HEAVILY_WOUNDED);
 
     Event event = eventFactory.successAttackEvent(attacker, target, Weapon.GREATSWORD, HitResult.HIT);
 
@@ -37,9 +37,9 @@ class EventFactoryTest {
   void shouldReturnSuccessSpellCastEventMessage() {
     Subject attacker = mock(Subject.class);
     when(attacker.getName()).thenReturn("attacker");
-    Subject target = mock(Subject.class);
-    when(target.getName()).thenReturn("target");
-    when(target.getSubjectState()).thenReturn(State.HEAVILY_WOUNDED);
+    State target = mock(State.class);
+    when(target.getSubjectName()).thenReturn("target");
+    when(target.getHealthState()).thenReturn(HealthState.HEAVILY_WOUNDED);
 
     Event event = eventFactory.successSpellCastEvent(attacker, target, Spell.FIRE_BOLT);
 
@@ -70,8 +70,8 @@ class EventFactoryTest {
 
   @Test
   void shouldReturnEquipsWeaponEvent() {
-    Subject attacker = mock(Subject.class);
-    when(attacker.getName()).thenReturn("attacker");
+    State attacker = mock(State.class);
+    when(attacker.getSubjectName()).thenReturn("attacker");
     when(attacker.getEquippedWeapon()).thenReturn(Weapon.SHORTSWORD);
 
     Event event = eventFactory.equipWeaponEvent(attacker);

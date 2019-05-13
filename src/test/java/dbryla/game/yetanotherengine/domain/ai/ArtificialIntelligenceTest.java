@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.domain.ai;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,8 +50,9 @@ class ArtificialIntelligenceTest {
     lenient().when(game.getSubject(eq(SUBJECT_NAME))).thenReturn(subject);
     lenient().when(game.getSubject(eq(TARGET_NAME))).thenReturn(target);
     when(game.getPossibleTargets(eq(subject), eq(WEAPON))).thenReturn(List.of(TARGET_NAME));
+
     when(subject.getName()).thenReturn(SUBJECT_NAME);
-    when(subject.getEquippedWeapon()).thenReturn(WEAPON);;
+    when(subject.getEquippedWeapon()).thenReturn(WEAPON);
     when(random.nextInt(anyInt())).thenReturn(0);
   }
 

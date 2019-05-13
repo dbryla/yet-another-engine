@@ -12,6 +12,7 @@ import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.telegram.Communicate;
@@ -48,7 +49,7 @@ class JoinCommandTest extends CommandTestSetup {
     when(sessionFactory.getGameOrCreate(any())).thenReturn(game);
     PlayerCharacter playerCharacter = mock(PlayerCharacter.class);
     when(characterRepository.findByName(any())).thenReturn(Optional.of(playerCharacter));
-    when(subjectFactory.fromCharacter(eq(playerCharacter))).thenReturn(mock(Subject.class));
+    when(subjectFactory.fromCharacter(eq(playerCharacter))).thenReturn(mock(SubjectProperties.class));
 
     joinCommand.execute(update);
 

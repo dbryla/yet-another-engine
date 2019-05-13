@@ -2,7 +2,9 @@ package dbryla.game.yetanotherengine.telegram;
 
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import dbryla.game.yetanotherengine.session.FightSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -110,6 +112,7 @@ class CommonsTest {
   void shouldReturnTextAboutNextTurn() {
     Subject subject = mock(Subject.class);
     when(subject.isSpellCaster()).thenReturn(false);
+    when(subject.isAbleToMove()).thenReturn(true);
 
     assertThat(commons.getPlayerTurnMessage(subject)).contains("/attack", "/move", "/pass");
   }
@@ -118,6 +121,7 @@ class CommonsTest {
   void shouldReturnTextAboutNextTurnWithSpellForSpellCaster() {
     Subject subject = mock(Subject.class);
     when(subject.isSpellCaster()).thenReturn(true);
+    when(subject.isAbleToMove()).thenReturn(true);
 
     assertThat(commons.getPlayerTurnMessage(subject)).contains("/attack", "/move", "/pass", "/spell");
   }

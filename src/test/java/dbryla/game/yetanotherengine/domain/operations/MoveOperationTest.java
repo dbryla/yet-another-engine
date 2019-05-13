@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +27,9 @@ class MoveOperationTest {
   @Test
   void shouldMoveSubjectToGivenPosition() throws UnsupportedGameOperationException {
     Subject subject = mock(Subject.class);
-    Subject changedSubject = mock(Subject.class);
+    State changedSubject = mock(State.class);
     when(changedSubject.getPosition()).thenReturn(PLAYERS_BACK);
-    when(subject.of(eq(PLAYERS_BACK))).thenReturn(changedSubject);
+    when(subject.newState(eq(PLAYERS_BACK))).thenReturn(changedSubject);
 
     OperationResult result = moveOperation.invoke(subject, new ActionData(PLAYERS_BACK));
 

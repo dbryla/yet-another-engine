@@ -4,7 +4,9 @@ import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.subject.Condition;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +25,7 @@ class EffectConsumerTest {
 
   @InjectMocks
   private EffectConsumer effectConsumer;
+
   @Mock
   private EventFactory eventFactory;
 
@@ -49,23 +52,23 @@ class EffectConsumerTest {
 
   @Test
   void shouldReturnSubjectIfEffectExpires() {
-    Subject subject = mock(Subject.class);
     Condition condition = Effect.BLINDED.activate(1);
+    Subject subject = mock(Subject.class);
     when(subject.getConditions()).thenReturn(Set.of(condition));
-    when(subject.effectExpired(eq(Effect.BLINDED))).thenReturn(subject);
+    when(subject.withoutEffect(eq(Effect.BLINDED))).thenReturn(mock(State.class));
     when(eventFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
     OperationResult operationResult = effectConsumer.apply(subject);
 
-    assertThat(operationResult.getChangedSubjects()).contains(subject);
+    assertThat(operationResult.getChangedSubjects()).isNotEmpty();
   }
 
   @Test
   void shouldSendEventIfEffectExpires() {
-    Subject subject = mock(Subject.class);
     Condition condition = Effect.BLINDED.activate(1);
+    Subject subject = mock(Subject.class);
     when(subject.getConditions()).thenReturn(Set.of(condition));
-    when(subject.effectExpired(eq(Effect.BLINDED))).thenReturn(subject);
+    when(subject.withoutEffect(eq(Effect.BLINDED))).thenReturn(mock(State.class));
     when(eventFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
     effectConsumer.apply(subject);

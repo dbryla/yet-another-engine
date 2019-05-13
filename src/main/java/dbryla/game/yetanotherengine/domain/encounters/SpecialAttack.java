@@ -1,7 +1,7 @@
 package dbryla.game.yetanotherengine.domain.encounters;
 
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

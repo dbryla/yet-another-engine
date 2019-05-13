@@ -2,8 +2,8 @@ package dbryla.game.yetanotherengine.domain.subject;
 
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.operations.DamageType;
-import dbryla.game.yetanotherengine.domain.subject.equipment.ArmorType;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.ArmorType;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import lombok.Getter;
 import org.apache.commons.text.WordUtils;
 
@@ -13,7 +13,7 @@ import java.util.Set;
 import static dbryla.game.yetanotherengine.domain.effects.Effect.*;
 import static dbryla.game.yetanotherengine.domain.effects.Effect.SLEEP;
 import static dbryla.game.yetanotherengine.domain.operations.DamageType.*;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.Weapon.*;
+import static dbryla.game.yetanotherengine.domain.equipment.Weapon.*;
 
 @Getter
 public enum Race {

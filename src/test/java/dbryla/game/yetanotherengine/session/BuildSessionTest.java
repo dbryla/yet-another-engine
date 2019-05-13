@@ -1,12 +1,10 @@
 package dbryla.game.yetanotherengine.session;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import dbryla.game.yetanotherengine.telegram.Communicate;
-import dbryla.game.yetanotherengine.telegram.commands.CommandTestSetup;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.jupiter.api.Test;

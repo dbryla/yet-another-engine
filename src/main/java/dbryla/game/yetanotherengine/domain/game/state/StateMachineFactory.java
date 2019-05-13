@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.domain.game.state;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.state.storage.InMemoryStepTracker;
-import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.game.state.storage.SubjectStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.operations.*;
 import dbryla.game.yetanotherengine.domain.subject.Affiliation;
@@ -21,23 +21,23 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class StateMachineFactory {
 
-  private final StateStorage stateStorage;
+  private final SubjectStorage subjectStorage;
   private final EventHub eventHub;
   private final OperationFactory operationFactory;
   private final DiceRollService diceRollService;
   private final EffectConsumer effectConsumer;
 
   public StateMachine createInMemoryStateMachine(Long gameId) {
-    Map<Subject, Integer> initiatives = stateStorage.findAll(gameId).stream()
+    Map<Subject, Integer> initiatives = subjectStorage.findAll(gameId).stream()
         .collect(Collectors.toMap(Function.identity(), subject -> diceRollService.k20() + subject.getInitiativeModifier()));
-    List<SubjectIdentifier> subjectsForAction = stateStorage.findAll(gameId).stream()
+    List<String> subjectsForAction = subjectStorage.findAll(gameId).stream()
         .sorted(Comparator.comparingInt(initiatives::get).reversed())
-        .map(Subject::toIdentifier)
+        .map(Subject::getName)
         .collect(Collectors.toList());
-    Map<Affiliation, Long> affiliationMap = stateStorage.findAll(gameId).stream()
+    Map<Affiliation, Long> affiliationMap = subjectStorage.findAll(gameId).stream()
         .collect(Collectors.groupingBy(Subject::getAffiliation, Collectors.counting()));
     StepTracker stepTracker = new InMemoryStepTracker(subjectsForAction, affiliationMap);
-    return new DefaultStateMachine(gameId, stepTracker, stateStorage, eventHub, effectConsumer, operationFactory);
+    return new DefaultStateMachine(gameId, stepTracker, subjectStorage, eventHub, effectConsumer, operationFactory);
   }
 
 }

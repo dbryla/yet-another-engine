@@ -6,7 +6,9 @@ import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import dbryla.game.yetanotherengine.session.FightSession;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -53,10 +55,14 @@ public class Commons {
         + getSpellCommandIfApplicable(subject);
   }
 
-  public String getPlayerTurnMessageAfterStandUp(Subject subject) {
-    return subject.getName()
+  public String getPlayerTurnMessageAfterStandUp(SubjectProperties subjectProperties) {
+    return subjectProperties.getName()
         + " what do you want to do next: /move /pass /attack"
-        + getSpellCommandIfApplicable(subject);
+        + getSpellCommandIfApplicable(subjectProperties);
+  }
+
+  private String getSpellCommandIfApplicable(SubjectProperties subjectProperties) {
+    return subjectProperties.isSpellCaster() ? " or /spell" : "";
   }
 
   private String getSpellCommandIfApplicable(Subject subject) {
@@ -64,7 +70,7 @@ public class Commons {
   }
 
   private String getMoveOrStandUpCommand(Subject subject) {
-    return subject.getConditions().stream().anyMatch(condition -> PRONE.equals(condition.getEffect())) ? "/standup" : "/move";
+    return subject.isAbleToMove() ? "/move" : "/standup";
   }
 
   public Integer getOriginalMessageId(Update update) {

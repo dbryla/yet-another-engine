@@ -30,7 +30,9 @@ public class StatusCommand {
     Game game = sessionFactory.getGame(chatId);
     if (game != null) {
       StringBuilder sb = new StringBuilder("Fight status:\n");
-      Map<Affiliation, List<Subject>> subjects = game.getAllSubjects().stream().collect(Collectors.groupingBy(Subject::getAffiliation));
+      Map<Affiliation, List<Subject>> subjects = game.getAllSubjects()
+          .stream()
+          .collect(Collectors.groupingBy(Subject::getAffiliation));
       statusText(sb, subjects, PLAYERS, "Your team:\n");
       statusText(sb, subjects, ENEMIES, "\nEnemies:\n");
       telegramClient.sendTextMessage(chatId, sb.toString());
@@ -42,7 +44,7 @@ public class StatusCommand {
   private void statusText(StringBuilder stringBuilder, Map<Affiliation, List<Subject>> subjects, Affiliation affiliation, String header) {
     if (subjects.containsKey(affiliation)) {
       stringBuilder.append(header);
-      subjects.get(affiliation).forEach(subject -> stringBuilder.append(subject.getName()).append(subject.getSubjectState()).append(" "));
+      subjects.get(affiliation).forEach(subject -> stringBuilder.append(subject.getName()).append(subject.getHealthState()).append(" "));
     }
   }
 }

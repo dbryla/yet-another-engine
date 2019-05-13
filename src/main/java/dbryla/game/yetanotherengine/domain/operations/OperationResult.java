@@ -1,6 +1,7 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +12,7 @@ import lombok.Getter;
 @Getter
 public class OperationResult {
 
-  private final List<Subject> changedSubjects;
+  private final List<State> changedSubjects;
   private final List<Event> emittedEvents;
 
   public OperationResult() {
@@ -19,14 +20,14 @@ public class OperationResult {
     this.emittedEvents = new LinkedList<>();
   }
 
-  public OperationResult(Subject changedSubject, Event event) {
+  public OperationResult(State changedSubject, Event event) {
     this.changedSubjects = new LinkedList<>();
     this.changedSubjects.add(changedSubject);
     this.emittedEvents = new LinkedList<>();
     this.emittedEvents.add(event);
   }
 
-  public void addAll(List<Subject> changedSubjects, List<Event> emittedEvents) {
+  public void addAll(List<State> changedSubjects, List<Event> emittedEvents) {
     this.changedSubjects.addAll(changedSubjects);
     this.emittedEvents.addAll(emittedEvents);
   }
@@ -36,7 +37,7 @@ public class OperationResult {
     return this;
   }
 
-  public void add(Subject changedSubject, Event event) {
+  public void add(State changedSubject, Event event) {
     this.changedSubjects.add(changedSubject);
     this.emittedEvents.add(event);
   }

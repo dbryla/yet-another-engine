@@ -1,27 +1,27 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
-import dbryla.game.yetanotherengine.domain.effects.Effect;
-import dbryla.game.yetanotherengine.domain.events.EventFactory;
-import dbryla.game.yetanotherengine.domain.subject.Abilities;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-import java.util.Set;
-
 import static dbryla.game.yetanotherengine.domain.effects.Effect.PARALYZED;
 import static dbryla.game.yetanotherengine.domain.effects.Effect.UNCONSCIOUS;
 import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.ROGUE;
 import static dbryla.game.yetanotherengine.domain.subject.Race.BEAST;
 
+import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
+import dbryla.game.yetanotherengine.domain.effects.Effect;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.events.EventFactory;
+import dbryla.game.yetanotherengine.domain.subject.Abilities;
+import dbryla.game.yetanotherengine.domain.subject.State;
+import dbryla.game.yetanotherengine.domain.subject.Subject;
+import java.util.Optional;
+import java.util.Set;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+
 @AllArgsConstructor
 @Component
 public class AttackOperation implements Operation {
 
-  public static final Set<Effect> PARALYZED_OR_UNCONSCIOUS = Set.of(PARALYZED, UNCONSCIOUS);
+  private static final Set<Effect> PARALYZED_OR_UNCONSCIOUS = Set.of(PARALYZED, UNCONSCIOUS);
   private final FightHelper fightHelper;
   private final EventFactory eventFactory;
   private final DiceRollService diceRollService;
@@ -38,9 +38,9 @@ public class AttackOperation implements Operation {
     if (!hitResult.isTargetHit()) {
       operationResult.add(eventFactory.failEvent(source, target, weapon.toString(), hitResult));
     } else {
-      int attackDamage = fightHelper.getAttackDamage(source,
-          () -> weapon.rollAttackDamage(diceRollService) + getBonusDamage(source, weapon), hitResult)
-          + getModifier(weapon, source.getAbilities());
+      int attackDamage =
+          fightHelper.getAttackDamage(source, () -> weapon.rollAttackDamage(diceRollService) + getBonusDamage(source, weapon), hitResult)
+              + getModifier(weapon, source.getAbilities());
       if (attackDamage <= 0) {
         attackDamage = 1;
       }
@@ -71,8 +71,8 @@ public class AttackOperation implements Operation {
     if (source.getEquippedWeapon().equals(data.getWeapon()) || BEAST.equals(source.getRace())) {
       return Optional.empty();
     }
-    Subject changedSubject = source.of(data.getWeapon());
-    return Optional.of(new OperationResult(changedSubject, eventFactory.equipWeaponEvent(changedSubject)));
+    State newState = source.withWeapon(data.getWeapon());
+    return Optional.of(new OperationResult(newState, eventFactory.equipWeaponEvent(newState)));
   }
 
   private void verifyParams(Subject source, ActionData actionData, Subject[] targets) throws UnsupportedAttackException {

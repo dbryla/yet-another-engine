@@ -5,13 +5,14 @@ import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventHub;
 import dbryla.game.yetanotherengine.domain.game.Action;
 import dbryla.game.yetanotherengine.domain.game.SubjectTurn;
-import dbryla.game.yetanotherengine.domain.game.state.storage.StateStorage;
+import dbryla.game.yetanotherengine.domain.game.state.storage.SubjectStorage;
 import dbryla.game.yetanotherengine.domain.game.state.storage.StepTracker;
 import dbryla.game.yetanotherengine.domain.operations.EffectConsumer;
 import dbryla.game.yetanotherengine.domain.operations.OperationFactory;
 import dbryla.game.yetanotherengine.domain.operations.OperationResult;
 import dbryla.game.yetanotherengine.domain.operations.UnsupportedGameOperationException;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class DefaultStateMachine implements StateMachine {
 
   private final Long gameId;
   private final StepTracker stepTracker;
-  private final StateStorage stateStorage;
+  private final SubjectStorage subjectStorage;
   private final EventHub eventHub;
   private final EffectConsumer effectConsumer;
   private final OperationFactory operationFactory;
@@ -34,7 +35,7 @@ public class DefaultStateMachine implements StateMachine {
     if (nextSubjectName.isEmpty()) {
       return Optional.empty();
     }
-    return stateStorage.findByIdAndName(gameId, nextSubjectName.get());
+    return subjectStorage.findByIdAndName(gameId, nextSubjectName.get());
   }
 
   @Override
@@ -52,7 +53,7 @@ public class DefaultStateMachine implements StateMachine {
   }
 
   private List<Event> invokeOperation(Action action, String subjectName) {
-    Subject subject = stateStorage.findByIdAndName(gameId, subjectName).get();
+    Subject subject = subjectStorage.findByIdAndName(gameId, subjectName).get();
     try {
       return apply(operationFactory.getOperation(action.getOperationType()).invoke(subject, action.getActionData(), getTargets(action)));
     } catch (UnsupportedGameOperationException e) {
@@ -69,7 +70,7 @@ public class DefaultStateMachine implements StateMachine {
   private Subject[] getTargets(Action action) {
     return action.getTargetNames()
         .stream()
-        .map((name) -> stateStorage.findByIdAndName(gameId, name))
+        .map((name) -> subjectStorage.findByIdAndName(gameId, name))
         .filter(Optional::isPresent)
         .map(Optional::get)
         .toArray(Subject[]::new);
@@ -79,10 +80,11 @@ public class DefaultStateMachine implements StateMachine {
     if (operationResult == null) {
       return List.of();
     }
-    operationResult.getChangedSubjects().forEach(subject -> {
-      stateStorage.save(gameId, subject);
-      if (subject.isTerminated()) {
-        stepTracker.removeSubject(subject.toIdentifier());
+    operationResult.getChangedSubjects().forEach(state -> {
+      Subject newSubject = subjectStorage.findByIdAndName(gameId, state.getSubjectName()).get();
+      subjectStorage.save(gameId, newSubject.of(state));
+      if (state.isTerminated()) {
+        stepTracker.removeSubject(newSubject);
       }
     });
     return operationResult.getEmittedEvents();

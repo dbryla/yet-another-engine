@@ -4,8 +4,8 @@ import dbryla.game.yetanotherengine.db.CharacterRepository;
 import dbryla.game.yetanotherengine.db.PlayerCharacter;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.*;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Armor;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Armor;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
@@ -27,7 +27,7 @@ class ConsoleCharacterBuilder {
   private final SubjectFactory subjectFactory;
   private final Environment environment;
 
-  Subject createPlayer() {
+  SubjectProperties createPlayer() {
     System.out.println("Would you like to create new character (0) or load existing one (1) ?");
     int playerChoice = inputProvider.cmdLineToOption();
     System.out.println("Type your character name and press enter.");
@@ -41,7 +41,7 @@ class ConsoleCharacterBuilder {
     }
     CharacterClass characterClass = chooseClass();
     Race race = chooseRace();
-    Subject subject = buildSubject(playerName, characterClass, race);
+    SubjectProperties subject = buildSubject(playerName, characterClass, race);
     if (Arrays.stream(environment.getActiveProfiles()).noneMatch("offline"::equals)) {
       characterRepository.findByName(playerName).ifPresent(characterRepository::delete);
       characterRepository.save(subjectFactory.toCharacter(subject));
@@ -61,7 +61,7 @@ class ConsoleCharacterBuilder {
     return availableRaces.get(playerChoice);
   }
 
-  private Subject buildSubject(String playerName, CharacterClass characterClass, Race race) {
+  private SubjectProperties buildSubject(String playerName, CharacterClass characterClass, Race race) {
     System.out.println("Do you want (0) manual or (1) automatic abilities assignment?");
     int playerChoice = inputProvider.cmdLineToOption();
     Abilities abilities = getAbilities(playerChoice);
@@ -70,7 +70,7 @@ class ConsoleCharacterBuilder {
     List<Weapon> weapons = getWeapons(characterClass, race);
     Armor shield = getShield(characterClass, weapons);
     Armor armor = getArmor(characterClass, race);
-    return subjectFactory.createNewSubject(playerName, race, characterClass, PLAYERS,
+    return subjectFactory.createNewSubjectProperties(playerName, race, characterClass, PLAYERS,
         abilities, weapons, armor, shield, spell.map(List::of).orElse(List.of()));
   }
 

@@ -6,6 +6,7 @@ import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,12 +19,14 @@ import static dbryla.game.yetanotherengine.domain.battleground.Position.PLAYERS_
 @AllArgsConstructor
 class PositionService {
 
-  Optional<Action> adjustPosition(Subject source, Subject target, Game game, int minRange, int maxRange) {
-    int distanceToTarget = Math.abs(source.getPosition().getBattlegroundLocation() - target.getPosition().getBattlegroundLocation());
+  Optional<Action> adjustPosition(Subject source, String targetName, Game game, int minRange, int maxRange) {
+    Subject target = game.getSubject(targetName);
+    int distanceToTarget =
+        Math.abs(source.getPosition().getBattlegroundLocation() - target.getPosition().getBattlegroundLocation());
     if (!isTargetInRange(distanceToTarget, minRange, maxRange)) {
       return actionData(source, target, minRange, distanceToTarget, game)
           .or(() -> actionData(source, target, maxRange, distanceToTarget, game))
-          .map(actionData -> new Action(source.getName(), target.getName(), OperationType.MOVE, actionData));
+          .map(actionData -> new Action(source.getName(), targetName, OperationType.MOVE, actionData));
     }
     return Optional.empty();
   }

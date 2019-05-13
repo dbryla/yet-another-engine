@@ -10,7 +10,9 @@ import dbryla.game.yetanotherengine.domain.operations.ActionData;
 import dbryla.game.yetanotherengine.domain.operations.OperationType;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -36,6 +38,7 @@ public class Cli implements CommandLineRunner {
   static final String GAME_OPTION = "game";
   private final ConsolePresenter presenter;
   private final GameFactory gameFactory;
+  private final SubjectFactory subjectFactory;
   private final ConsoleCharacterBuilder consoleCharacterBuilder;
   private final Simulator simulator;
   private final ConsoleInputProvider inputProvider;
@@ -68,8 +71,8 @@ public class Cli implements CommandLineRunner {
     System.out.println("How many players want to join?");
     int playersNumber = inputProvider.cmdLineToOption();
     for (int i = 0; i < playersNumber; i++) {
-      Subject player = consoleCharacterBuilder.createPlayer();
-      game.createPlayerCharacter(player);
+      SubjectProperties player = consoleCharacterBuilder.createPlayer();
+      game.createPlayerCharacter(subjectFactory.createNewSubject(player));
     }
     game.createNonPlayableCharacters(monstersFactory.createEncounter(game.getPlayersNumber()));
     presenter.showStatus(gameId);

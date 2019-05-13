@@ -1,4 +1,4 @@
-package dbryla.game.yetanotherengine.domain.subject.equipment;
+package dbryla.game.yetanotherengine.domain.equipment;
 
 import dbryla.game.yetanotherengine.domain.Range;
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static dbryla.game.yetanotherengine.domain.battleground.Distance.*;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponProperties.*;
-import static dbryla.game.yetanotherengine.domain.subject.equipment.WeaponType.*;
+import static dbryla.game.yetanotherengine.domain.equipment.WeaponProperties.*;
+import static dbryla.game.yetanotherengine.domain.equipment.WeaponType.*;
 
 public enum Weapon implements Range {
 

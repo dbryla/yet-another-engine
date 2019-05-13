@@ -10,8 +10,11 @@ import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Affiliation;
 import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.SubjectFactory;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,25 +48,31 @@ class ArtificialIntelligenceITest {
   @Test
   void shouldAttackCharacterWithinRange() {
     String testSubjectName = "tested-subject";
-    Subject testedSubject = Subject.builder()
+    SubjectProperties testSubjectProperties = SubjectProperties.builder()
         .name(testSubjectName)
         .race(Race.GOBLINOID)
         .affiliation(Affiliation.PLAYERS)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD, Weapon.SHORTBOW))
-        .position(Position.PLAYERS_BACK)
         .healthPoints(10)
         .build();
+    Subject testedSubject =
+        new Subject(testSubjectProperties,
+            new State(testSubjectName, testSubjectProperties.getMaxHealthPoints(),
+                testSubjectProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     String targetName = "target";
-    Subject target = Subject.builder()
+    SubjectProperties targetProperties = SubjectProperties.builder()
         .name(targetName)
         .race(Race.HALF_ORC)
         .affiliation(Affiliation.ENEMIES)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .position(Position.PLAYERS_BACK)
         .healthPoints(10)
         .build();
+    Subject target =
+        new Subject(targetProperties,
+            new State(targetName, targetProperties.getMaxHealthPoints(),
+                targetProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     game.createNonPlayableCharacters(List.of(testedSubject, target));
 
     SubjectTurn turn = artificialIntelligence.action(testSubjectName);
@@ -77,26 +86,31 @@ class ArtificialIntelligenceITest {
   @Test
   void shouldFollowAcquiredTargetIfInMoveAndAttackRange() {
     String testSubjectName = "tested-subject";
-    Subject testedSubject = Subject.builder()
+    SubjectProperties testSubjectProperties = SubjectProperties.builder()
         .name(testSubjectName)
         .race(Race.GOBLINOID)
         .affiliation(Affiliation.PLAYERS)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD, Weapon.SHORTBOW))
-        .equippedWeapon(Weapon.SHORTSWORD)
-        .position(Position.PLAYERS_BACK)
         .healthPoints(10)
         .build();
+    Subject testedSubject =
+        new Subject(testSubjectProperties,
+            new State(testSubjectName, testSubjectProperties.getMaxHealthPoints(),
+                testSubjectProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     String targetName = "target";
-    Subject target = Subject.builder()
+    SubjectProperties targetProperties = SubjectProperties.builder()
         .name(targetName)
         .race(Race.HALF_ORC)
         .affiliation(Affiliation.ENEMIES)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .position(Position.PLAYERS_BACK)
         .healthPoints(10)
         .build();
+    Subject target =
+        new Subject(targetProperties,
+            new State(targetName, targetProperties.getMaxHealthPoints(),
+                targetProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     game.createNonPlayableCharacters(List.of(testedSubject, target));
     artificialIntelligence.action(testSubjectName);
     game.moveSubject(targetName, Position.PLAYERS_FRONT);
@@ -112,25 +126,31 @@ class ArtificialIntelligenceITest {
   @Test
   void shouldUseDifferentThanEquippedWeaponIfCanAttackTargetWithIt() {
     String testSubjectName = "tested-subject";
-    Subject testedSubject = Subject.builder()
+    SubjectProperties testSubjectProperties = SubjectProperties.builder()
         .name(testSubjectName)
         .race(Race.GOBLINOID)
         .affiliation(Affiliation.PLAYERS)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD, Weapon.SHORTBOW))
-        .position(Position.PLAYERS_BACK)
         .healthPoints(10)
         .build();
+    Subject testedSubject =
+        new Subject(testSubjectProperties,
+            new State(testSubjectName, testSubjectProperties.getMaxHealthPoints(),
+                testSubjectProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     String targetName = "target";
-    Subject target = Subject.builder()
+    SubjectProperties targetProperties = SubjectProperties.builder()
         .name(targetName)
         .race(Race.HALF_ORC)
         .affiliation(Affiliation.ENEMIES)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .position(Position.ENEMIES_FRONT)
         .healthPoints(10)
         .build();
+    Subject target =
+        new Subject(targetProperties,
+            new State(targetName, targetProperties.getMaxHealthPoints(),
+                targetProperties.getMaxHealthPoints(), Position.ENEMIES_FRONT, Set.of(), Weapon.SHORTSWORD));
     game.createNonPlayableCharacters(List.of(testedSubject, target));
 
     SubjectTurn turn = artificialIntelligence.action(testSubjectName);
@@ -144,26 +164,31 @@ class ArtificialIntelligenceITest {
   @Test
   void shouldMoveAndAttackTargetIfInMoveAndAttackRange() {
     String testSubjectName = "tested-subject";
-    Subject testedSubject = Subject.builder()
+    SubjectProperties testSubjectProperties = SubjectProperties.builder()
         .name(testSubjectName)
         .race(Race.GOBLINOID)
         .affiliation(Affiliation.PLAYERS)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .equippedWeapon(Weapon.SHORTSWORD)
-        .position(Position.PLAYERS_BACK)
         .healthPoints(10)
         .build();
+    Subject testedSubject =
+        new Subject(testSubjectProperties,
+            new State(testSubjectName, testSubjectProperties.getMaxHealthPoints(),
+                testSubjectProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     String targetName = "target";
-    Subject target = Subject.builder()
+    SubjectProperties targetProperties = SubjectProperties.builder()
         .name(targetName)
         .race(Race.HALF_ORC)
         .affiliation(Affiliation.ENEMIES)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .position(Position.PLAYERS_FRONT)
         .healthPoints(10)
         .build();
+    Subject target =
+        new Subject(targetProperties,
+            new State(targetName, targetProperties.getMaxHealthPoints(),
+                targetProperties.getMaxHealthPoints(), Position.PLAYERS_FRONT, Set.of(), Weapon.SHORTSWORD));
     game.createNonPlayableCharacters(List.of(testedSubject, target));
 
     SubjectTurn turn = artificialIntelligence.action(testSubjectName);
@@ -177,26 +202,31 @@ class ArtificialIntelligenceITest {
   @Test
   void shouldMoveForwardIfNoTargetInMoveAndAttackRange() {
     String testSubjectName = "tested-subject";
-    Subject testedSubject = Subject.builder()
+    SubjectProperties testSubjectProperties = SubjectProperties.builder()
         .name(testSubjectName)
         .race(Race.GOBLINOID)
         .affiliation(Affiliation.PLAYERS)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .equippedWeapon(Weapon.SHORTSWORD)
-        .position(Position.PLAYERS_BACK)
         .healthPoints(10)
         .build();
+    Subject testedSubject =
+        new Subject(testSubjectProperties,
+            new State(testSubjectName, testSubjectProperties.getMaxHealthPoints(),
+                testSubjectProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     String targetName = "target";
-    Subject target = Subject.builder()
+    SubjectProperties targetProperties = SubjectProperties.builder()
         .name(targetName)
         .race(Race.HALF_ORC)
         .affiliation(Affiliation.ENEMIES)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .position(Position.MID)
         .healthPoints(10)
         .build();
+    Subject target =
+        new Subject(targetProperties,
+            new State(targetName, targetProperties.getMaxHealthPoints(),
+                targetProperties.getMaxHealthPoints(), Position.MID, Set.of(), Weapon.SHORTSWORD));
     game.createNonPlayableCharacters(List.of(testedSubject, target));
 
     SubjectTurn turn = artificialIntelligence.action(testSubjectName);
@@ -208,29 +238,34 @@ class ArtificialIntelligenceITest {
   }
 
   @Test
-  void shouldCastSpellIfTargetInRange() {
-    String testSubjectName = "tested-subject";
-    Subject testedSubject = Subject.builder()
+  void shouldCastSpellIfTargetInRange() {String testSubjectName = "tested-subject";
+    SubjectProperties testSubjectProperties = SubjectProperties.builder()
         .name(testSubjectName)
         .race(Race.GOBLINOID)
         .affiliation(Affiliation.PLAYERS)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .equippedWeapon(Weapon.SHORTSWORD)
-        .position(Position.PLAYERS_BACK)
         .spells(List.of(Spell.SACRED_FLAME))
         .healthPoints(10)
         .build();
+    Subject testedSubject =
+        new Subject(testSubjectProperties,
+            new State(testSubjectName, testSubjectProperties.getMaxHealthPoints(),
+                testSubjectProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     String targetName = "target";
-    Subject target = Subject.builder()
+    SubjectProperties targetProperties = SubjectProperties.builder()
         .name(targetName)
         .race(Race.HALF_ORC)
         .affiliation(Affiliation.ENEMIES)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .position(Position.MID)
         .healthPoints(10)
         .build();
+    Subject target =
+        new Subject(targetProperties,
+            new State(targetName, targetProperties.getMaxHealthPoints(),
+                targetProperties.getMaxHealthPoints(), Position.MID, Set.of(), Weapon.SHORTSWORD));
+
     game.createNonPlayableCharacters(List.of(testedSubject, target));
 
     SubjectTurn turn = artificialIntelligence.action(testSubjectName);
@@ -244,27 +279,32 @@ class ArtificialIntelligenceITest {
   @Test
   void shouldReturnTurnWithSpecialAttack() {
     String testSubjectName = "tested-subject";
-    Subject testedSubject = Subject.builder()
+    SubjectProperties testSubjectProperties = SubjectProperties.builder()
         .name(testSubjectName)
         .race(Race.GOBLINOID)
         .affiliation(Affiliation.PLAYERS)
         .abilities(TestData.ABILITIES)
-        .weapons(List.of(Weapon.SHORTSWORD))
-        .equippedWeapon(Weapon.SHORTSWORD)
-        .position(Position.PLAYERS_BACK)
+        .weapons(List.of(Weapon.SHORTSWORD, Weapon.SHORTBOW))
         .specialAttacks(Set.of(SpecialAttack.MULTI_ATTACK))
         .healthPoints(10)
         .build();
+    Subject testedSubject =
+        new Subject(testSubjectProperties,
+            new State(testSubjectName, testSubjectProperties.getMaxHealthPoints(),
+                testSubjectProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     String targetName = "target";
-    Subject target = Subject.builder()
+    SubjectProperties targetProperties = SubjectProperties.builder()
         .name(targetName)
         .race(Race.HALF_ORC)
         .affiliation(Affiliation.ENEMIES)
         .abilities(TestData.ABILITIES)
         .weapons(List.of(Weapon.SHORTSWORD))
-        .position(Position.PLAYERS_BACK)
         .healthPoints(10)
         .build();
+    Subject target =
+        new Subject(targetProperties,
+            new State(targetName, targetProperties.getMaxHealthPoints(),
+                targetProperties.getMaxHealthPoints(), Position.PLAYERS_BACK, Set.of(), Weapon.SHORTSWORD));
     game.createNonPlayableCharacters(List.of(testedSubject, target));
 
     SubjectTurn turn = artificialIntelligence.action(testSubjectName);

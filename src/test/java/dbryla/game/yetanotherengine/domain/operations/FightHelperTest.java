@@ -10,8 +10,10 @@ import dbryla.game.yetanotherengine.domain.effects.FightEffectsMapper;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Condition;
 import dbryla.game.yetanotherengine.domain.subject.Race;
+import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -45,10 +47,12 @@ class FightHelperTest {
 
   @Test
   void shouldReturnHitRollIfNoEffectIsActive() {
-    Subject source = mock(Subject.class);
+    State state = mock(State.class);
+    SubjectProperties subjectProperties = mock(SubjectProperties.class);
+    Subject source = new Subject(subjectProperties, state);
     Subject target = mock(Subject.class);
-    when(source.getConditions()).thenReturn(Set.of());
-    when(source.getRace()).thenReturn(Race.HALF_ELF);
+    when(state.getConditions()).thenReturn(Set.of());
+    when(subjectProperties.getRace()).thenReturn(Race.HALF_ELF);
     when(diceRollService.k20()).thenReturn(13);
 
     HitRoll result = fightHelper.getHitRoll(source, Weapon.SHORTSWORD, target);
@@ -64,9 +68,11 @@ class FightHelperTest {
     FightEffectLogic fightEffectLogic = mock(FightEffectLogic.class);
     when(fightEffectsMapper.getLogic(eq(effect))).thenReturn(fightEffectLogic);
     when(fightEffectLogic.getSourceHitRollModifier()).thenReturn(hitDiceRollModifier);
-    Subject source = mock(Subject.class);
-    when(source.getRace()).thenReturn(Race.HALF_ELF);
-    when(source.getConditions()).thenReturn(Set.of(new Condition(effect, 1)));
+    State state = mock(State.class);
+    SubjectProperties subjectProperties = mock(SubjectProperties.class);
+    Subject source = new Subject(subjectProperties, state);
+    when(subjectProperties.getRace()).thenReturn(Race.HALF_ELF);
+    when(state.getConditions()).thenReturn(Set.of(new Condition(effect, 1)));
     Subject target = mock(Subject.class);
 
     HitRoll result = fightHelper.getHitRoll(source, Weapon.SHORTSWORD, target);
@@ -82,9 +88,11 @@ class FightHelperTest {
     FightEffectLogic fightEffectLogic = mock(FightEffectLogic.class);
     when(fightEffectsMapper.getLogic(eq(effect))).thenReturn(fightEffectLogic);
     when(fightEffectLogic.getTargetHitRollModifier(any())).thenReturn(hitDiceRollModifier);
-    Subject source = mock(Subject.class);
-    when(source.getRace()).thenReturn(Race.HALF_ELF);
-    when(source.getConditions()).thenReturn(Set.of());
+    State state = mock(State.class);
+    SubjectProperties subjectProperties = mock(SubjectProperties.class);
+    Subject source = new Subject(subjectProperties, state);
+    when(subjectProperties.getRace()).thenReturn(Race.HALF_ELF);
+    when(state.getConditions()).thenReturn(Set.of());
     Subject target = mock(Subject.class);
     when(target.getConditions()).thenReturn(Set.of(new Condition(effect, 1)));
 
@@ -105,10 +113,10 @@ class FightHelperTest {
   @Test
   void shouldGetDoubledAttackDamageIfRollTwenty() {
     int attackDamage = 10;
-    Subject source = mock(Subject.class);
-    when(source.getRace()).thenReturn(Race.HUMAN);
+    Subject subject = mock(Subject.class);
+    when(subject.getRace()).thenReturn(Race.HUMAN);
 
-    int result = fightHelper.getAttackDamage(source, () -> attackDamage, HitResult.CRITICAL);
+    int result = fightHelper.getAttackDamage(subject, () -> attackDamage, HitResult.CRITICAL);
 
     assertThat(result).isEqualTo(2 * attackDamage);
   }
@@ -131,13 +139,15 @@ class FightHelperTest {
 
   @Test
   void shouldLeaveOrcWithOneHealthPointWhenReducedToZero() {
-    Subject target = mock(Subject.class);
-    when(target.getRace()).thenReturn(Race.HALF_ORC);
-    when(target.getCurrentHealthPoints()).thenReturn(10);
-    Subject changedTarget = mock(Subject.class);
-    when(target.of(eq(1))).thenReturn(changedTarget);
+    SubjectProperties targetProperties = mock(SubjectProperties.class);
+    State targetState = mock(State.class);
+    Subject target = new Subject(targetProperties, targetState);
+    when(targetProperties.getRace()).thenReturn(Race.HALF_ORC);
+    when(targetState.getCurrentHealthPoints()).thenReturn(10);
+    State changedTarget = mock(State.class);
+    when(targetState.of(eq(1))).thenReturn(changedTarget);
 
-    Optional<Subject> resultTarget = fightHelper.dealDamage(target, 10, DamageType.SLASHING);
+    Optional<State> resultTarget = fightHelper.dealDamage(target, 10, DamageType.SLASHING);
 
     assertThat(resultTarget).isPresent();
     assertThat(resultTarget.get()).isEqualTo(changedTarget);
@@ -146,8 +156,8 @@ class FightHelperTest {
   @Test
   void shouldHadAdvantageAgainstPoisonAttackIfTargetHasAdvantage() {
     Subject target = mock(Subject.class);
-    when(target.getAdvantageOnSavingThrows()).thenReturn(Set.of(POISON));
     when(target.getRace()).thenReturn(Race.HILL_DWARF);
+    when(target.getAdvantageOnSavingThrows()).thenReturn(Set.of(POISON));
     when(target.getAbilities()).thenReturn(TestData.ABILITIES);
 
     fightHelper.getConstitutionSavingThrow(target, Spell.POISON_SPRAY);
@@ -157,14 +167,16 @@ class FightHelperTest {
 
   @Test
   void shouldPoisonDamageBeDividedByHalfIfTargetIsDwarf() {
-    Subject target = mock(Subject.class);
-    when(target.getRace()).thenReturn(Race.HILL_DWARF);
-    when(target.getCurrentHealthPoints()).thenReturn(10);
-    when(target.of(anyInt())).thenReturn(target);
+    SubjectProperties targetProperties = mock(SubjectProperties.class);
+    State targetState = mock(State.class);
+    Subject target = new Subject(targetProperties, targetState);
+    when(targetProperties.getRace()).thenReturn(Race.HILL_DWARF);
+    when(targetState.getCurrentHealthPoints()).thenReturn(10);
+    when(targetState.of(anyInt())).thenReturn(targetState);
 
     fightHelper.dealDamage(target, 10, POISON);
 
-    verify(target).of(5);
+    verify(targetState).of(5);
   }
 
 }

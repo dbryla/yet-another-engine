@@ -3,7 +3,7 @@ package dbryla.game.yetanotherengine.telegram;
 import dbryla.game.yetanotherengine.domain.game.Game;
 import dbryla.game.yetanotherengine.domain.game.GameFactory;
 import dbryla.game.yetanotherengine.domain.subject.AbilityScoresSupplier;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import dbryla.game.yetanotherengine.session.BuildSession;
 import dbryla.game.yetanotherengine.session.FightSession;
 import dbryla.game.yetanotherengine.session.SessionStorage;
@@ -37,8 +37,8 @@ public class SessionFactory {
     return session;
   }
 
-  public FightSession createFightSession(String sessionId, String playerName, Subject subject) {
-    FightSession session = new FightSession(playerName, subject);
+  public FightSession createFightSession(String sessionId, String playerName, SubjectProperties subjectProperties) {
+    FightSession session = new FightSession(playerName, subjectProperties);
     sessionStorage.put(sessionId, session);
     return session;
   }

@@ -2,7 +2,8 @@ package dbryla.game.yetanotherengine.session;
 
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import java.util.LinkedList;
 import java.util.List;
 import lombok.Getter;
@@ -10,35 +11,24 @@ import lombok.Setter;
 import lombok.ToString;
 
 @ToString
+@Getter
 public class FightSession {
 
-  /**
-   * used for regular game
-   */
-  @Getter
-  @Setter
-  private Subject subject;
-  @Getter
+  private final SubjectProperties subjectProperties;
   @Setter
   private boolean spellCasting = false;
-  @Getter
   @Setter
   private boolean isMoving = false;
-  @Getter
   @Setter
   private boolean isStandingUp = false;
-  @Getter
   private String playerName;
-  @Getter
   private Weapon weapon;
-  @Getter
   private Spell spell;
-  @Getter
   private List<String> targets = new LinkedList<>();
 
-  public FightSession(String playerName, Subject subject) {
+  public FightSession(String playerName, SubjectProperties subjectProperties) {
     this.playerName = playerName;
-    this.subject = subject;
+    this.subjectProperties = subjectProperties;
   }
 
   public boolean areAllTargetsAcquired() {

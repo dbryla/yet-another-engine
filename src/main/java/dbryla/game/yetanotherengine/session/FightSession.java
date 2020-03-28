@@ -1,14 +1,14 @@
 package dbryla.game.yetanotherengine.session;
 
-import dbryla.game.yetanotherengine.domain.spells.Spell;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.equipment.Weapon;
+import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
-import java.util.LinkedList;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @ToString
 @Getter
@@ -23,6 +23,7 @@ public class FightSession {
   private boolean isStandingUp = false;
   private String playerName;
   private Weapon weapon;
+  @Setter
   private Spell spell;
   private List<String> targets = new LinkedList<>();
 
@@ -43,10 +44,6 @@ public class FightSession {
 
   public void addTarget(String target) {
     targets.add(target);
-  }
-
-  public void setSpell(String spell) {
-    this.spell = Spell.valueOf(spell);
   }
 
   public void setWeapon(String weapon) {

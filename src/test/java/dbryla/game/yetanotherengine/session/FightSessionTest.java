@@ -1,9 +1,9 @@
 package dbryla.game.yetanotherengine.session;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import dbryla.game.yetanotherengine.domain.spells.Spell;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class FightSessionTest {
 
@@ -42,7 +42,7 @@ class FightSessionTest {
   @Test
   void shouldReturnTrueIfAllTargetsForSpellAreAcquired() {
     FightSession session = new FightSession(null, null);
-    session.setSpell(Spell.FIRE_BOLT.name());
+    session.setSpell(Spell.FIRE_BOLT);
 
     session.addTarget("target-one");
 
@@ -52,7 +52,7 @@ class FightSessionTest {
   @Test
   void shouldReturnFalseIfAllTargetsForSpellAreNotAcquired() {
     FightSession session = new FightSession(null, null);
-    session.setSpell(Spell.BLESS.name());
+    session.setSpell(Spell.BLESS);
 
     session.addTarget("target-one");
 

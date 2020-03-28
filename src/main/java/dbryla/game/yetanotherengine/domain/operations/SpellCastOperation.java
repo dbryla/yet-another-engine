@@ -7,7 +7,6 @@ import dbryla.game.yetanotherengine.domain.spells.Spell;
 import dbryla.game.yetanotherengine.domain.spells.SpellSaveType;
 import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -153,7 +152,7 @@ public class SpellCastOperation implements Operation {
   }
 
   private OperationResult applyEffect(Subject source, Spell spell, Subject target) {
-    State changedTarget = target.withCondition(spell.cast());
+    State changedTarget = target.withCondition(spell.cast()).getState();
     Event event = eventFactory.successSpellCastEvent(source, changedTarget, spell);
     return new OperationResult(changedTarget, event);
   }

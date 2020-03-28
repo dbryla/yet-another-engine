@@ -1,7 +1,6 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
-
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -19,9 +18,14 @@ public class EffectConsumer {
           if (activeEffect.getDurationInTurns() > 0) {
             activeEffect.decreaseDuration();
             if (activeEffect.getDurationInTurns() == 0) {
-              operationResult.add(
-                  source.withoutEffect(activeEffect.getEffect()),
-                  eventFactory.effectExpiredEvent(source, activeEffect.getEffect()));
+              var effect = activeEffect.getEffect();
+              if (effect.isVisible()) {
+                operationResult.add(
+                    source.withoutEffect(effect).getState(),
+                    eventFactory.effectExpiredEvent(source, effect));
+              } else {
+                operationResult.add(source.withoutEffect(effect).getState());
+              }
             }
           }
         }

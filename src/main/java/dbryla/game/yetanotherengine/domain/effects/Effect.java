@@ -1,9 +1,8 @@
 package dbryla.game.yetanotherengine.domain.effects;
 
 import dbryla.game.yetanotherengine.domain.subject.Condition;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@AllArgsConstructor
 public enum Effect {
   BLESSED,
 
@@ -14,18 +13,26 @@ public enum Effect {
 
   LUCKY, RELENTLESS_ENDURANCE, SAVAGE_ATTACK,
 
-  MULTI_ATTACK;
+  MULTI_ATTACK(false);
+
+  @Getter
+  private final boolean visible;
+
+  Effect() {
+    visible = true;
+  }
+
+  Effect(boolean visible) {
+    this.visible = visible;
+  }
 
   public Condition activate(int durationInTurns) {
     return new Condition(this, durationInTurns);
-  }
-
-  public Condition activate(String source, int durationInTurns) {
-    return new Condition(this, durationInTurns, source);
   }
 
   @Override
   public String toString() {
     return super.toString().toLowerCase().replace("_", " ");
   }
+
 }

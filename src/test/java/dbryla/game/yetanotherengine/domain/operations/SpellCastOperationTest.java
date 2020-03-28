@@ -60,12 +60,14 @@ class SpellCastOperationTest {
   @Test
   void shouldInvokeEffectSpell() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
-    State changedTarget = mock(State.class);
+    var changedTarget = mock(Subject.class);
+    var changedState = mock(State.class);
+    when(changedTarget.getState()).thenReturn(changedState);
     when(target.withCondition(any(Condition.class))).thenReturn(changedTarget);
 
     OperationResult operationResult = spellCastOperation.invoke(source, actionData, target);
 
-    assertThat(operationResult.getChangedSubjects()).contains(changedTarget);
+    assertThat(operationResult.getChangedSubjects()).contains(changedState);
   }
 
   @Test
@@ -88,21 +90,24 @@ class SpellCastOperationTest {
   @Test
   void shouldNotGetHitRollIfSpellIsTypeOfIrresistible() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
+    when(target.withCondition(any())).thenReturn(target);
 
     spellCastOperation.invoke(source, actionData, target);
 
-    verifyZeroInteractions(fightHelper);
+    verifyNoInteractions(fightHelper);
   }
 
   @Test
   void shouldCreateEventOnSuccessfulSpellCast() throws UnsupportedGameOperationException {
     ActionData actionData = new ActionData(Spell.COLOR_SPRAY);
-    State changedTarget = mock(State.class);
+    var changedTarget = mock(Subject.class);
+    var changedState = mock(State.class);
+    when(changedTarget.getState()).thenReturn(changedState);
     when(target.withCondition(any(Condition.class))).thenReturn(changedTarget);
 
     spellCastOperation.invoke(source, actionData, target);
 
-    verify(eventFactory).successSpellCastEvent(any(), eq(changedTarget), eq(Spell.COLOR_SPRAY));
+    verify(eventFactory).successSpellCastEvent(any(), eq(changedState), eq(Spell.COLOR_SPRAY));
   }
 
   @Test

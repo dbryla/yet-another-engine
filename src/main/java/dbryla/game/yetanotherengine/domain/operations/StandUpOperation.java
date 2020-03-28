@@ -16,7 +16,7 @@ public class StandUpOperation implements Operation {
   @Override
   public OperationResult invoke(Subject source, ActionData actionData, Subject... targets) throws UnsupportedGameOperationException {
     verifyParams(source);
-    State changedSubject = source.withoutEffect(Effect.PRONE);
+    State changedSubject = source.withoutEffect(Effect.PRONE).getState();
     return new OperationResult(changedSubject, eventFactory.standUpEvent(source));
   }
 

@@ -1,27 +1,24 @@
 package dbryla.game.yetanotherengine.domain.subject;
 
-import static dbryla.game.yetanotherengine.domain.effects.Effect.PARALYZED;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.PETRIFIED;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.PRONE;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.RESTRAINED;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.STUNNED;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.UNCONSCIOUS;
-
 import dbryla.game.yetanotherengine.domain.battleground.Position;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.encounters.SpecialAttack;
 import dbryla.game.yetanotherengine.domain.equipment.Equipment;
 import dbryla.game.yetanotherengine.domain.equipment.Weapon;
 import dbryla.game.yetanotherengine.domain.spells.Spell;
-import java.util.Collection;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import java.util.List;
 import java.util.Set;
-import lombok.AllArgsConstructor;
+
+import static dbryla.game.yetanotherengine.domain.effects.Effect.*;
 
 @AllArgsConstructor
 public class Subject {
 
   private final SubjectProperties subjectProperties;
+  @Getter
   private State state;
 
   private static final Set<Effect> INCAPACITATED = Set.of(Effect.INCAPACITATED, PARALYZED, PETRIFIED, STUNNED, UNCONSCIOUS);
@@ -60,16 +57,14 @@ public class Subject {
     return state.of(position);
   }
 
-  public State withoutEffect(Effect effect) {
-    State newState = state.effectExpired(effect);
-    this.state = newState;
-    return newState;
+  public Subject withoutEffect(Effect effect) {
+    this.state = state.effectExpired(effect);
+    return this;
   }
 
-  public State withCondition(Condition condition) {
-    State newState = state.of(condition);
-    this.state = newState;
-    return newState;
+  public Subject withCondition(Condition condition) {
+    this.state = state.of(condition);
+    return this;
   }
 
   public int getArmorClass() {

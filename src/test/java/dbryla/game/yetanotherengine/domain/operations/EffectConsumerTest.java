@@ -4,9 +4,7 @@ import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.subject.Condition;
-import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -55,7 +53,7 @@ class EffectConsumerTest {
     Condition condition = Effect.BLINDED.activate(1);
     Subject subject = mock(Subject.class);
     when(subject.getConditions()).thenReturn(Set.of(condition));
-    when(subject.withoutEffect(eq(Effect.BLINDED))).thenReturn(mock(State.class));
+    when(subject.withoutEffect(eq(Effect.BLINDED))).thenReturn(mock(Subject.class));
     when(eventFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
     OperationResult operationResult = effectConsumer.apply(subject);
@@ -68,7 +66,7 @@ class EffectConsumerTest {
     Condition condition = Effect.BLINDED.activate(1);
     Subject subject = mock(Subject.class);
     when(subject.getConditions()).thenReturn(Set.of(condition));
-    when(subject.withoutEffect(eq(Effect.BLINDED))).thenReturn(mock(State.class));
+    when(subject.withoutEffect(eq(Effect.BLINDED))).thenReturn(mock(Subject.class));
     when(eventFactory.effectExpiredEvent(any(), any())).thenReturn(new Event(""));
 
     effectConsumer.apply(subject);

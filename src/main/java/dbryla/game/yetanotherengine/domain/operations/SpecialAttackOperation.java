@@ -39,15 +39,15 @@ public class SpecialAttackOperation implements Operation {
     if (!operationResult.getChangedSubjects().isEmpty() && operationResult.getChangedSubjects().get(0).getCurrentHealthPoints() <= 0) {
       return operationResult;
     }
-    operationResult.copyFrom(
-        attackOperation.invoke(source.of(source.withCondition(Effect.MULTI_ATTACK.activate(1))), attackData, target));
+    operationResult.merge(
+        attackOperation.invoke(source.withCondition(Effect.MULTI_ATTACK.activate(1)), attackData, target));
     return operationResult;
   }
 
   private OperationResult handlePounce(Subject source, Subject target, ActionData actionData) throws UnsupportedGameOperationException {
     OperationResult operationResult = moveOperation.invoke(source, new ActionData(target.getPosition()));
     State movedSource = operationResult.getChangedSubjects().get(0);
-    operationResult.copyFrom(
+    operationResult.merge(
         attackOperation.invoke(source.of(movedSource), actionData.getSpecialAttack().getNestedActionData().get(0), target));
     if (!operationResult.getChangedSubjects().isEmpty()) {
       State changedTargetState = operationResult.getChangedSubjects().get(0);
@@ -58,7 +58,7 @@ public class SpecialAttackOperation implements Operation {
       if (savingThrow < 12) {
         changedTargetState = changedTargetState.of(PRONE.activate(FOREVER));
         operationResult.add(changedTargetState, eventFactory.successKnockedProneEvent(source, target));
-        operationResult.copyFrom(
+        operationResult.merge(
             attackOperation.invoke(source, actionData.getSpecialAttack().getNestedActionData().get(1), target.of(changedTargetState)));
       }
     }

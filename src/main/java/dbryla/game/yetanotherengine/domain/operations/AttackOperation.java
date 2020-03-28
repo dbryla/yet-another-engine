@@ -1,10 +1,5 @@
 package dbryla.game.yetanotherengine.domain.operations;
 
-import static dbryla.game.yetanotherengine.domain.effects.Effect.PARALYZED;
-import static dbryla.game.yetanotherengine.domain.effects.Effect.UNCONSCIOUS;
-import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.ROGUE;
-import static dbryla.game.yetanotherengine.domain.subject.Race.BEAST;
-
 import dbryla.game.yetanotherengine.domain.dice.DiceRollService;
 import dbryla.game.yetanotherengine.domain.effects.Effect;
 import dbryla.game.yetanotherengine.domain.equipment.Weapon;
@@ -12,10 +7,16 @@ import dbryla.game.yetanotherengine.domain.events.EventFactory;
 import dbryla.game.yetanotherengine.domain.subject.Abilities;
 import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
-import java.util.Optional;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+import java.util.Set;
+
+import static dbryla.game.yetanotherengine.domain.effects.Effect.PARALYZED;
+import static dbryla.game.yetanotherengine.domain.effects.Effect.UNCONSCIOUS;
+import static dbryla.game.yetanotherengine.domain.subject.CharacterClass.ROGUE;
+import static dbryla.game.yetanotherengine.domain.subject.Race.BEAST;
 
 @AllArgsConstructor
 @Component
@@ -45,8 +46,10 @@ public class AttackOperation implements Operation {
         attackDamage = 1;
       }
       fightHelper.dealDamage(target, attackDamage, weapon.getDamageType())
-          .ifPresentOrElse(changedTarget -> operationResult
-                  .add(changedTarget, eventFactory.successAttackEvent(source, changedTarget, weapon, hitResult)),
+          .ifPresentOrElse(
+              changedTarget ->
+                  operationResult
+                      .add(changedTarget, eventFactory.successAttackEvent(source, changedTarget, weapon, hitResult)),
               () -> operationResult.add(eventFactory.targetImmuneEvent(source, target, weapon)));
     }
     return operationResult;

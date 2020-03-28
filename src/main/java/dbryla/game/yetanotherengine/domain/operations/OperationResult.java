@@ -2,11 +2,11 @@ package dbryla.game.yetanotherengine.domain.operations;
 
 import dbryla.game.yetanotherengine.domain.events.Event;
 import dbryla.game.yetanotherengine.domain.subject.State;
-import dbryla.game.yetanotherengine.domain.subject.Subject;
-import java.util.LinkedList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -42,7 +42,11 @@ public class OperationResult {
     this.emittedEvents.add(event);
   }
 
-  public void copyFrom(OperationResult operationResult) {
+  public void add(State changedSubject) {
+
+  }
+
+  public void merge(OperationResult operationResult) {
     addAll(operationResult.getChangedSubjects(), operationResult.getEmittedEvents());
   }
 }

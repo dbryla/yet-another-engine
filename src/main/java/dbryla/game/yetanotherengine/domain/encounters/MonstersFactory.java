@@ -5,14 +5,10 @@ import dbryla.game.yetanotherengine.domain.subject.Race;
 import dbryla.game.yetanotherengine.domain.subject.State;
 import dbryla.game.yetanotherengine.domain.subject.Subject;
 import dbryla.game.yetanotherengine.domain.subject.SubjectProperties;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -44,7 +40,7 @@ public class MonstersFactory {
       }
     } else {
       for (int i = 0; i < monstersNumber; ++i) {
-        monsters.add(buildMonster(monsterDefinition, getMonsterName(monsterDefinition, i, monstersNumber), monsterRace));
+        monsters.add(buildMonster(monsterDefinition, getMonsterName(monsterDefinition, monstersNumber), monsterRace));
       }
     }
     return monsters;
@@ -87,11 +83,11 @@ public class MonstersFactory {
     return new Subject(subjectProperties, state);
   }
 
-  private String getMonsterName(MonsterDefinition monsterDefinition, int i, int monstersNumber) {
+  private String getMonsterName(MonsterDefinition monsterDefinition, int monstersNumber) {
     if (monstersNumber == 1) {
       return monsterDefinition.getDefaultName();
     }
-    return monstersNames.getModifiers(monsterDefinition.getMonsterRace()).get(i) + " " + monsterDefinition.getDefaultName();
+    return getRandomElement(monstersNames.getModifiers(monsterDefinition.getMonsterRace())) + " " + monsterDefinition.getDefaultName();
   }
 
   private int getMonstersNumber(int playersNumber, double challengeRating) {
